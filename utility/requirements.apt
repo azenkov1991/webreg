@@ -1,0 +1,9 @@
+##basic build dependencies of various Django apps for fedora24
+gcc
+redhat-rpm-config
+python3-devel
+
+##Postgresql and psycopg2 dependencies
+postgresql-devel
+
+

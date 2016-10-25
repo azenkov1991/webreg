@@ -1,0 +1,122 @@
+# -*- coding: utf-8 -*-
+import re
+from functools import reduce
+try:
+    from .cachequery import *
+    from .qmsqueriesnames import QMS_QUERIES
+except SystemError:
+    from cachequery import *
+    from qmsqueriesnames import QMS_QUERIES
+
+ODBC = 1
+SOAP = 2
+
+
+class QMS:
+    def __init__(self, cache_settings, logger, connection_mode=ODBC):
+        if connection_mode == ODBC:
+            self.query = CacheODBCQuery(cache_settings['CONNECTION_PARAM'],
+                                        QMS_QUERIES, logger,
+                                        cache_settings['CACHE_CODING'])
+        elif connection_mode == SOAP:
+            self.query = CacheSOAPQuery(cache_settings['CONNECTION_PARAM'],
+                                        QMS_QUERIES, logger,
+                                        cache_settings['CACHE_CODING'])
+        else:
+            self.query = CacheODBCQuery(cache_settings['CONNECTION_PARAM'],
+                                        QMS_QUERIES, logger,
+                                        cache_settings['CACHE_CODING'])
+        self.DATABASE_CODE = cache_settings['DATABASE_CODE']
+
+    def get_patient_information(self, **kwargs):
+        """
+        Именованые параметры:
+            birth_date в формате ГГГГММДД
+            first_name
+            last_name
+            patronymic
+            polis_number
+            polis_seria
+        Возвращает словарь или None если пациента не найдено
+        """
+        # проверка аргументов ФИО + Дата рождения либо номер полиса + дата рождения
+        # либо ид пациента
+
+        if not (reduce(lambda res, element: res and element in kwargs,
+                ('birth_date', 'first_name', 'last_name', 'patronymic'), True) or
+                reduce(lambda res, element: res and element in kwargs,
+                ('birth_date', 'polis_number'), True) or
+                'patient_id' in kwargs):
+            raise ValueError('Wrong arguments')
+        result = {}
+        if 'patient_id' in kwargs:
+            self.query.execute_query('PatientDetail', kwargs['patient_id'])
+            query_result = self.query.fetch_all()[0]
+            if query_result[0] == "" or query_result[0] is None:
+                return None
+            columns = self.query.get_columns()
+            query_result = dict(zip(columns, query_result))
+            for (k1, k2) in zip(['first_name', 'last_name', 'patronymic', 'birth_date', 'address_reg', 'address_liv'],
+                                ['pF', 'pG', 'pH', 'birthDate', 'AddressReg', 'AddressLiv']):
+                result[k1] = query_result[k2]
+
+        else:
+            self.query.execute_query('SearchPatient', self.DATABASE_CODE, str(1), kwargs.get('polis_seria', ""),
+                                     kwargs.get('polis_number', ""), kwargs.get('birth_date', ""),
+                                     kwargs.get('first_name', ""), kwargs.get('last_name', ""),
+                                     kwargs.get('patronymic', ""))
+            query_result = self.query.fetch_all()[0]
+            if query_result[0] != u'OK':
+                return None
+            print(query_result[1])
+            columns = self.query.get_columns()
+            query_result = dict(zip(columns, query_result))
+            for (k1, k2) in zip(['birth_date', 'address_reg', 'address_liv'],
+                                ['BirthDate', 'AddressReg', 'AddressLiv']):
+                result[k1] = query_result[k2]
+            fio = query_result['fio'].split("_")
+            result['first_name'] = fio[0]
+            result['last_name'] = fio[1]
+            result['patronymic'] = fio[2]
+        polisstr = query_result['polis']
+        result['polis_number'] = re.findall(u"№ (\d*)", polisstr)[0]
+        result['polis_seria'] = re.findall(u"Серия (\d*)", polisstr)[0]
+
+        return result
+
+    def get_patient_id(self, **kwargs):
+        """
+        Именованые параметры:
+            birth_date в формате ГГГГММДД
+            first_name
+            last_name
+            patronymic
+            polis_number
+            polis_seria
+        Возвращает словарь или None если пациента не найдено
+        """
+        # проверка аргументов ФИО + Дата рождения либо номер полиса + дата рождения
+        # либо ид пациента
+
+        if not (reduce(lambda res, element: res and element in kwargs,
+                ('birth_date', 'first_name', 'last_name', 'patronymic'), True) or
+                reduce(lambda res, element: res and element in kwargs,
+                ('birth_date', 'polis_number'), True) or
+                'patient_id' in kwargs):
+            raise ValueError('Wrong arguments')
+        self.query.execute_query('SearchPatient', self.DATABASE_CODE, 0, kwargs.get('polis_seria', ""),
+                                 kwargs.get('polis_number', ""), kwargs.get('birth_date', ""),
+                                 kwargs.get('first_name', ""), kwargs.get('last_name', ""),
+                                 kwargs.get('patronymic', ""))
+        result = self.query.fetch_all()[0]
+        if result[0] != u'OK':
+                return None
+        return result[3]
+
+    def avail_spec(self, specialist_code):
+        self.query.execute_query('AvailSpec', self.DATABASE_CODE, specialist_code)
+        return self.query.get_proxy_objects_list()
+
+    def get_all_doctors(self, department_code=None):
+        self.query.execute_query("GetAllDoctors", self.DATABASE_CODE, department_code)
+        return self.query.get_proxy_objects_list()

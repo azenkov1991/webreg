@@ -1,0 +1,4 @@
+Django==1.10.2
+psycopg2==2.6.2
+suds-jurko==0.6
+Unipath==1.1
