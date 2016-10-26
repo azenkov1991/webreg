@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 ]
 
 LOCAL_APPS = (
+    'main',
 )
 
 MIDDLEWARE = [
@@ -116,5 +117,8 @@ STATIC_URL = '/static/'
 
 for item in LOCAL_APPS:
     INSTALLED_APPS += (item, )
-    TEMPLATE_DIRS += (Path(BASE_DIR, item, 'templates'), )
     STATICFILES_DIRS += ((item, Path(BASE_DIR, item, 'static')), )
+
+# DATABASE_ROUTERS = ['main.db_router.LogRouter']
+
+
