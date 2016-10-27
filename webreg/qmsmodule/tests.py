@@ -23,18 +23,8 @@ GOOD_CACHE_SETTINGS = {
         }
 
 
-def parse_options():
-    parser = OptionParser()
-    parser.add_option("--folder", dest="folder", action="store", help="foldername", default=False)
-    parser.add_option("--filename", dest="filename", action="store", help="filename", default=False)
-    return parser.parse_args()
-
-
 def main():
-    options, args = parse_options()
-    assert options.folder and options.filename
-    logger = set_logger_settings(options.folder, options.filename)
-    qms = QMS(GOOD_CACHE_SETTINGS, logger, 1)
+    qms = QMS(GOOD_CACHE_SETTINGS, 1)
     doctors = qms.get_all_doctors(u'СПЕЦ2')
     for doc in doctors:
         print(doc.qqc244, doc.specialization, doc.firstName, doc.lastName, doc.patronymic, doc.IsActive)

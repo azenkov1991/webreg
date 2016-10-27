@@ -18,28 +18,16 @@ class ProxyObject(dict):
         self.__dict__ = self
 
 
-# logging.basicConfig(format='%(levelname)s: %(asctime)s  %(message)s', level=logging.DEBUG,filename=__name__+".log")
-def set_logger_settings(foldername, filename, extension='log', loglevel=logging.DEBUG):
-    fullname = '{0}-{1}.{2}'.format(join(foldername, filename), date.today().strftime('%d-%m-%Y'), extension)
-    logger = logging.getLogger(filename)
-    fh = logging.FileHandler(fullname)
-    formatter = logging.Formatter('%(levelname)s: %(asctime)s  %(message)s')
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
-    logger.setLevel(loglevel)
-    return logger
-
-
 class CacheSOAPQuery:
     """
     Класс выполняющий запросы к базе данных через SOAP
         Если произошла ошибка выбрасывает исключение CacheQueryError
     """
-    def __init__(self, connection_param, queries, logger, cache_coding='cp1251', always_new_connect=False):
+    def __init__(self, connection_param, queries, cache_coding='cp1251', always_new_connect=False):
         self.user = connection_param.get("user", "_SYSTEM")
         self.password = connection_param.get("password", "_SYS")
         self.queries = queries
-        self.logger = logger
+        self.logger = logging.getLogger("cachequery")
         # 'http://10.1.100.5:57772/csp/skcqms/DeepSeeExtract.Query.cls?wsdl'
         self.connection_string = 'http://' + connection_param['host'] + ':' + \
                                  connection_param['wsdl_port'] + '/csp/' + \
@@ -147,7 +135,7 @@ class CacheODBCQuery:
     Класс выполняющий запросы к базе данных по ODBC.
     Если произошла ошибка выбрасывает исключение CacheQueryError
     """
-    def __init__(self, connection_param, queries, logger, cache_coding='cp1251', always_new_connect=False):
+    def __init__(self, connection_param, queries, cache_coding='cp1251', always_new_connect=False):
         """
         connection_param - словарь настроек
                ключи: user,password,host,port,wsdl_port
@@ -166,7 +154,7 @@ class CacheODBCQuery:
         self.port = connection_param.get("port", 1972)
         self.namespace = connection_param.get("namespace", "USER")
         self.queries = queries
-        self.logger = logger
+        self.logger = logging.getLogger("cachequery")
         self.cache_coding = cache_coding
         self.always_new_connect = always_new_connect
         self.url = self.host + "[" + self.port + "]:" + self.namespace

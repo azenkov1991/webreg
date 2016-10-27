@@ -13,18 +13,18 @@ SOAP = 2
 
 
 class QMS:
-    def __init__(self, cache_settings, logger, connection_mode=ODBC):
+    def __init__(self, cache_settings, connection_mode=ODBC):
         if connection_mode == ODBC:
             self.query = CacheODBCQuery(cache_settings['CONNECTION_PARAM'],
-                                        QMS_QUERIES, logger,
+                                        QMS_QUERIES,
                                         cache_settings['CACHE_CODING'])
         elif connection_mode == SOAP:
             self.query = CacheSOAPQuery(cache_settings['CONNECTION_PARAM'],
-                                        QMS_QUERIES, logger,
+                                        QMS_QUERIES,
                                         cache_settings['CACHE_CODING'])
         else:
             self.query = CacheODBCQuery(cache_settings['CONNECTION_PARAM'],
-                                        QMS_QUERIES, logger,
+                                        QMS_QUERIES,
                                         cache_settings['CACHE_CODING'])
         self.DATABASE_CODE = cache_settings['DATABASE_CODE']
 
@@ -34,7 +34,7 @@ class QMS:
             birth_date в формате ГГГГММДД
             first_name
             last_name
-            patronymic
+            middle_name
             polis_number
             polis_seria
         Возвращает словарь или None если пациента не найдено
@@ -43,7 +43,7 @@ class QMS:
         # либо ид пациента
 
         if not (reduce(lambda res, element: res and element in kwargs,
-                ('birth_date', 'first_name', 'last_name', 'patronymic'), True) or
+                ('birth_date', 'first_name', 'last_name', 'middle_name'), True) or
                 reduce(lambda res, element: res and element in kwargs,
                 ('birth_date', 'polis_number'), True) or
                 'patient_id' in kwargs):
@@ -56,7 +56,7 @@ class QMS:
                 return None
             columns = self.query.get_columns()
             query_result = dict(zip(columns, query_result))
-            for (k1, k2) in zip(['first_name', 'last_name', 'patronymic', 'birth_date', 'address_reg', 'address_liv'],
+            for (k1, k2) in zip(['first_name', 'last_name', 'middle_name', 'birth_date', 'address_reg', 'address_liv'],
                                 ['pF', 'pG', 'pH', 'birthDate', 'AddressReg', 'AddressLiv']):
                 result[k1] = query_result[k2]
 
@@ -64,7 +64,7 @@ class QMS:
             self.query.execute_query('SearchPatient', self.DATABASE_CODE, str(1), kwargs.get('polis_seria', ""),
                                      kwargs.get('polis_number', ""), kwargs.get('birth_date', ""),
                                      kwargs.get('first_name', ""), kwargs.get('last_name', ""),
-                                     kwargs.get('patronymic', ""))
+                                     kwargs.get('middle_name', ""))
             query_result = self.query.fetch_all()[0]
             if query_result[0] != u'OK':
                 return None
@@ -77,7 +77,7 @@ class QMS:
             fio = query_result['fio'].split("_")
             result['first_name'] = fio[0]
             result['last_name'] = fio[1]
-            result['patronymic'] = fio[2]
+            result['middle_name'] = fio[2]
         polisstr = query_result['polis']
         result['polis_number'] = re.findall(u"№ (\d*)", polisstr)[0]
         result['polis_seria'] = re.findall(u"Серия (\d*)", polisstr)[0]
@@ -90,16 +90,16 @@ class QMS:
             birth_date в формате ГГГГММДД
             first_name
             last_name
-            patronymic
+            middle_name
             polis_number
             polis_seria
-        Возвращает словарь или None если пациента не найдено
+        Возвращает словарь или None если пациент не найдено
         """
         # проверка аргументов ФИО + Дата рождения либо номер полиса + дата рождения
         # либо ид пациента
 
         if not (reduce(lambda res, element: res and element in kwargs,
-                ('birth_date', 'first_name', 'last_name', 'patronymic'), True) or
+                ('birth_date', 'first_name', 'last_name', 'middle_name'), True) or
                 reduce(lambda res, element: res and element in kwargs,
                 ('birth_date', 'polis_number'), True) or
                 'patient_id' in kwargs):
@@ -107,7 +107,7 @@ class QMS:
         self.query.execute_query('SearchPatient', self.DATABASE_CODE, 0, kwargs.get('polis_seria', ""),
                                  kwargs.get('polis_number', ""), kwargs.get('birth_date', ""),
                                  kwargs.get('first_name', ""), kwargs.get('last_name', ""),
-                                 kwargs.get('patronymic', ""))
+                                 kwargs.get('middle_name', ""))
         result = self.query.fetch_all()[0]
         if result[0] != u'OK':
                 return None

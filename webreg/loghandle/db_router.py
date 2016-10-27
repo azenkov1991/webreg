@@ -7,7 +7,7 @@ class LogRouter(object):
         """
         Attempts to read auth models go to auth_db.
         """
-        if model.__name__ == 'LogModel':
+        if model._meta.app_label == 'loghandle':
             return 'log_db'
         return None
 
@@ -15,11 +15,22 @@ class LogRouter(object):
         """
         Attempts to write auth models go to auth_db.
         """
-        if model.__name__ == 'LogModel':
+        if model._meta.app_label == 'loghandle':
             return 'log_db'
         return None
 
+    def allow_relation(self, obj1, obj2, **hints):
+        """
+        Allow relations if a model in the auth app is involved.
+        """
+        if obj1._meta.app_label == 'loghandle' or \
+           obj2._meta.app_label == 'loghandle':
+           return True
+        return None
+
     def allow_migrate(self, db, app_label, model_name=None, **hints):
-        if model_name == 'LogModel':
+        if app_label == 'loghandle':
+            if db == 'log_db':
+                print(app_label + db)
             return db == 'log_db'
         return None

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 ]
 
 LOCAL_APPS = (
+    'loghandle',
     'main',
 )
 
@@ -119,6 +120,6 @@ for item in LOCAL_APPS:
     INSTALLED_APPS += (item, )
     STATICFILES_DIRS += ((item, Path(BASE_DIR, item, 'static')), )
 
-# DATABASE_ROUTERS = ['main.db_router.LogRouter']
+DATABASE_ROUTERS = ['loghandle.db_router.LogRouter']
 
 
