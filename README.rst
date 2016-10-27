@@ -38,7 +38,7 @@ Deployment
 
     $ sudo utility/install_python_dependencies.sh
 
-4.  Скопировать secrets_example.json в secrets.json. Заполить конфиги.
+4.  Скопировать secrets_example.json в secrets.json. Заполнить конфиги.
 
 Setting Up Your Users
 ^^^^^^^^^^^^^^^^^^^^^
@@ -46,10 +46,3 @@ Setting Up Your Users
 * Создать суперюзера:
 
     $ python manage.py createsuperuser --settings=config.settings.local.py
-
-
-
-
-
-
-
