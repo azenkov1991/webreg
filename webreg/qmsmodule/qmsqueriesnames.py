@@ -47,4 +47,8 @@ QMS_QUERIES = {
                             'class': 'User.QueryCatalog',
                             'query': 'OKMU'
                 },
+                'LoadMKB': {
+                            'class': 'User.QueryCatalog',
+                            'query': 'MKB'
+                }
     }

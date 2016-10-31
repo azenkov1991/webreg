@@ -1,9 +1,9 @@
 try:
-    from .default import *
-except SystemError:
+    from .local import *
+except:
     try:
         from .production import *
-    except SystemError:
+    except:
         from .default import *
 
 

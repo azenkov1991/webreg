@@ -2,7 +2,6 @@
 from qmsmodule.qmsfunctions import *
 from catalogs.models import OKMUService
 from django.core.management.base import BaseCommand, CommandError
-from clinicconf.models import Clinic
 from optparse import make_option
 from django.conf import settings
 
@@ -28,7 +27,7 @@ class Command(BaseCommand):
         """
         Загрузка справочников ОКМУ из qms
         """
-        qms = QMS(cache_settings, set_logger_settings(join(settings.STATIC_LOG_ROOT, 'log'), 'loadservices'))
+        qms = QMS(cache_settings, 'loadservices'))
         query = qms.query
 
         for level in range(1, 5):
