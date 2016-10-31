@@ -46,3 +46,16 @@ class Command(BaseCommand):
                         else:
                             service.parent = parent_service
                     service.save()
+
+
+def load_mkb(self, cache_settings):
+    query = QMS(cache_settings, set_logger_settings(join(settings.STATIC_LOG_ROOT, 'log'), 'loadservices')).query
+    for level in range(1, 5):
+        query.execute_query('LoadMKB', cache_settings['DATABASE_CODE'], level)
+        for service_fields_list in query.results():
+            code = service_fields_list[0]
+            name = service_fields_list[1]
+            is_finished = (level >= 4)
+            if code is not None and name is not None:
+                service = OKMUService(code=code, name=name)
+                service.save()
