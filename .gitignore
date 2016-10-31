@@ -64,3 +64,5 @@ django_project_root/media/
 staticfiles/
 
 webreg/config/secrets.json
+.gitignore
+default.py
