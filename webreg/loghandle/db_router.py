@@ -3,7 +3,7 @@ class LogRouter(object):
     A router to control all database operations on models in the
     auth application.
     """
-    def db_for_read(self, model, **hints):
+    def db_for_read(slf, model, **hints):
         """
         Attempts to read auth models go to auth_db.
         """
@@ -30,7 +30,5 @@ class LogRouter(object):
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         if app_label == 'loghandle':
-            if db == 'log_db':
-                print(app_label + db)
             return db == 'log_db'
         return None

@@ -45,4 +45,6 @@ Setting Up Your Users
 
 * Создать суперюзера:
 
+
     $ python manage.py createsuperuser --settings=config.settings.local.py
+
