@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from qmsmodule.qmsfunctions import *
-from catalogs.models import OKMUService
+from catalogs.models import *
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
 from django.conf import settings
@@ -27,6 +27,7 @@ class Command(BaseCommand):
         """
         Загрузка справочников ОКМУ из qms
         """
+
         qms = QMS(cache_settings)
         query = qms.query
 
@@ -49,6 +50,9 @@ class Command(BaseCommand):
 
 
 def load_mkb(self, cache_settings):
+    """
+    Загрузка справочников МКБ из qms
+    """
     query = QMS(cache_settings).query
     for level in range(1, 5):
         query.execute_query('LoadMKB', cache_settings['DATABASE_CODE'], level)
@@ -57,5 +61,5 @@ def load_mkb(self, cache_settings):
             name = service_fields_list[1]
             is_finished = (level >= 4)
             if code is not None and name is not None:
-                service = OKMUService(code=code, name=name)
+                service = MKBService(code=code, name=name, is_finished=is_finished)
                 service.save()

@@ -17,7 +17,7 @@ class OKMUService(models.Model):
 
 
 class MKBService(models.Model):
-    code = models.CharField(max_length=32, verbose_name="Код МКБ")
+    code = models.CharField(max_length=32, primary_key=True, verbose_name="Код МКБ")
     name = models.CharField(max_length=256, verbose_name="Название")
     is_finished = models.BooleanField(verbose_name="Является диагнозом")
 
