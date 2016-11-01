@@ -27,7 +27,7 @@ class Command(BaseCommand):
         """
         Загрузка справочников ОКМУ из qms
         """
-        qms = QMS(cache_settings, 'loadservices'))
+        qms = QMS(cache_settings)
         query = qms.query
 
         for level in range(1, 5):
@@ -49,7 +49,7 @@ class Command(BaseCommand):
 
 
 def load_mkb(self, cache_settings):
-    query = QMS(cache_settings, set_logger_settings(join(settings.STATIC_LOG_ROOT, 'log'), 'loadservices')).query
+    query = QMS(cache_settings).query
     for level in range(1, 5):
         query.execute_query('LoadMKB', cache_settings['DATABASE_CODE'], level)
         for service_fields_list in query.results():
