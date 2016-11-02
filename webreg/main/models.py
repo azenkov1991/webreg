@@ -1,5 +1,8 @@
 from django.db import models
+from django.core.exceptions import ValidationError
+from django.core.exceptions import NON_FIELD_ERRORS
 from catalogs.models import OKMUService
+from mixins.models import TimeStampedModel
 
 
 class Clinic(models.Model):
@@ -54,6 +57,83 @@ class Cabinet(models.Model):
         verbose_name = "Кабинет"
         verbose_name_plural = "Кабинеты"
 
+
+class Patient(models.Model):
+    first_name = models.CharField(max_length=128, verbose_name="Фамилия")
+    last_name = models.CharField(max_length=128, verbose_name="Имя")
+    middle_name = models.CharField(max_length=128, verbose_name="Отчество")
+    birth_date = models.DateField(verbose_name="Дата рождения")
+    polis_number = models.CharField(verbose_name="Номер полиса")
+
+    def __str__(self):
+        return self.first_name + " " + self.last_name[0] + ". " + \
+               self.patronymic[0] + "., " + self.birth_date.strftime("%d.%m.%Y")
+
+    class Meta:
+        verbose_name = "Пациент"
+        verbose_name_plural = "Пациенты"
+
+
+class Cell(models.Model):
+    date = models.DateField(verbose_name="Дата приема", db_index=True)
+    time_start = models.TimeField(verbose_name="Время приема")
+    time_end = models.TimeField(verbose_name="Окончание приема")
+    doctor = models.ForeignKey(Doctor, verbose_name="Специалист")
+    cabinet = models.ForeignKey(Cabinet, verbose_name="Кабинет")
+    performing_services = models.ManyToManyField(OKMUService, verbose_name="Выполняемые услуги")
+
+    @property
+    def time_str(self):
+        return '%s-%s' % (self.time_start.strftime('%H:%M'), self.time_end.strftime('%H:%M'))
+
+    def __str__(self):
+        return self.date.strftime("%d.%m.%Y") + " " + self.time_start.strftime("%H:%M") + "-" +\
+               self.time_end.strftime("%H:%M") + " " + str(self.cabinet) + " " + str(self.doctor)
+
+    def full_clean(self, exclude=None, validate_unique=True):
+        try:
+            super(Cell, self).full_clean(None, validate_unique)
+        except ValidationError as e:
+            raise e
+        else:
+            Cell.save_cell_validation(self)
+
+    @classmethod
+    def save_cell_validation(cls, cell):
+        today_cells = Cell.objects.filter(date=cell.date).exclude(id=cell.id)
+        cells_in_cabinet = today_cells.filter(cabinet=cell.cabinet)
+        # проверка пересеения ячеек в кабинете
+        for other_cell in cells_in_cabinet:
+            if cell.intersection(other_cell):
+                raise ValidationError({NON_FIELD_ERRORS: ["Ячека пересекается с другой ячейкой по кабинету"]})
+        # проверка пересечения ячеек у специалиста
+        specialists_cells = today_cells.filter(doctor=cell.doctor)
+        for other_cell in specialists_cells:
+            if cell.intersection(other_cell):
+                raise ValidationError("Ячека пересекается с другой ячейкой у специалиста")
+        if cell.time_end <= cell.time_start:
+            raise ValidationError({NON_FIELD_ERRORS: ["Время оканчания приема должно быть больше времени начала"]})
+
+    def intersection(self, cell):
+        if (((cell.time_start <= self.time_start) and (self.time_start < cell.time_end)) or
+                ((cell.time_start < self.time_end) and (self.time_end <= cell.time_end))):
+            return True
+        if (((self.time_start <= cell.time_start) and (cell.time_start < self.time_end)) or
+                ((self.time_start < cell.time_end) and (cell.time_end <= self.time_end))):
+            return True
+        return False
+
+    class Meta:
+        verbose_name = "Ячейка"
+        verbose_name_plural = "Ячейки"
+
+
+class Appointment(TimeStampedModel):
+    date = models.DateField(verbose_name="Дата приема", db_index=True)
+    specialist = models.ForeignKey(Specialist, verbose_name="Специалист")
+    service = models.ForeignKey(OKMUService, verbose_name="Услуга")
+    patient = models.ForeignKey(Patient, verbose_name="Пациент")
+    cell = models.ForeignKey(Cell, "Ячейка")
 
 
 
