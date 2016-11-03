@@ -52,7 +52,7 @@ DATABASES = {
         'NAME': PROJECT_NAME,
         'USER': PROJECT_NAME + '_user',
         'PASSWORD': get_secret("DB_PASSWORD"),
-        'HOST': '10.1.2.65',
+        'HOST': '127.0.0.1',
         'PORT': '5432'
     },
     'log_db': {
@@ -60,7 +60,7 @@ DATABASES = {
         'NAME': PROJECT_NAME + 'log',
         'USER': PROJECT_NAME + '_user',
         'PASSWORD': get_secret("DB_LOG_PASSWORD"),
-        'HOST': '10.1.2.65',
+        'HOST': '127.0.0.1',
         'PORT': '5432'
     }
 }

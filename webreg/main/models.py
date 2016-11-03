@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.exceptions import NON_FIELD_ERRORS
+from django.contrib.postgres.fields import JSONField
 from catalogs.models import OKMUService
 from mixins.models import TimeStampedModel
 
@@ -63,7 +64,7 @@ class Patient(models.Model):
     last_name = models.CharField(max_length=128, verbose_name="Имя")
     middle_name = models.CharField(max_length=128, verbose_name="Отчество")
     birth_date = models.DateField(verbose_name="Дата рождения")
-    polis_number = models.CharField(verbose_name="Номер полиса")
+    polis_number = models.CharField(max_length=16, verbose_name="Номер полиса")
 
     def __str__(self):
         return self.first_name + " " + self.last_name[0] + ". " + \
@@ -78,7 +79,7 @@ class Cell(models.Model):
     date = models.DateField(verbose_name="Дата приема", db_index=True)
     time_start = models.TimeField(verbose_name="Время приема")
     time_end = models.TimeField(verbose_name="Окончание приема")
-    doctor = models.ForeignKey(Doctor, verbose_name="Специалист")
+    specialist = models.ForeignKey(Specialist, verbose_name="Специалист")
     cabinet = models.ForeignKey(Cabinet, verbose_name="Кабинет")
     performing_services = models.ManyToManyField(OKMUService, verbose_name="Выполняемые услуги")
 
@@ -88,7 +89,7 @@ class Cell(models.Model):
 
     def __str__(self):
         return self.date.strftime("%d.%m.%Y") + " " + self.time_start.strftime("%H:%M") + "-" +\
-               self.time_end.strftime("%H:%M") + " " + str(self.cabinet) + " " + str(self.doctor)
+               self.time_end.strftime("%H:%M") + " " + str(self.cabinet) + " " + str(self.specialist)
 
     def full_clean(self, exclude=None, validate_unique=True):
         try:
@@ -102,12 +103,12 @@ class Cell(models.Model):
     def save_cell_validation(cls, cell):
         today_cells = Cell.objects.filter(date=cell.date).exclude(id=cell.id)
         cells_in_cabinet = today_cells.filter(cabinet=cell.cabinet)
-        # проверка пересеения ячеек в кабинете
+        # проверка пересечения ячеек в кабинете
         for other_cell in cells_in_cabinet:
             if cell.intersection(other_cell):
                 raise ValidationError({NON_FIELD_ERRORS: ["Ячека пересекается с другой ячейкой по кабинету"]})
         # проверка пересечения ячеек у специалиста
-        specialists_cells = today_cells.filter(doctor=cell.doctor)
+        specialists_cells = today_cells.filter(specialist=cell.specialist)
         for other_cell in specialists_cells:
             if cell.intersection(other_cell):
                 raise ValidationError("Ячека пересекается с другой ячейкой у специалиста")
@@ -133,7 +134,12 @@ class Appointment(TimeStampedModel):
     specialist = models.ForeignKey(Specialist, verbose_name="Специалист")
     service = models.ForeignKey(OKMUService, verbose_name="Услуга")
     patient = models.ForeignKey(Patient, verbose_name="Пациент")
-    cell = models.ForeignKey(Cell, "Ячейка")
+    cell = models.ForeignKey(Cell, verbose_name="Ячейка")
+    additional_data = JSONField(verbose_name="Дополнительные параметры")
+
+    class Meta:
+        verbose_name = "Назначение"
+        verbose_name_plural = "Назначения"
 
 
 
