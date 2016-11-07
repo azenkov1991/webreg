@@ -28,8 +28,8 @@ class Department(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = ""
-        verbose_name_plural = "Мед. учреждения"
+        verbose_name = "Подразделение"
+        verbose_name_plural = "Подразделения"
 
 
 class Specialist(models.Model):

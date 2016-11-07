@@ -151,7 +151,7 @@ class CacheODBCQuery:
         self.user = connection_param.get("user", "_SYSTEM")
         self.password = connection_param.get("password", "_SYS")
         self.host = connection_param.get("host", "localhost")
-        self.port = connection_param.get("port", 1972)
+        self.port = connection_param.get("port", "1972")
         self.namespace = connection_param.get("namespace", "USER")
         self.queries = queries
         self.logger = logging.getLogger("cachequery")

@@ -68,4 +68,5 @@ admin.site.register(Cabinet, CabinetAdmin)
 admin.site.register(Patient, PatientAdmin)
 admin.site.register(Appointment, AppointmentAdmin)
 admin.site.register(Clinic, ClinicAdmin)
+admin.site.register(Department, DepartmentAdmin)
 
