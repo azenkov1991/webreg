@@ -19,7 +19,7 @@ def load_okmu(self, cache_settings):
                 parent_obj = OKMUService.objects.get(code=parent)
             except OKMUService.DoesNotExist:
                 parent_obj = None
-            if code is not None and name is not None:
+            if code and name:
                 try:
                     okmu_obj = OKMUService.objects.get(code=code)
                 except OKMUService.DoesNotExist:

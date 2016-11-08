@@ -33,6 +33,7 @@ class MKBDiagnos(models.Model):
     name = models.CharField(max_length=512, verbose_name="Название")
     is_finished = models.BooleanField(verbose_name="Является диагнозом")
     level = models.IntegerField(verbose_name="Уровень")
+    parent = models.ForeignKey('self', blank=True, null=True)
 
     def __str__(self):
         return self.code + " " + self.name
