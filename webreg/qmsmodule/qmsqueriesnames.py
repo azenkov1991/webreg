@@ -50,5 +50,10 @@ QMS_QUERIES = {
                 'LoadMKB': {
                             'class': 'User.QueryCatalog',
                             'query': 'MKB'
+                },
+                'LoadTses': {
+                            'class': 'User.QueryCatalog',
+                            'query': 'Tses'
                 }
+
     }

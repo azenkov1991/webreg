@@ -45,6 +45,10 @@ class MKBDiagnos(models.Model):
 
 
 class SlotType(models.Model):
-    name = models.CharField(max_length=128, verbose_name="Имя")
-    color = models.CharField(max_length=7, verbose_name="Цвет", help_text="HEX color, as #RRGGBB")
+    name = models.CharField(
+        max_length=128, verbose_name="Имя"
+    )
+    color = models.CharField(
+        max_length=7, verbose_name="Цвет", help_text="HEX color, as #RRGGBB", blank=True, null=True
+    )
 
