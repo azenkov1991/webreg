@@ -1,6 +1,7 @@
 from qmsmodule.qmsfunctions import *
 from catalogs.models import *
 
+
 def load_okmu(self, cache_settings):
     """
     Загрузка справочников ОКМУ из qms
