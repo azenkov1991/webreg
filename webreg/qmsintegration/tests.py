@@ -1,5 +1,5 @@
 import unittest
-from .decorators import *
+from .models import *
 
 
 class Object(object):
