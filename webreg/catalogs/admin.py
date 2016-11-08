@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 from django.contrib import admin
-from .models import OKMUService
-
+from .models import *
 
 class ServiceAdmin(admin.ModelAdmin):
     list_display = (
@@ -12,3 +10,4 @@ class ServiceAdmin(admin.ModelAdmin):
     list_editable = ('name', )
 
 admin.site.register(OKMUService, ServiceAdmin)
+admin.site.register(MKBDiagnos, ServiceAdmin)
