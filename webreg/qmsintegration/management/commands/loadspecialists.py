@@ -30,7 +30,6 @@ class Command(BaseCommand):
             specialists = Specialist.objects.filter(department_id=department.id)
             delete_external_ids(specialists)
 
-
         qms = QMS(qmsdb.settings)
         specialists = qms.get_all_doctors(options["pID"])
         for spec in specialists:
