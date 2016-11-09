@@ -10,7 +10,7 @@ logger = logging.getLogger("webreg")
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("dbname", help="Название настроек базы QMS из qmsintegration.OmsDB")
-        parser.add_argument("pID", help="Подраздление в QMS")
+        parser.add_argument("pID", help="Подразделение в QMS")
         parser.add_argument("department", help="Id подразделения", type=int)
         parser.add_argument("-d", "--delete", help="Перед загрузкой все специалисты будут удалены",
                             action="store_true", dest="delete")
