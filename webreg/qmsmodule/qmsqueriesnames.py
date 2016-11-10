@@ -15,6 +15,10 @@ QMS_QUERIES = {
                             'class': 'User.QueryCatalog',
                             'query': 'AvailSpec'
                 },
+                'RaspFreeDetail': {
+                            'class': 'User.Query',
+                            'query': 'RaspFreeDetail'
+                },
                 'GetAllDoctors': {
                             'class': 'User.QueryCatalog',
                             'query': 'Doctors'
