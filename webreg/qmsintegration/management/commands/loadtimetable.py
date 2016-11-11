@@ -3,7 +3,7 @@ from datetime import date
 from django.core.management.base import BaseCommand, CommandError
 from qmsmodule.qmsfunctions import *
 from qmsintegration.models import *
-from main.models import Specialist, Department, Cell, Cabinet
+from main.models import Specialist, Department, Cell, Cabinet, SlotType
 from catalogs.models import OKMUService
 
 logger = logging.getLogger("webreg")
@@ -84,6 +84,12 @@ class Command(BaseCommand):
                         service = OKMUService.objects.get(code=code)
                         cell.performing_services.add(service)
                     except OKMUService.DoesNotExist:
+                        pass
+                if cell_item.slot_type:
+                    try:
+                        slot_type = SlotType.objects.get(name=cell_item.slot_type)
+                        cell.slot_type = slot_type
+                    except SlotType.ObjectDoesNotExist:
                         pass
                 cell.save()
 
