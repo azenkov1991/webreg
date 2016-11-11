@@ -6,7 +6,7 @@ import logging
 import intersys.pythonbind3
 from suds.client import Client
 from suds.cache import ObjectCache
-
+from suds.transport.http import HttpAuthenticated
 
 class CacheQueryError(Exception):
     pass
@@ -53,15 +53,17 @@ class CacheSOAPQuery:
             if not self.always_new_connect:
                 return self.clients[class_name]
         oc = ObjectCache(minutes=60, seconds=1)
+        auth = HttpAuthenticated(username=self.user, password=self.password)
         self.clients[class_name] = Client(self.connection_string.format(class_name=class_name),
                                           username=self.user,
                                           password=self.password,
-                                          cache=oc)
+                                          cache=oc,
+                                          transport=auth)
         return self.clients[class_name]
 
     @staticmethod
     def _get_simple_diffgram(diffgram, columns):
-        return map(lambda u: diffgram[u] if u in diffgram else "", columns)
+        return list(map(lambda u: diffgram[u] if u in diffgram else "", columns))
 
     @staticmethod
     def _get_diffgram(query_name, diffgram, columns):
@@ -69,7 +71,7 @@ class CacheSOAPQuery:
         diffgr_path = ["%s_DataSet" % method_name, method_name]
         dg = reduce(lambda res, u: res[u], diffgr_path, diffgram)
         if isinstance(dg, list):
-            return map(lambda u: CacheSOAPQuery._get_simple_diffgram(u, columns), dg)
+            return list(map(lambda u: CacheSOAPQuery._get_simple_diffgram(u, columns), dg))
         else:
             return [CacheSOAPQuery._get_simple_diffgram(dg, columns)]
 
@@ -100,7 +102,7 @@ class CacheSOAPQuery:
         diffgram = results['diffgram']
         columns = reduce(lambda res, u: res[u], sch_path, results['schema'])
         if isinstance(columns, list):
-            columns = map(lambda u: u['_name'], columns)
+            columns = list(map(lambda u: u['_name'], columns))
         else:
             columns = [columns['_name']]
         self.columns = columns
@@ -109,9 +111,9 @@ class CacheSOAPQuery:
         except Exception as err:
             self.logger.error(err)
             raise CacheQueryError("Execute query error")
-        self.data = data
+        self.data = list(data)
         self.result = data[0][0]
-        self.logger.debug("\n".join(map(lambda u: "| ".join(map(lambda q: str(q) if q else '', u)), data)))
+        self.logger.debug("\n".join(list(map(lambda u: "| ".join(map(lambda q: str(q) if q else '', u)), data))))
 
     def fetch_all(self):
         return self.data
@@ -198,8 +200,9 @@ class CacheODBCQuery:
                                      self.queries[query_name]['query'])
             # Установка в цикле всех параметров запроса
             for paramIndex in range(len(params)):
-                param = str(params[paramIndex])
-                self.query.set_par(paramIndex+1, param)
+                if params[paramIndex]:
+                    param = str(params[paramIndex])
+                    self.query.set_par(paramIndex+1, param)
             self.query.execute()
         except (intersys.pythonbind3.cache_exception, KeyError) as err:
             self.logger.error(err)
@@ -208,7 +211,7 @@ class CacheODBCQuery:
 
     def _execute_class_method(self, query_name, *params):
         try:
-            params_list = map(lambda param: str(param), params)
+            params_list = list(map(lambda param: str(param), params))
             return self.database.run_class_method(self.queries[query_name]['class'],
                                                   self.queries[query_name]['class_method'],
                                                   params_list)
@@ -225,7 +228,7 @@ class CacheODBCQuery:
         if len(lst) == 0:
             return []
         else:
-            self.logger.debug("| ".join(map(str, lst)))
+            self.logger.debug("| ".join(list(map(str, lst))))
             if self.result is None:
                 self.result = lst[0]
             return lst

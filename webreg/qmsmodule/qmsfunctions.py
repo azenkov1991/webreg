@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
-from functools import reduce
+import datetime
+
 try:
     from .cachequery import *
     from .qmsqueriesnames import QMS_QUERIES
@@ -120,3 +121,38 @@ class QMS:
     def get_all_doctors(self, department_code=None):
         self.query.execute_query("GetAllDoctors", self.DATABASE_CODE, department_code)
         return self.query.get_proxy_objects_list()
+
+    def get_timetable(self, specialist, date_from, date_to):
+        """
+
+        :param specialist: qqc244 специалиста
+        :param date_from: Дата начала datetime
+        :param date_to: Дата конца datetime
+        :return:
+        Возвращает список ячееек
+        Поля: date, time_start, time_end, cabinet, session_type, okmu_list
+        """
+        cell_list = []
+        for date in (date_from + datetime.timedelta(n) for n in range((date_to - date_from).days)):
+            self.query.execute_query("RaspFreeDetail", specialist, date.strftime("%Y%m%d"), None, None, None, 1)
+            for cell_item in self.query.get_proxy_objects_list():
+                cell = ProxyObject()
+                cell.date = date
+                try:
+                    time_start = cell_item.str.split("-")[0]
+                    cell.time_start = datetime.time(int(time_start.split(":")[0]),
+                                                    int(time_start.split(":")[1]))
+                except:
+                    cell.time_start = datetime.time(0, 0)
+                try:
+                    time_end = cell_item.str.split("-")[1]
+                    cell.time_end = datetime.time(int(time_end.split(":")[0]),
+                                                  int(time_end.split(":")[1]))
+                except:
+                    cell.time_end = datetime.time(0, 0)
+                cell.session_type = cell_item.fin
+                cell.cabinet = cell_item.cabinet
+                cell.okmu_list = str(cell_item.Du).split(" ")
+                cell_list.append(cell)
+        return cell_list
+

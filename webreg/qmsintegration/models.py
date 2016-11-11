@@ -95,6 +95,17 @@ def set_external_id(model, qmsObj, qqc):
         imt.save()
 
 
+def get_external_id(model):
+    internal_name = model._meta.label
+    internal_id = model.id
+    try:
+        imt = IdMatchingTable.objects.get(internal_id=internal_id, object_matching_table__internal_name=internal_name)
+    except models.ObjectDoesNotExist:
+        return 0
+    return imt.external_id
+
+
+
 def entity_exist(qmsObj, qqc):
     """
     Проверяет загружен ли уже объект из qms
