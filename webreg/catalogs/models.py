@@ -33,7 +33,7 @@ class MKBDiagnos(models.Model):
         max_length=32, primary_key=True, verbose_name="Код МКБ"
     )
     name = models.CharField(
-    	max_length=1024, verbose_name="Название"
+        max_length=1024, verbose_name="Название"
     )
     is_finished = models.BooleanField(
         verbose_name="Является диагнозом"
@@ -54,11 +54,4 @@ class MKBDiagnos(models.Model):
         ordering = ["code"]
 
 
-class SlotType(models.Model):
-    name = models.CharField(
-        max_length=128, verbose_name="Имя"
-    )
-    color = models.CharField(
-        max_length=7, verbose_name="Цвет", help_text="HEX color, as #RRGGBB", blank=True, null=True
-    )
 

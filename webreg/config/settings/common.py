@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 ]
 
 LOCAL_APPS = (
+    'util',
     'loghandle',
     'catalogs',
     'main',

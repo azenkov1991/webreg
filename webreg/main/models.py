@@ -68,11 +68,23 @@ class Patient(models.Model):
 
     def __str__(self):
         return self.first_name + " " + self.last_name[0] + ". " + \
-               self.patronymic[0] + "., " + self.birth_date.strftime("%d.%m.%Y")
+               self.middle_name[0] + "., " + self.birth_date.strftime("%d.%m.%Y")
 
     class Meta:
         verbose_name = "Пациент"
         verbose_name_plural = "Пациенты"
+
+
+class SlotType(models.Model):
+    name = models.CharField(
+        max_length=128, verbose_name="Имя"
+    )
+    color = models.CharField(
+        max_length=7, verbose_name="Цвет", help_text="HEX color, as #RRGGBB", blank=True, null=True
+    )
+    clinic = models.ForeignKey(
+        Clinic, verbose_name="Мед. учреждение"
+    )
 
 
 class Cell(models.Model):
@@ -82,6 +94,7 @@ class Cell(models.Model):
     specialist = models.ForeignKey(Specialist, verbose_name="Специалист")
     cabinet = models.ForeignKey(Cabinet, verbose_name="Кабинет")
     performing_services = models.ManyToManyField(OKMUService, verbose_name="Выполняемые услуги")
+    slot_type = models.ForeignKey(SlotType, verbose_name="Тип слота", null=True, blank=True)
 
     @property
     def time_str(self):
@@ -135,7 +148,7 @@ class Appointment(TimeStampedModel):
     service = models.ForeignKey(OKMUService, verbose_name="Услуга")
     patient = models.ForeignKey(Patient, verbose_name="Пациент")
     cell = models.ForeignKey(Cell, verbose_name="Ячейка")
-    additional_data = JSONField(verbose_name="Дополнительные параметры")
+    additional_data = JSONField(verbose_name="Дополнительные параметры", null=True, blank=True)
 
     class Meta:
         verbose_name = "Назначение"

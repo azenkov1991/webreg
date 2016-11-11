@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 from qmsmodule.qmsfunctions import *
 from qmsintegration.models import *
 
+
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("dbname", help="Название настроек базы QMS из qmsintegration.OmsDB")
@@ -40,7 +41,8 @@ class Command(BaseCommand):
                     try:
                         okmu_obj = OKMUService.objects.get(code=code)
                     except OKMUService.DoesNotExist:
-                        okmu_obj = OKMUService(code=code, name=name, level=level, is_finished=is_finished, parent=parent_obj)
+                        okmu_obj = OKMUService(code=code, name=name, level=level,
+                                               is_finished=is_finished, parent=parent_obj)
                     else:
                         okmu_obj.level = level
                         okmu_obj.is_finished = is_finished
