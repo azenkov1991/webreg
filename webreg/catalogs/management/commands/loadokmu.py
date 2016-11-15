@@ -1,5 +1,6 @@
-from catalogs.models import *
+from json import loads as jsonload
 from django.core.management.base import BaseCommand, CommandError
+from catalogs.models import *
 from qmsmodule.qmsfunctions import *
 from qmsintegration.models import *
 
@@ -32,21 +33,25 @@ class Command(BaseCommand):
                 code = service_fields_list[0]
                 name = service_fields_list[1]
                 parent = service_fields_list[2]
+                service_type = service_fields_list[3]
+                settings = service_fields_list[4]
                 is_finished = (level >= 4)
                 try:
                     parent_obj = OKMUService.objects.get(code=parent)
                 except OKMUService.DoesNotExist:
                     parent_obj = None
-                if code is not None and name is not None:
+                if code and name:
                     try:
                         okmu_obj = OKMUService.objects.get(code=code)
                     except OKMUService.DoesNotExist:
-                        okmu_obj = OKMUService(code=code, name=name, level=level,
-                                               is_finished=is_finished, parent=parent_obj)
-                    else:
-                        okmu_obj.level = level
-                        okmu_obj.is_finished = is_finished
-                        okmu_obj.name = name
-                        okmu_obj.parent = parent_obj
+                        okmu_obj = OKMUService(code=code)
+                    okmu_obj.level = level
+                    okmu_obj.is_finished = is_finished
+                    okmu_obj.name = name
+                    okmu_obj.parent = parent_obj
+                    if service_type:
+                        okmu_obj.type = service_type
+                    if settings:
+                        okmu_obj.settings = jsonload(settings)
                     okmu_obj.save()
 

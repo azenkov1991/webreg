@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
+from django.contrib.postgres.fields import JSONField
 
 
 class OKMUService(models.Model):
@@ -8,6 +9,12 @@ class OKMUService(models.Model):
     )
     name = models.CharField(
         max_length=512, verbose_name="Название"
+    )
+    type = models.CharField(
+        max_length=128, verbose_name="Тип", blank=True, null=True
+    )
+    settings = JSONField(
+        verbose_name="Настройки", blank=True, null=True
     )
     parent = models.ForeignKey(
         'self', blank=True, null=True

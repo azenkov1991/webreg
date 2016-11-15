@@ -62,6 +62,8 @@ class Command(BaseCommand):
                         cell.delete()
                 except Cell.DoesNotExist:
                     pass
+                if not cell.free:
+                    continue
                 cell = Cell()
                 cell.date = cell_item.date
                 cell.time_start = cell_item.time_start

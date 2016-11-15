@@ -636,8 +636,8 @@ cancel1860
 /// specialization - специализация. Для ресурса кабинет возвращает "Кабинет"
 /// firstName  - фамилия
 /// lastName - Имя
-/// patronymic - отчество
-Query AvailSpec(pIDo As %String, qqc244 As %String) As %Query(ROWSPEC = "qqc244:%String,specialization:%String,firstName:%String,lastName:%String,patronymic:%String") [ SqlProc, WebMethod ]
+/// middleName - отчество
+Query AvailSpec(pIDo As %String, qqc244 As %String) As %Query(ROWSPEC = "qqc244:%String,specialization:%String,firstName:%String,lastName:%String,middleName:%String") [ SqlProc, WebMethod ]
 {
 }
 
@@ -658,7 +658,7 @@ ClassMethod AvailSpecFetch(ByRef qHandle As %Binary, ByRef Row As %List, ByRef A
 
 ClassMethod AvailSpecfunc(ByRef qHandle) [ ProcedureBlock = 0 ]
 {
-	new pIDo, qqc244spec, qqc244, index,index2, pID, pIDz, firstName, lastName, patronymic, counter
+	new pIDo, qqc244spec, qqc244, index,index2, pID, pIDz, firstName, lastName, middleName, counter
 	set $zt = "AvailSpecFunc"
 	
 	set qqc244spec = qHandle(2)
@@ -698,16 +698,16 @@ addToResultFromPIDList()
 		set spec = ..GetSpec(qqc244)
 		if (spec="Кабинет"){
 			set firstName = qW.GG(244,"pAz",qqc244)
-			set patronymic = ""
+			set middleName = ""
 			set lastName = ""	
 		}
 		else{
 			set firstName = $P(qW.GG(244,"pAz",qqc244),"_",1)
 			set lastName = $P(qW.GG(244,"pAz",qqc244),"_",2)
-			set patronymic = $P(qW.GG(244,"pAz",qqc244),"_",3)
+			set middleName = $P(qW.GG(244,"pAz",qqc244),"_",3)
 		}
 		
-		set ^||result(counter) = $LB(qqc244,spec,firstName,lastName,patronymic) 
+		set ^||result(counter) = $LB(qqc244,spec,firstName,lastName,middleName) 
 		set counter = counter + 1
 	}
 	quit 
@@ -1269,7 +1269,7 @@ IsCabinet(qqc244)
 
 // =====================Загрузка справосника ОКМУ===========================================
 
-Query OKMU(pIDo As %String, level As %String) As %Query(ROWSPEC = "code:%String,name:%String,parent:%String") [ SqlProc ]
+Query OKMU(pIDo As %String, level As %String) As %Query(ROWSPEC = "code:%String,name:%String,parent:%String,type:%String,settings:%String") [ SqlProc ]
 {
 }
 
@@ -1332,9 +1332,20 @@ ClassMethod getOKMURow(index, obj) As %List [ ProcedureBlock = 0 ]
 		set pidx = $Extract(index,1,qW.ObjLget(parentObj))
 		set parentCode = qW.GG(parentObj,"Du",pidx)
 	}
+	set tn = qW.GG(obj,"tn",index)
+	k ^||settings
+	if tn="Лаборатория"{
+		set ^||settings("lab_speciman") = $Replace(qW.GG(obj,"lo",index),"|Y","*")
+		set ^||settings("cl_lab_condition") = qW.GG(obj,"qlsLk",index)
+		set ^||settings("contingent_flag") = $S(qW.GG(obj,"flgKO",index)="":0,1:1)
+	}
+	
 	quit $LB(qW.GG(obj,"Du",index),
 			 $Replace(qW.GG(obj,"u",index),"_"," "),
-			 parentCode
+			 parentCode,
+			 tn,
+			 ##class(Util.JSON).encode($Name(^||settings))
+    
 	)
 }
 

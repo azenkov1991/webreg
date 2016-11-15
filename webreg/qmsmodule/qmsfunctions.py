@@ -154,6 +154,7 @@ class QMS:
                 cell.slot_type = cell_item.fin
                 cell.cabinet = cell_item.cabinet
                 cell.okmu_list = str(cell_item.Du).split(" ")
+                cell.free = cell_item.status
                 cell_list.append(cell)
         return cell_list
 
