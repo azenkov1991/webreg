@@ -158,3 +158,8 @@ class QMS:
                 cell_list.append(cell)
         return cell_list
 
+    def create_appointment(self, patient, specialist, service, date, time=None):
+        pass
+
+    def create_laboratory_appointment(self, patient, specialit, sevice, date):
+        pass

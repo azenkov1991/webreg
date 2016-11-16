@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.contrib.postgres.fields import JSONField
 from catalogs.models import OKMUService
+from qmsintegration import decorators as qms
 from mixins.models import TimeStampedModel
 
 log = logging.getLogger("webreg")
@@ -159,15 +160,18 @@ class Appointment(TimeStampedModel):
     specialist = models.ForeignKey(Specialist, verbose_name="Специалист")
     service = models.ForeignKey(OKMUService, verbose_name="Услуга")
     patient = models.ForeignKey(Patient, verbose_name="Пациент")
-    cell = models.ForeignKey(Cell, verbose_name="Ячейка")
+    cell = models.ForeignKey(Cell, verbose_name="Ячейка", null=True, blank=True)
     additional_data = JSONField(verbose_name="Дополнительные параметры", null=True, blank=True)
 
+    @qms.create_appointment
     @classmethod
     def create_appointment(cls, patient, specialist, service, date, cell=None, additional_data=None):
         exception_details = "Пациент: " + patient.fio + " Специалист: " + specialist.fio + \
-                            " Дата: " + str(date) + " Время: " + str(cell.time_start)
+                            " Дата: " + str(date)
+        if cell:
+            exception_details += " Время: " + str(cell.time_start)
         # вызвать исключение если ячейка занята
-        if cell.appointment_set.exists():
+        if cell and cell.appointment_set.exists():
             raise AppointmentError("Попытка назначения в занятую ячейку." + exception_details)
         # если назначение на дату и время меньше текущего
         if date < datetime.date.today():
@@ -186,6 +190,7 @@ class Appointment(TimeStampedModel):
             if additional_data:
                 appointment.additional_data = additional_data
             appointment.save()
+            return appointment
         except Exception as ex:
             log.error(str(ex))
             raise AppointmentError("Ошибка при сохранении модели назначения" + exception_details)

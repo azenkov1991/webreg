@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.postgres.fields import JSONField
-from main.models import Clinic
+
 
 QMS_OBJECT_PREFIX = 'qqc'
 
@@ -10,7 +10,7 @@ class QmsDB(models.Model):
     connection_param = JSONField(verbose_name="Настройки соединения")
     db_code = models.CharField(max_length=128, verbose_name="Код основной базы данных")
     coding = models.CharField(max_length=16, verbose_name="Кодировка базы данных")
-    clinic = models.ForeignKey(Clinic, verbose_name="Мед. учреждение")
+    clinic = models.ForeignKey('main.Clinic', verbose_name="Мед. учреждение")
 
     @property
     def settings(self):
@@ -103,7 +103,6 @@ def get_external_id(model):
     except models.ObjectDoesNotExist:
         return 0
     return imt.external_id
-
 
 
 def entity_exist(qmsObj, qqc):

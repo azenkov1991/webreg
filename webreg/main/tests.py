@@ -18,7 +18,7 @@ class TestMainModule(unittest.TestCase):
                                      department=self.department)
         self.specialist.save()
         self.specialist.performing_services.add(self.service1)
-        self.specialist.performing_services.add(self.service2)
+
         date1 = datetime.date.today() + datetime.timedelta(1)
         date2 = datetime.date.today() - datetime.timedelta(2)
         self.cell1 = Cell(date=date1,
@@ -40,11 +40,39 @@ class TestMainModule(unittest.TestCase):
 
     def test_create_legal_appointment(self):
         try:
-            Appointment.create_appointment(self.patient, self.specialist, self.service1,
-                                           datetime.date.today() + datetime.timedelta(1),
-                                           self.cell1)
+            ap = Appointment.create_appointment(self.patient, self.specialist, self.service1,
+                                                datetime.date.today() + datetime.timedelta(1),
+                                                self.cell1)
         except AppointmentError:
             assert False
-    # def test_create_appintment_past(self):
+
+    def test_create_appintment_past(self):
+        with self.assertRaises(AppointmentError):
+            Appointment.create_appointment(self.patient, self.specialist, self.service1,
+                                           datetime.date(2016, 5, 4),
+                                           self.cell1)
+
+    def test_create_second_appointment(self):
+        with self.assertRaises(AppointmentError):
+            ap = Appointment.create_appointment(self.patient, self.specialist, self.service1,
+                                                datetime.date.today() + datetime.timedelta(1),
+                                                self.cell1)
+            ap = Appointment.create_appointment(self.patient, self.specialist, self.service1,
+                                                datetime.date.today() + datetime.timedelta(1),
+                                                self.cell1)
+
+    def test_create_appointment_with_wrong_service(self):
+        with self.assertRaises(AppointmentError):
+            ap = Appointment.create_appointment(self.patient, self.specialist, self.service2,
+                                                datetime.date.today() + datetime.timedelta(1),
+                                                self.cell1)
+
+    def test_create_appointment_without_cell(self):
+        ap = Appointment.create_appointment(self.patient, self.specialist, self.service1,
+                                            datetime.date.today() + datetime.timedelta(1))
+
+
+
+
 
 
