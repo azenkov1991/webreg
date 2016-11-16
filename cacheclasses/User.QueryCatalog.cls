@@ -1446,5 +1446,39 @@ ClassMethod getTses(ByRef qHandle) [ ProcedureBlock = 0 ]
     }
 }
 
+Query SpecialistPerformingServices(qqc244 As %String) As %Query(ROWSPEC = "code:%String") [ SqlProc, WebMethod ]
+{
+}
+
+ClassMethod SpecialistPerformingServicesExecute(ByRef qHandle As %Binary, qqc244 = "") As %Status
+{
+	quit ..GeneralExecute(.qHandle,"getSpecialistPerformingServices",qqc244)
+}
+
+ClassMethod SpecialistPerformingServicesClose(ByRef qHandle As %Binary) As %Status [ PlaceAfter = SpecialistPerformingServicesExecute ]
+{
+	quit ..GeneralClose(.qHandle)
+}
+
+ClassMethod SpecialistPerformingServicesFetch(ByRef qHandle As %Binary, ByRef Row As %List, ByRef AtEnd As %Integer = 0) As %Status [ PlaceAfter = SpecialistPerformingServicesExecute ]
+{
+	quit ..GeneralFetch(.qHandle,.Row,.AtEnd)
+}
+
+ClassMethod getSpecialistPerformingServices(ByRef qHandle) [ ProcedureBlock = 0 ]
+{
+    set qqc244 = $G(qHandle(1))
+    if ($D(qW)=0) do ..InitQms()
+    
+    set Du = qW.GG(244,"Du",qqc244)
+    set ^qZenkTest = Du
+    set ^qZenkTest(qqc244) = qqc244
+    m ^qZenkTest("qHandle") = qHandle
+    for i=1:1:$length(Du," ")
+    {
+        set ^||result(i)= $LB($P(Du," ",i))
+    }
+}
+
 }
 
