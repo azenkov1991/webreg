@@ -8,6 +8,7 @@ from suds.client import Client
 from suds.cache import ObjectCache
 from suds.transport.http import HttpAuthenticated
 
+
 class CacheQueryError(Exception):
     pass
 

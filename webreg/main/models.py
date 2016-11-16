@@ -1,9 +1,17 @@
+import logging
+import datetime
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.contrib.postgres.fields import JSONField
 from catalogs.models import OKMUService
 from mixins.models import TimeStampedModel
+
+log = logging.getLogger("webreg")
+
+
+class AppointmentError(Exception):
+    pass
 
 
 class Clinic(models.Model):
@@ -66,6 +74,10 @@ class Patient(models.Model):
     birth_date = models.DateField(verbose_name="Дата рождения")
     polis_number = models.CharField(max_length=16, verbose_name="Номер полиса")
 
+    @property
+    def fio(self):
+        return self.first_name + " " + self.last_name + " " + self.middle_name
+
     def __str__(self):
         return self.first_name + " " + self.last_name[0] + ". " + \
                self.middle_name[0] + "., " + self.birth_date.strftime("%d.%m.%Y")
@@ -92,7 +104,7 @@ class Cell(models.Model):
     time_start = models.TimeField(verbose_name="Время приема")
     time_end = models.TimeField(verbose_name="Окончание приема")
     specialist = models.ForeignKey(Specialist, verbose_name="Специалист")
-    cabinet = models.ForeignKey(Cabinet, verbose_name="Кабинет")
+    cabinet = models.ForeignKey(Cabinet, verbose_name="Кабинет", null=True, blank=True)
     performing_services = models.ManyToManyField(OKMUService, verbose_name="Выполняемые услуги")
     slot_type = models.ForeignKey(SlotType, verbose_name="Тип слота", null=True, blank=True)
 
@@ -149,6 +161,34 @@ class Appointment(TimeStampedModel):
     patient = models.ForeignKey(Patient, verbose_name="Пациент")
     cell = models.ForeignKey(Cell, verbose_name="Ячейка")
     additional_data = JSONField(verbose_name="Дополнительные параметры", null=True, blank=True)
+
+    @classmethod
+    def create_appointment(cls, patient, specialist, service, date, cell=None, additional_data=None):
+        exception_details = "Пациент: " + patient.fio + " Специалист: " + specialist.fio + \
+                            " Дата: " + str(date) + " Время: " + str(cell.time_start)
+        # вызвать исключение если ячейка занята
+        if cell.appointment_set.exists():
+            raise AppointmentError("Попытка назначения в занятую ячейку." + exception_details)
+        # если назначение на дату и время меньше текущего
+        if date < datetime.date.today():
+            raise AppointmentError("Попытка назначения в прошлое." + exception_details)
+        # если специалист не выполняет услугу
+        if not specialist.performing_services.filter(code=service.code).exists():
+            raise AppointmentError("Попытка назначение услуги, которую специалист не выполняет." + exception_details)
+        # eсли ячейка не принадлежит специалисту
+        if cell and (cell.specialist != specialist):
+            raise AppointmentError("Ячейка не принадлежит специалисту." + exception_details)
+        try:
+            appointment = Appointment(date=date, specialist=specialist, service=service,
+                                      patient=patient)
+            if cell:
+                appointment.cell = cell
+            if additional_data:
+                appointment.additional_data = additional_data
+            appointment.save()
+        except Exception as ex:
+            log.error(str(ex))
+            raise AppointmentError("Ошибка при сохранении модели назначения" + exception_details)
 
     class Meta:
         verbose_name = "Назначение"
