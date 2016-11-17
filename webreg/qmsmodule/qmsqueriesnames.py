@@ -39,6 +39,14 @@ QMS_QUERIES = {
                             'class': 'User.Query',
                             'query': 'Cre186'
                 },
+                'Create186Lab': {
+                            'class': 'User.qZenk.QueryLab',
+                            'query': 'Cre186'
+                },
+                'Create1860Lab': {
+                            'class': 'User.qZenk.QueryLab',
+                            'query': 'Cre1860'
+                },
                 'Create1860Schedule': {
                             'class': 'User.Query',
                             'query': 'Cre1860schedule'

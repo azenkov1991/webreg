@@ -2,7 +2,7 @@ import  logging
 from django.core.management.base import BaseCommand, CommandError
 from qmsmodule.qmsfunctions import *
 from qmsintegration.models import *
-from catalogs.models import SlotType
+from main.models import SlotType
 
 logger = logging.getLogger("webreg")
 
@@ -31,7 +31,9 @@ class Command(BaseCommand):
 
             tses_obj.name = name
             tses_obj.color = color
+            tses_obj.clinic = qmsdb.clinic
             tses_obj.save()
+
 
 
 

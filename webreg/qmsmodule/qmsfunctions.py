@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 import datetime
+from util.datetime import  daterange
 
 try:
     from .cachequery import *
@@ -134,10 +135,10 @@ class QMS:
         :param date_to: Дата конца datetime
         :return:
         Возвращает список ячееек
-        Поля: date, time_start, time_end, cabinet, session_type, okmu_list
+        Поля: date, time_start, time_end, cabinet, slot_type, okmu_list
         """
         cell_list = []
-        for date in (date_from + datetime.timedelta(n) for n in range((date_to - date_from).days)):
+        for date in daterange(date_from, date_to):
             self.query.execute_query("RaspFreeDetail", specialist, date.strftime("%Y%m%d"), None, None, None, 1)
             for cell_item in self.query.get_proxy_objects_list():
                 cell = ProxyObject()
@@ -154,9 +155,15 @@ class QMS:
                                                   int(time_end.split(":")[1]))
                 except:
                     cell.time_end = datetime.time(0, 0)
-                cell.session_type = cell_item.fin
+                cell.slot_type = cell_item.fin
                 cell.cabinet = cell_item.cabinet
                 cell.okmu_list = str(cell_item.Du).split(" ")
+                cell.free = cell_item.status
                 cell_list.append(cell)
         return cell_list
 
+    def create_appointment(self, patient, specialist, service, date, time=None):
+        pass
+
+    def create_laboratory_appointment(self, patient, specialit, sevice, date):
+        pass

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
+from django.contrib.postgres.fields import JSONField
 
 
 class OKMUService(models.Model):
@@ -8,6 +9,12 @@ class OKMUService(models.Model):
     )
     name = models.CharField(
         max_length=512, verbose_name="Название"
+    )
+    type = models.CharField(
+        max_length=128, verbose_name="Тип", blank=True, null=True
+    )
+    settings = JSONField(
+        verbose_name="Настройки", blank=True, null=True
     )
     parent = models.ForeignKey(
         'self', blank=True, null=True
@@ -33,7 +40,7 @@ class MKBDiagnos(models.Model):
         max_length=32, primary_key=True, verbose_name="Код МКБ"
     )
     name = models.CharField(
-    	max_length=1024, verbose_name="Название"
+        max_length=1024, verbose_name="Название"
     )
     is_finished = models.BooleanField(
         verbose_name="Является диагнозом"
@@ -54,11 +61,4 @@ class MKBDiagnos(models.Model):
         ordering = ["code"]
 
 
-class SlotType(models.Model):
-    name = models.CharField(
-        max_length=128, verbose_name="Имя"
-    )
-    color = models.CharField(
-        max_length=7, verbose_name="Цвет", help_text="HEX color, as #RRGGBB", blank=True, null=True
-    )
 
