@@ -64,4 +64,14 @@ django_project_root/media/
 staticfiles/
 
 webreg/config/secrets.json
+webreg/catalogs/migrations
+webreg/catalogs/migrations/*
+webreg/qmsintegration/migrations/*
+webreg/qmsintegration/migrations
+webreg/main/migrations/*
+webreg/main/migrations
+webreg/loghandle/migrations/*
+webreg/loghandle/migrations
+
+
 

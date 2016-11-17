@@ -61,6 +61,9 @@ class CellAdmin(admin.ModelAdmin):
     search_fields = ('specialist', 'date')
     ordering = ('-date', 'specialist')
 
+class EmptyAdmin(admin.ModelAdmin):
+    pass
+
 
 admin.site.register(Specialist, SpecialistAdmin)
 admin.site.register(Cell, CellAdmin)
@@ -69,4 +72,5 @@ admin.site.register(Patient, PatientAdmin)
 admin.site.register(Appointment, AppointmentAdmin)
 admin.site.register(Clinic, ClinicAdmin)
 admin.site.register(Department, DepartmentAdmin)
+admin.site.register(Specialization, EmptyAdmin)
 

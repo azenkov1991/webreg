@@ -35,7 +35,7 @@ class Command(BaseCommand):
             date_to = date(int(date_mas[0]), int(date_mas[1]), int(date_mas[2]))
         except Exception:
             raise CommandError("Неверный формат даты")
-        specialists = Specialist.objects.filter(department_id=department.id)
+        specialists = Specialist.objects.filter(department_id=department.id, IsActive=True)
 
         qms = QMS(qmsdb.settings)
         for specialist in specialists:

@@ -104,7 +104,9 @@ def get_external_id(model):
         return 0
     return imt.external_id
 
-
+def get_internal_id(external_id, qmsObj):
+    imt = IdMatchingTable.objects.get(external_id=external_id, object_matching_table__external_name=qmsObj)
+    return imt.internal_id
 
 def entity_exist(qmsObj, qqc):
     """

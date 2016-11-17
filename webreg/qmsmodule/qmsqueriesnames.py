@@ -59,9 +59,9 @@ QMS_QUERIES = {
                             'class': 'User.QueryCatalog',
                             'query': 'Tses'
                 },
-                'AvailUslForSpec': {
-                            'class': 'User.Query',
-                            'query': 'AvailUslForSpec'
+                'SpecialistPerformingServices': {
+                            'class': 'User.QueryCatalog',
+                            'query': 'SpecialistPerformingServices'
                 }
 
     }

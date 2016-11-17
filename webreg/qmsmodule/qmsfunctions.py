@@ -122,6 +122,10 @@ class QMS:
         self.query.execute_query("GetAllDoctors", self.DATABASE_CODE, department_code)
         return self.query.get_proxy_objects_list()
 
+    def get_usl_for_spec(self, spec_qqc244):
+        self.query.execute_query("SpecialistPerformingServices", spec_qqc244)
+        return self.query.get_proxy_objects_list()
+
     def get_timetable(self, specialist, date_from, date_to):
         """
 

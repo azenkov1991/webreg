@@ -32,11 +32,23 @@ class Department(models.Model):
         verbose_name_plural = "Подразделения"
 
 
+class Specialization(models.Model):
+    name = models.CharField(max_length=128, verbose_name='Специализация', blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Специализация"
+        verbose_name_plural = "Специализации"
+
+
 class Specialist(models.Model):
     fio = models.CharField(max_length=128, verbose_name="Полное имя")
-    specialization = models.CharField(max_length=128, verbose_name='Специализация', blank=True, null=True)
+    specialization = models.ForeignKey(Specialization, verbose_name="Специализация")
     performing_services = models.ManyToManyField(OKMUService, verbose_name="Выполняемые услуги")
     department = models.ForeignKey(Department, verbose_name="Подразделение")
+    IsActive = models.BooleanField(verbose_name="Активен")
 
     def __str__(self):
         return self.fio
