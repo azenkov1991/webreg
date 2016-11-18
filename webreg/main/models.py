@@ -57,7 +57,7 @@ class Specialist(models.Model):
     specialization = models.ForeignKey(Specialization, verbose_name="Специализация")
     performing_services = models.ManyToManyField(OKMUService, verbose_name="Выполняемые услуги")
     department = models.ForeignKey(Department, verbose_name="Подразделение")
-    IsActive = models.BooleanField(verbose_name="Активен")
+    active = models.BooleanField(verbose_name="Активен", default=True)
 
     def __str__(self):
         return self.fio
@@ -175,8 +175,9 @@ class Appointment(TimeStampedModel):
     cell = models.ForeignKey(Cell, verbose_name="Ячейка", null=True, blank=True)
     additional_data = JSONField(verbose_name="Дополнительные параметры", null=True, blank=True)
 
-    @qms.create_appointment
+
     @classmethod
+    @qms.create_appointment
     def create_appointment(cls, patient, specialist, service, date, cell=None, additional_data=None):
         exception_details = "Пациент: " + patient.fio + " Специалист: " + specialist.fio + \
                             " Дата: " + str(date)

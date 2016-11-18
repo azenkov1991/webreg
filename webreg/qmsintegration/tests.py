@@ -63,7 +63,7 @@ class TestQmsIntegrationAppointment(unittest.TestCase):
         self.service2 = OKMUService(code="A01.01.02", name="Прием терапевта2", is_finished=1, level=4)
         self.service2.save()
         self.specialist = Specialist(fio="Терапевт Петр Иванович",
-                                     specialization="Терапевт",
+                                     specialization=Specialization.objects.create(name="Терапевт"),
                                      department=self.department)
         self.specialist.save()
         set_external_id(self.specialist, "244", "vABAcddssdfe")
@@ -88,6 +88,7 @@ class TestQmsIntegrationAppointment(unittest.TestCase):
                                polis_number="123456789012345")
         self.patient.save()
         set_external_id(self.patient, "153", "vAB1245")
+
     def test_create_legal_appointment(self):
         try:
             ap = Appointment.create_appointment(self.patient, self.specialist, self.service1,

@@ -14,7 +14,7 @@ class TestMainModule(unittest.TestCase):
         self.service2 = OKMUService(code="A01.01.02", name="Прием терапевта2", is_finished=1, level=4)
         self.service2.save()
         self.specialist = Specialist(fio="Терапевт Петр Иванович",
-                                     specialization="Терапевт",
+                                     specialization=Specialization.objects.create(name="Терапевт"),
                                      department=self.department)
         self.specialist.save()
         self.specialist.performing_services.add(self.service1)
