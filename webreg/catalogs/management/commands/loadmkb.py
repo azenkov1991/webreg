@@ -29,14 +29,20 @@ class Command(BaseCommand):
             for service_fields_list in query.results():
                 code = service_fields_list[0]
                 name = service_fields_list[1]
+                par = service_fields_list[2]
+                try:
+                    parent = MKBDiagnos.objects.get(code=par)
+                except MKBDiagnos.DoesNotExist:
+                    parent = None
                 is_finished = (level >= 4)
-                if code is not None and name is not None:
+                if code and name:
                     try:
                         mkb_obj = MKBDiagnos.objects.get(code=code)
                     except MKBDiagnos.DoesNotExist:
-                        mkb_obj = MKBDiagnos(code=code, name=name, is_finished=is_finished, level=level)
+                        mkb_obj = MKBDiagnos(code=code, name=name, is_finished=is_finished, level=level, parent=parent)
                     else:
                         mkb_obj.is_finished = is_finished
                         mkb_obj.level = level
                         mkb_obj.name = name
+                        mkb_obj.parent = parent
                     mkb_obj.save()
