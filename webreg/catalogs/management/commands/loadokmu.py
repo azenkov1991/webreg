@@ -21,6 +21,37 @@ class Command(BaseCommand):
             OKMUService.objects.all().delete()
         self.load_okmu(cache_settings=qmsdb.settings)
 
+    def get_parent(self, parent):
+        try:
+            return OKMUService.objects.get(code=parent)
+        except OKMUService.DoesNotExist:
+            return None
+
+    def get_okmu_type(self, list):
+        try:
+            return list[3]
+        except:
+            return None
+
+    def get_okmu_settings(self, list):
+        try:
+            return jsonload(list[4])
+        except:
+            return None
+
+    def get_okmu(self, code, level, is_finished, name, parent, type, settings):
+        try:
+            okmu_obj =  OKMUService.objects.get(code=code)
+        except OKMUService.DoesNotExist:
+            okmu_obj = OKMUService(code=code)
+        okmu_obj.level = level
+        okmu_obj.is_finished = is_finished
+        okmu_obj.name = name
+        okmu_obj.parent = parent
+        okmu_obj.type = type
+        okmu_obj.settings = settings
+        return  okmu_obj
+
     def load_okmu(self, cache_settings):
         """
         Загрузка справочников ОКМУ из qms
@@ -32,26 +63,11 @@ class Command(BaseCommand):
             for service_fields_list in query.results():
                 code = service_fields_list[0]
                 name = service_fields_list[1]
-                parent = service_fields_list[2]
-                service_type = service_fields_list[3]
-                settings = service_fields_list[4]
-                is_finished = (level >= 4)
-                try:
-                    parent_obj = OKMUService.objects.get(code=parent)
-                except OKMUService.DoesNotExist:
-                    parent_obj = None
                 if code and name:
-                    try:
-                        okmu_obj = OKMUService.objects.get(code=code)
-                    except OKMUService.DoesNotExist:
-                        okmu_obj = OKMUService(code=code)
-                    okmu_obj.level = level
-                    okmu_obj.is_finished = is_finished
-                    okmu_obj.name = name
-                    okmu_obj.parent = parent_obj
-                    if service_type:
-                        okmu_obj.type = service_type
-                    if settings:
-                        okmu_obj.settings = jsonload(settings)
-                    okmu_obj.save()
+                    parent = self.get_parent(service_fields_list[2])
+                    is_finished = (level >= 4)
+                    type = self.get_okmu_type(service_fields_list)
+                    settings = self.get_okmu_settings(service_fields_list)
+                    self.get_okmu(code=code, level=level, is_finished=is_finished, name=name, parent=parent, type=type, settings=settings).save()
+
 

@@ -1,0 +1,31 @@
+#!/bin/bash
+
+systemctl stop postgresql-9.6.service
+systemctl start postgresql-9.6.service
+/usr/pgsql-9.6/bin/dropdb -U webreg_user webreg
+/usr/pgsql-9.6/bin/dropdb -U webreg_user webreglog
+/usr/pgsql-9.6/bin/createdb -U webreg_user -O webreg_user webreg
+/usr/pgsql-9.6/bin/createdb -U webreg_user -O webreg_user webreglog
+rm -Rf /home/webreg/webreg/catalogs/__pycache__
+rm -Rf /home/webreg/webreg/catalogs/migrations
+rm -Rf /home/webreg/webreg/main/__pycache__
+rm -Rf /home/webreg/webreg/main/migrations
+rm -Rf /home/webreg/webreg/qmsintegration/__pycache__
+rm -Rf /home/webreg/webreg/qmsintegration/migrations
+rm -Rf /home/webreg/webreg/loghandle/__pycache__
+rm -Rf /home/webreg/webreg/loghandle/migrations
+rm -Rf /home/webreg/webreg/mixins/__pycache__
+rm -Rf /home/webreg/webreg/config/__pycache__
+/home/webreg/webreg/manage.py makemigrations catalogs
+/home/webreg/webreg/manage.py migrate catalogs
+/home/webreg/webreg/manage.py makemigrations main
+/home/webreg/webreg/manage.py migrate main
+/home/webreg/webreg/manage.py makemigrations qmsintegration
+/home/webreg/webreg/manage.py migrate qmsintegration
+/home/webreg/webreg/manage.py migrate contenttypes
+/home/webreg/webreg/manage.py migrate admin
+/home/webreg/webreg/manage.py migrate auth
+/home/webreg/webreg/manage.py migrate sessions
+/home/webreg/webreg/manage.py makemigrations loghandle
+/home/webreg/webreg/manage.py migrate loghandle --database log_db
+/home/webreg/webreg/manage.py initdb

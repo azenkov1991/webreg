@@ -82,10 +82,9 @@ class Command(BaseCommand):
             qmsdb = QmsDB.objects.get(name=dbname)
         except models.ObjectDoesNotExist:
             raise CommandError("Нет описания базы данных Qms с именем " + dbname)
-        maybe_deps = Department.objects.filter(name=options["pID"])
-        if maybe_deps.count() == 1:
-            department = maybe_deps[0]
-        else:
+        try:
+            department = Department.objects.get(name=options["pID"])
+        except:
             department_id = options["department"]
             try:
                 department = Department.objects.get(pk=department_id)
