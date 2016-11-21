@@ -9,11 +9,12 @@ class Object(object):
 
 class TestQmsIntegration(unittest.TestCase):
     def setUp(self):
-        omt_spec = ObjectMatchingTable(internal_name="main.SpecialistTest",external_name='244')
+
+        omt_spec = ObjectMatchingTable(internal_name="main.Specialist", external_name='244')
         omt_spec.save()
-        omt_patient = ObjectMatchingTable(internal_name="main.PatientTest", external_name='153')
+        omt_patient = ObjectMatchingTable(internal_name="main.Patient", external_name='153')
         omt_patient.save()
-        omt_app = ObjectMatchingTable(internal_name="main.AppointmentTest", external_name='1860')
+        omt_app = ObjectMatchingTable(internal_name="main.Appointment", external_name='1860')
         omt_app.save()
 
         imt_spec = IdMatchingTable(internal_id=34, external_id="vABABAB('[",
@@ -32,17 +33,17 @@ class TestQmsIntegration(unittest.TestCase):
         specialist = Object()
 
         specialist._meta = Object()
-        specialist._meta.label = "main.SpecialistTest"
+        specialist._meta.label = "main.Specialist"
         specialist.id = 34
 
         patient = Object()
         patient._meta = Object()
-        patient._meta.label = "main.PatientTest"
+        patient._meta.label = "main.Patient"
         patient.id = 44
 
         app = Object()
         app._meta = Object()
-        app._meta.label = "main.AppointmentTest"
+        app._meta.label = "main.Appointment"
         app.id = 33
 
         external_vars = (get_external_variables(locals()))
@@ -66,7 +67,7 @@ class TestQmsIntegrationAppointment(unittest.TestCase):
                                      specialization=Specialization.objects.create(name="Терапевт"),
                                      department=self.department)
         self.specialist.save()
-        set_external_id(self.specialist, "244", "vABAcddssdfe")
+        set_external_id(self.specialist, "vABAcddssdfe")
         self.specialist.performing_services.add(self.service1)
 
         date1 = datetime.date.today() + datetime.timedelta(1)
@@ -87,7 +88,7 @@ class TestQmsIntegrationAppointment(unittest.TestCase):
                                birth_date=datetime.date(1991, 12, 3),
                                polis_number="123456789012345")
         self.patient.save()
-        set_external_id(self.patient, "153", "vAB1245")
+        set_external_id(self.patient, "vAB1245")
 
     def test_create_legal_appointment(self):
         try:

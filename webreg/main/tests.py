@@ -46,7 +46,7 @@ class TestMainModule(unittest.TestCase):
         except AppointmentError:
             assert False
 
-    def test_create_appintment_past(self):
+    def test_create_appointment_past(self):
         with self.assertRaises(AppointmentError):
             Appointment.create_appointment(self.patient, self.specialist, self.service1,
                                            datetime.date(2016, 5, 4),
