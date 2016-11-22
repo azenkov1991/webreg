@@ -1,13 +1,14 @@
-import unittest
+from django.test import TestCase
+from django.contrib.auth.models import User
+from main.logic import *
 from qmsintegration.models import *
-from main.models import *
 
 
 class Object(object):
     pass
 
 
-class TestQmsIntegration(unittest.TestCase):
+class TestQmsIntegration(TestCase):
     def setUp(self):
 
         omt_spec = ObjectMatchingTable(internal_name="main.Specialist", external_name='244')
@@ -53,8 +54,21 @@ class TestQmsIntegration(unittest.TestCase):
         self.assertEqual(external_vars['qqc1860'], "vAB'^DFC")
 
 
-class TestQmsIntegrationAppointment(unittest.TestCase):
+class TestQmsIntegrationAppointment(TestCase):
     def setUp(self):
+        specialist_matching = ObjectMatchingTable(id=1, internal_name="main.Specialist", external_name="244")
+        patient_matching = ObjectMatchingTable(id=2, internal_name="main.Patient", external_name="153")
+        appointment_matching = ObjectMatchingTable(id=3, internal_name="main.Appointment", external_name="1860")
+        specialist_matching.save()
+        patient_matching.save()
+        appointment_matching.save()
+
+        self.user = User(username="TestUser2")
+        self.user.save()
+        self.user_profile = UserProfile(user=self.user)
+        self.user_profile.save()
+        self.qms_user = QmsUser(name="Платежка", qqc244="vABdABЪABAA", user_profile=self.user_profile)
+        self.qms_user.save()
         self.clinic = Clinic(name="СКЦ", city="Красноярск", address="Vbhdsfdsf")
         self.clinic.save()
         self.department = Department(name="Поликлиника1", clinic=self.clinic)
@@ -92,7 +106,7 @@ class TestQmsIntegrationAppointment(unittest.TestCase):
 
     def test_create_legal_appointment(self):
         try:
-            ap = Appointment.create_appointment(self.patient, self.specialist, self.service1,
+            ap = Appointment.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
                                                 datetime.date.today() + datetime.timedelta(1),
                                                 self.cell1)
         except AppointmentError:

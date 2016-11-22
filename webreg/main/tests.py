@@ -1,10 +1,21 @@
-import unittest
+from django.test import TestCase
+from constance.test import override_config
+from django.contrib.auth.models import User
 from main.models import *
-from catalogs.models import OKMUService
 
 
-class TestMainModule(unittest.TestCase):
+@override_config(QMS_INTEGRATION_ENABLE=False)
+class TestMainModule(TestCase):
     def setUp(self):
+        import main.logic
+        self.create_appointment = main.logic.create_appointment
+        try:
+            self.user = User.objects.get(username="TestUser")
+        except User.DoesNotExist:
+            self.user = User(username="TestUser")
+        self.user.save()
+        self.user_profile = UserProfile(user=self.user)
+        self.user_profile.save()
         self.clinic = Clinic(name="СКЦ", city="Красноярск", address="Vbhdsfdsf")
         self.clinic.save()
         self.department = Department(name="Поликлиника1", clinic=self.clinic)
@@ -40,7 +51,7 @@ class TestMainModule(unittest.TestCase):
 
     def test_create_legal_appointment(self):
         try:
-            ap = Appointment.create_appointment(self.patient, self.specialist, self.service1,
+            ap = self.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
                                                 datetime.date.today() + datetime.timedelta(1),
                                                 self.cell1)
         except AppointmentError:
@@ -48,27 +59,27 @@ class TestMainModule(unittest.TestCase):
 
     def test_create_appointment_past(self):
         with self.assertRaises(AppointmentError):
-            Appointment.create_appointment(self.patient, self.specialist, self.service1,
+            self.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
                                            datetime.date(2016, 5, 4),
                                            self.cell1)
 
     def test_create_second_appointment(self):
         with self.assertRaises(AppointmentError):
-            ap = Appointment.create_appointment(self.patient, self.specialist, self.service1,
+            ap = self.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
                                                 datetime.date.today() + datetime.timedelta(1),
                                                 self.cell1)
-            ap = Appointment.create_appointment(self.patient, self.specialist, self.service1,
+            ap = self.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
                                                 datetime.date.today() + datetime.timedelta(1),
                                                 self.cell1)
 
     def test_create_appointment_with_wrong_service(self):
         with self.assertRaises(AppointmentError):
-            ap = Appointment.create_appointment(self.patient, self.specialist, self.service2,
+            ap = self.create_appointment(self.user_profile, self.patient, self.specialist, self.service2,
                                                 datetime.date.today() + datetime.timedelta(1),
                                                 self.cell1)
 
     def test_create_appointment_without_cell(self):
-        ap = Appointment.create_appointment(self.patient, self.specialist, self.service1,
+        ap = self.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
                                             datetime.date.today() + datetime.timedelta(1))
 
 

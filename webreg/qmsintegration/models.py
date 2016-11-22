@@ -34,6 +34,23 @@ class QmsDB(models.Model):
         verbose_name_plural = "Базы данных QMS"
 
 
+class QmsUser(models.Model):
+    name = models.CharField(
+        max_length=128, verbose_name="Имя пользователя"
+    )
+    qqc244 = models.CharField(
+        max_length=256, verbose_name="qqc пользователя"
+    )
+    user_profile = models.OneToOneField('main.UserProfile')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Пользователь qms"
+        verbose_name_plural = "Пользователи qms"
+
+
 class ObjectMatchingTable(models.Model):
     internal_name = models.CharField(max_length=128, verbose_name='Имя таблицы')
     external_name = models.CharField(max_length=128, verbose_name='Имя во внешней системе')

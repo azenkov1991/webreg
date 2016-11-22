@@ -33,6 +33,9 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+
+
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -40,7 +43,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'constance.backends.database',
+    'constance'
+
 ]
+
 
 LOCAL_APPS = (
     'util',
@@ -125,4 +132,8 @@ for item in LOCAL_APPS:
 
 DATABASE_ROUTERS = ['loghandle.db_router.LogRouter']
 
+CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
 
+CONSTANCE_CONFIG = {
+    'QMS_INTEGRATION_ENABLE': (True, 'QMS integration enable')
+}
