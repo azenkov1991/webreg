@@ -17,12 +17,9 @@ def check_enable(decorator):
     def false_decorator(fn):
         return fn
 
-    print (config.QMS_INTEGRATION_ENABLE)
     if config.QMS_INTEGRATION_ENABLE:
-        print("Декораторы включены")
         return decorator
     else:
-        print("Декораторы отключены")
         return false_decorator
 
 

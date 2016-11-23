@@ -70,6 +70,10 @@ QMS_QUERIES = {
                 'SpecialistPerformingServices': {
                             'class': 'User.QueryCatalog',
                             'query': 'SpecialistPerformingServices'
+                },
+                'GG': {
+                    'class': 'User.Query',
+                    'query': 'GG'
                 }
 
     }

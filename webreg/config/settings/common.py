@@ -34,8 +34,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 
-
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -54,6 +52,7 @@ LOCAL_APPS = (
     'loghandle',
     'catalogs',
     'main',
+    'qmsmodule',
     'qmsintegration',
 )
 

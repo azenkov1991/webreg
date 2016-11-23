@@ -70,7 +70,6 @@ class QMS:
             query_result = self.query.fetch_all()[0]
             if query_result[0] != u'OK':
                 return None
-            print(query_result[1])
             columns = self.query.get_columns()
             query_result = dict(zip(columns, query_result))
             for (k1, k2) in zip(['birth_date', 'address_reg', 'address_liv'],
@@ -162,8 +161,46 @@ class QMS:
                 cell_list.append(cell)
         return cell_list
 
-    def create_appointment(self, patient, specialist, service, date, time=None):
-        pass
+    def create_appointment(self, user, patient, specialist, service, date, time_start=None, time_end=None):
+        """
+        Функция создания назначения в qms
+        :param user: qqc244 специалиста от которого назначаем
+        :param patient:  qqc153 пациента
+        :param specialist: qqc244 специалиста к кторому назанчаем
+        :param service: код ОКМУ услуги
+        :param date: дата назначения
+        :param time: время назначения. Если время назначения None, то назначение в очередь
+        :return:
+        возвращает qqc1860 назначения или None
+        """
 
-    def create_laboratory_appointment(self, patient, specialit, sevice, date):
+        # TODO: добавить во входные аргументы additional_data и брать оттуда pNDiag, pKDo, Nnapr...
+        # TODO: если услуга прием найти по специализации предыдущий эпизод
+        self.query.execute_query("Create174", user, patient,
+                                 date.strftime("%Y%m%d"), None, None, 1, None, None)
+        qqc174 = self.query.result
+        if not qqc174:
+            return None
+        self.query.execute_query("Create186", user, date.strftime("%Y%m%d"),
+                                 datetime.datetime.now().strftime("%H:%M"), qqc174)
+        qqc186 = self.query.result
+        if not qqc186:
+            return None
+        if time_start:
+            # назначение в расписание
+            self.query.execute_query("Create1860Schedule", specialist, qqc186, date.strftime("%Y%m%d"),
+                                     time_start.strftime("%H:%M") + "-" + time_end.strftime("%H:%M"),
+                                     service)
+        else:
+            # назначенеи в очередь
+            self.query.execute_query("Create1860", qqc244, qqc186, date.strftime("%Y%m%d"),
+                                     date + datetime.timedelta(7).strftime("%Y%m%d"),
+                                     None, service)
+
+        (qqc1860, status) = tuple(self.query.fetch_all()[0])
+        if status != "назначение создано":
+            return None
+        return qqc1860
+
+    def create_laboratory_appointment(self, user, patient, specialit, sevice, date):
         pass
