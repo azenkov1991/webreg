@@ -35,6 +35,10 @@ QMS_QUERIES = {
                             'class': 'User.Query',
                             'query': 'Cre174'
                 },
+                'GetPreviousqqc174': {
+                            'class': 'User.QueryCatalog',
+                            'query': 'GetPreviousqqc174'
+                },
                 'Create186': {
                             'class': 'User.Query',
                             'query': 'Cre186'
@@ -54,6 +58,10 @@ QMS_QUERIES = {
                 'Create1860': {
                             'class': 'User.Query',
                             'query': 'Cre1860'
+                },
+                'Cancel1860': {
+                            'class': 'User.QueryCatalog',
+                            'query': 'cancel1860'
                 },
                 'LoadOKMU': {
                             'class': 'User.QueryCatalog',
