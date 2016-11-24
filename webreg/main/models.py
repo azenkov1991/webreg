@@ -16,6 +16,11 @@ class AppointmentError(Exception):
 
 class UserProfile(models.Model):
     user = models.ForeignKey('auth.User')
+    clinic = models.ForeignKey('Clinic', verbose_name="Мед. учреждение", null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Профиль пользователя"
+        verbose_name_plural = "Профиля пользователей"
 
 
 class Clinic(models.Model):

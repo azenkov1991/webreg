@@ -16,7 +16,7 @@ class QmsDB(models.Model):
     connection_param = JSONField(verbose_name="Настройки соединения")
     db_code = models.CharField(max_length=128, verbose_name="Код основной базы данных")
     coding = models.CharField(max_length=16, verbose_name="Кодировка базы данных")
-    clinic = models.ForeignKey('main.Clinic', verbose_name="Мед. учреждение")
+    clinic = models.OneToOneField('main.Clinic', verbose_name="Мед. учреждение")
 
     @property
     def settings(self):

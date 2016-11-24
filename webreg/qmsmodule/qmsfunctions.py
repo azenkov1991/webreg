@@ -171,7 +171,8 @@ class QMS:
         :param specialist: qqc244 специалиста к кторому назанчаем
         :param service: код ОКМУ услуги
         :param date: дата назначения
-        :param time: время назначения. Если время назначения None, то назначение в очередь
+        :param time_start: время назначения. Если время назначения None, то назначение в очередь
+        :param time_end:
         :return:
         возвращает qqc1860 назначения или None
         """
@@ -232,13 +233,13 @@ class QMS:
         qqc174 = self.query.result
         if not qqc174:
             log.error("Не создан эпизод в qms. " + str(locals()))
-            return None
+            return None, None
         self.query.execute_query("Create186Lab", user, date.strftime("%Y%m%d"),
                                  datetime.datetime.now().strftime("%H:%M"), qqc174)
         qqc186 = self.query.result
         if not qqc186:
             log.error("Не создана услуга ввода назначений. " + str(locals()))
-            return None
+            return None, None
         lab_param_str = ""
         if lab_param:
             lab_param_str = lab_param.get("lab_speciman", "") + "~" + \
@@ -254,5 +255,5 @@ class QMS:
         (qqc1860, lab_number, status) = tuple(self.query.fetch_all()[0])
         if status != "назначение создано":
             log.error(status + str(locals()))
-            return None
+            return None, None
         return qqc1860, lab_number

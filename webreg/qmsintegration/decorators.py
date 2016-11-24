@@ -1,5 +1,7 @@
-from qmsintegration.models import get_external_variables
+from qmsintegration.models import *
 from constance import config
+from main.models import AppointmentError
+from qmsmodule.qmsfunctions import QMS
 
 
 def check_enable(decorator):
@@ -26,13 +28,31 @@ def check_enable(decorator):
 @check_enable
 def create_appointment(fn):
     def create_appointment_in_qms(user_profile, patient, specialist, service, date, cell=None, additional_data=None):
-        q = get_external_variables(locals())
+        qqc244 = get_external_id(specialist)
+        qqc153 = get_external_id(patient)
         qqc244n = user_profile.qmsuser.qqc244
-        print (q['qqc244'])
-        print (q['qqc153'])
+        clinic = user_profile.clinic
+        if not clinic:
+            clinic = specialist.department.clinic
+        qms = QMS(clinic.qmsdb.settings)
+        lab_number = None
         # Если лабораторное назначение
+        if service.type == "Лаборатория":
+            qqc1860, lab_number = qms.create_laboratory_appointment(qqc244n, qqc153, qqc244,
+                                                                    service.code, date, additional_data)
         # Если обычное назначение
-        return fn(user_profile, patient, specialist, service, date, cell, additional_data)
+        else:
+            qqc1860 = qms.create_appointment(qqc244n, qqc153, qqc244, service.code, date,
+                                             cell.time_start if cell else None,
+                                             cell.time_end if cell else None)
+        if not qqc1860:
+            raise AppointmentError("Ошибка интегации с qms")
+
+        appointment = fn(user_profile, patient, specialist, service, date, cell, additional_data)
+        if lab_number:
+            appointment.additional_data["lab_numper"] = lab_number
+            appointment.save()
+        return appointment
     return create_appointment_in_qms
 
 
