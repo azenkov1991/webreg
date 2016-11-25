@@ -2,6 +2,20 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from main.logic import *
 from qmsintegration.models import *
+from qmsmodule.qmsfunctions import QMS
+
+TEST_BASE_SETTINGS = {
+    'CONNECTION_PARAM': {
+        'user': '_system',
+        'password': 'SYS',
+        'host': '172.16.1.10',
+        'port': '1972',
+        'wsdl_port': '57772',
+        'namespace': 'SKCQMS'
+    },
+    'CACHE_CODING': 'cp1251',
+    'DATABASE_CODE': u'СКЦ'
+}
 
 
 class Object(object):
@@ -56,6 +70,9 @@ class TestQmsIntegration(TestCase):
 
 class TestQmsIntegrationAppointment(TestCase):
     def setUp(self):
+        self.qms = QMS(TEST_BASE_SETTINGS)
+        self.date_qms_str = self.qms.query.execute_query('SetFakeRaspOnSunday', "vABdAAuAAAC", "09:00-09:30")
+
         specialist_matching = ObjectMatchingTable(id=1, internal_name="main.Specialist", external_name="244")
         patient_matching = ObjectMatchingTable(id=2, internal_name="main.Patient", external_name="153")
         appointment_matching = ObjectMatchingTable(id=3, internal_name="main.Appointment", external_name="1860")
@@ -71,24 +88,29 @@ class TestQmsIntegrationAppointment(TestCase):
         self.qms_user.save()
         self.clinic = Clinic(name="СКЦ", city="Красноярск", address="Vbhdsfdsf")
         self.clinic.save()
+        self.qmsdb = QmsDB(name="test", clinic=self.clinic,
+                           connection_param=TEST_BASE_SETTINGS['CONNECTION_PARAM'],
+                           db_code="СКЦ", coding="cp1251")
         self.department = Department(name="Поликлиника1", clinic=self.clinic)
         self.department.save()
-        self.service1 = OKMUService(code="A01.01.01", name="Прием терапевта", is_finished=1, level=4)
+        self.service1 = OKMUService(code="B01.047.01", name="Прием врача-терапевта первичный", is_finished=1, level=4)
         self.service1.save()
-        self.service2 = OKMUService(code="A01.01.02", name="Прием терапевта2", is_finished=1, level=4)
+        self.service2 = OKMUService(code="B01.047.02", name="Прием врача-терапевта повторный", is_finished=1, level=4)
         self.service2.save()
-        self.specialist = Specialist(fio="Терапевт Петр Иванович",
+        self.specialist = Specialist(fio="Садилова Надежда Дмитриевна",
                                      specialization=Specialization.objects.create(name="Терапевт"),
                                      department=self.department)
         self.specialist.save()
-        set_external_id(self.specialist, "vABAcddssdfe")
+        set_external_id(self.specialist, "vABdAAuAAAC")
         self.specialist.performing_services.add(self.service1)
 
-        date1 = datetime.date.today() + datetime.timedelta(1)
+        first_sunday = datetime.date.today() + datetime.timedelta(6 - datetime.date.today().weekday())
+        date1 = first_sunday
         date2 = datetime.date.today() - datetime.timedelta(2)
         self.cell1 = Cell(date=date1,
-                          time_start=datetime.time(10, 0),
-                          time_end=datetime.time(10, 30))
+                          time_start=datetime.time(9, 0),
+                          time_end=datetime.time(9, 30))
+
         self.cell1.specialist = self.specialist
         self.cell2 = Cell(date=date2,
                           time_start=datetime.time(10, 0),
@@ -98,17 +120,30 @@ class TestQmsIntegrationAppointment(TestCase):
         self.cell1.save()
         self.cell2.save()
 
-        self.patient = Patient(first_name="Иванов", last_name="Иван", middle_name="Иванович",
+        self.patient = Patient(first_name="Тест", last_name="Дарья", middle_name="Женщина",
                                birth_date=datetime.date(1991, 12, 3),
                                polis_number="123456789012345")
         self.patient.save()
-        set_external_id(self.patient, "vAB1245")
+        set_external_id(self.patient, "vABAJnb")
+
+    def tearDown(self):
+        self.date_qms_str = self.qms.query.execute_query('DeleteFakeRasp', "vABdAAuAAAC", self.date_qms_str)
 
     def test_create_legal_appointment(self):
         try:
             ap = Appointment.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
-                                                datetime.date.today() + datetime.timedelta(1),
+                                                self.cell1.date,
                                                 self.cell1)
+            # проверка создания назначения в qms
+            qqc1860 = get_external_id(ap)
+            self.qms.query.execute_query("GG", "1860", "u", qqc1860)
+            service_name = self.qms.query.result
+            self.assertEqual(service_name, "Прием_(осмотр,_консультация)_врача-терапевта_первичный",
+                             "Неверное имя создания услуги в Qms")
+            self.qms.query.execute_query("GG", "1860", "pPN", qqc1860)
+            service_time = self.qms.query.result
+            self.assertEqual(service_time, "09:00-09:30", "Неверное время создания услуги в qms")
+            self.qms.query.execute_query('Cancel1860', qqc1860)
         except AppointmentError:
             assert False
 

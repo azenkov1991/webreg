@@ -39,6 +39,14 @@ QMS_QUERIES = {
                             'class': 'User.QueryCatalog',
                             'query': 'GetPreviousqqc174'
                 },
+                'SetFakeRaspOnSunday': {
+                            'class': 'User.QueryCatalog',
+                            'class_method': 'SetFakeRaspOnSunday'
+                },
+                'DeleteFakeRasp': {
+                            'class': 'User.QueryCatalog',
+                            'class_method': 'DeleteFakeRasp'
+                },
                 'Create186': {
                             'class': 'User.Query',
                             'query': 'Cre186'

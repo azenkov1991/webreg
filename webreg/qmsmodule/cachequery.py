@@ -197,7 +197,10 @@ class CacheODBCQuery:
         if self._result:
             return self._result
         else:
-            return self._fetch()[0]
+            try:
+                return self._fetch()[0]
+            except AttributeError:
+                return None
 
     def _make_connection(self):
         del self.conn

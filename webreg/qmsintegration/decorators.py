@@ -49,6 +49,7 @@ def create_appointment(fn):
             raise AppointmentError("Ошибка интегации с qms")
 
         appointment = fn(user_profile, patient, specialist, service, date, cell, additional_data)
+        set_external_id(appointment, qqc1860)
         if lab_number:
             appointment.additional_data["lab_numper"] = lab_number
             appointment.save()

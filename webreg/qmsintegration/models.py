@@ -128,7 +128,7 @@ def get_external_id(model):
     try:
         imt = IdMatchingTable.objects.get(internal_id=internal_id, object_matching_table__internal_name=internal_name)
     except models.ObjectDoesNotExist:
-        log.error("Ошибка интеграции с Qms. Не найден id: internal_id=" + internal_id +
+        log.error("Ошибка интеграции с Qms. Не найден id: internal_id=" + str(internal_id) +
                   " model=" + internal_name)
         raise QmsIntegrationError
     return imt.external_id
