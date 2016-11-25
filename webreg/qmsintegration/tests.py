@@ -72,6 +72,7 @@ class TestQmsIntegrationAppointment(TestCase):
     def setUp(self):
         self.qms = QMS(TEST_BASE_SETTINGS)
         self.date_qms_str = self.qms.query.execute_query('SetFakeRaspOnSunday', "vABdAAuAAAC", "09:00-09:30")
+        self.date_qms_str2 = self.qms.query.execute_query('SetFakeRaspOnSunday', "vABdAAuAAAC", "10:00-10:30")
 
         specialist_matching = ObjectMatchingTable(id=1, internal_name="main.Specialist", external_name="244")
         patient_matching = ObjectMatchingTable(id=2, internal_name="main.Patient", external_name="153")
@@ -106,7 +107,7 @@ class TestQmsIntegrationAppointment(TestCase):
 
         first_sunday = datetime.date.today() + datetime.timedelta(6 - datetime.date.today().weekday())
         date1 = first_sunday
-        date2 = datetime.date.today() - datetime.timedelta(2)
+        date2 = date1 + datetime.timedelta(7)
         self.cell1 = Cell(date=date1,
                           time_start=datetime.time(9, 0),
                           time_end=datetime.time(9, 30))
@@ -127,7 +128,8 @@ class TestQmsIntegrationAppointment(TestCase):
         set_external_id(self.patient, "vABAJnb")
 
     def tearDown(self):
-        self.date_qms_str = self.qms.query.execute_query('DeleteFakeRasp', "vABdAAuAAAC", self.date_qms_str)
+        self.qms.query.execute_query('DeleteFakeRasp', "vABdAAuAAAC", self.date_qms_str)
+        self.qms.query.execute_query('DeleteFakeRasp', "vABdAAuAAAC", self.date_qms_str2)
 
     def test_create_legal_appointment(self):
         try:
@@ -146,6 +148,21 @@ class TestQmsIntegrationAppointment(TestCase):
             self.qms.query.execute_query('Cancel1860', qqc1860)
         except AppointmentError:
             assert False
+
+    def test_create_appointment_order(self):
+        ap = Appointment.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
+                                            self.cell1.date)
+        qqc1860 = get_external_id(ap)
+        self.qms.query.execute_query("GG", "1860", "u", qqc1860)
+        service_name = self.qms.query.result
+        self.assertEqual(service_name, "Прием_(осмотр,_консультация)_врача-терапевта_первичный",
+                         "Неверное имя создания услуги в Qms")
+        self.qms.query.execute_query("GG", "1860", "datAF", qqc1860)
+        service_date = self.qms.query.result
+        self.assertEqual(service_date, "0", "Неверная дата назначения в qms")
+        self.qms.query.execute_query('Cancel1860', qqc1860)
+
+
 
 
 
