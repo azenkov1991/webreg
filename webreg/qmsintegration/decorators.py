@@ -1,7 +1,9 @@
-from qmsintegration.models import *
 from constance import config
 from main.models import AppointmentError
+from catalogs.models import OKMUService
+from qmsintegration.models import *
 from qmsmodule.qmsfunctions import QMS
+from qmsmodule.cachequery import CacheQueryError
 
 
 def check_enable(decorator):
@@ -34,25 +36,41 @@ def create_appointment(fn):
         clinic = user_profile.clinic
         if not clinic:
             clinic = specialist.department.clinic
-        qms = QMS(clinic.qmsdb.settings)
-        lab_number = None
-        # Если лабораторное назначение
-        if service.type == "Лаборатория":
-            qqc1860, lab_number = qms.create_laboratory_appointment(qqc244n, qqc153, qqc244,
-                                                                    service.code, date, additional_data)
-        # Если обычное назначение
-        else:
-            qqc1860 = qms.create_appointment(qqc244n, qqc153, qqc244, service.code, date,
-                                             cell.time_start if cell else None,
-                                             cell.time_end if cell else None)
-        if not qqc1860:
-            raise AppointmentError("Ошибка интегации с qms")
-
-        appointment = fn(user_profile, patient, specialist, service, date, cell, additional_data)
-        set_external_id(appointment, qqc1860)
-        if lab_number:
-            appointment.additional_data = {"lab_number": lab_number}
-            appointment.save()
+        try:
+            qms = QMS(clinic.qmsdb.settings)
+            lab_number = None
+            # Если лабораторное назначение
+            if service.type == "Лаборатория":
+                qqc1860, lab_number = qms.create_laboratory_appointment(qqc244n, qqc153, qqc244,
+                                                                        service.code, date, additional_data)
+            # Если обычное назначение
+            else:
+                # подмена услуги с первичного приема на повторный
+                if not ("повторный" in service.name):
+                    qms.query.execute_query("GetSecondService", qqc153, qqc244, service.code, 30,
+                                            date.strftime("%Y%m%d"))
+                    new_code = qms.query.result
+                    if new_code:
+                        try:
+                            service = OKMUService.objects.get(code=new_code)
+                        except OKMUService.DoesNotExist:
+                            raise AppointmentError("Не найдена услуга повторного приема")
+                qqc1860 = qms.create_appointment(qqc244n, qqc153, qqc244, service.code, date,
+                                                 cell.time_start if cell else None,
+                                                 cell.time_end if cell else None)
+            if not qqc1860:
+                raise AppointmentError("Ошибка интегации с qms")
+        except CacheQueryError:
+            raise AppointmentError("Ошибка интеграции с qms")
+        try:
+            appointment = fn(user_profile, patient, specialist, service, date, cell, additional_data)
+            set_external_id(appointment, qqc1860)
+            if lab_number:
+                appointment.additional_data = {"lab_number": lab_number}
+                appointment.save()
+        except AppointmentError as ap:
+            qms.query.execute_query("Cancel1860", qqc1860)
+            raise ap
         return appointment
     return create_appointment_in_qms
 

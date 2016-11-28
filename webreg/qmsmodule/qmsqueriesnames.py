@@ -35,6 +35,10 @@ QMS_QUERIES = {
                             'class': 'User.Query',
                             'query': 'Cre174'
                 },
+                'GetSecondService': {
+                            'class': 'User.QueryCatalog',
+                            'class_method': 'GetSecondService'
+                },
                 'GetPreviousqqc174': {
                             'class': 'User.QueryCatalog',
                             'query': 'GetPreviousqqc174'
@@ -54,6 +58,10 @@ QMS_QUERIES = {
                 'Create186Lab': {
                             'class': 'User.qZenk.QueryLab',
                             'query': 'Cre186'
+                },
+                'Create293': {
+                            'class': 'User.Query',
+                            'query': 'Cre293'
                 },
                 'Create1860Lab': {
                             'class': 'User.qZenk.QueryLab',

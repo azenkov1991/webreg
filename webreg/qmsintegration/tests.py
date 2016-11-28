@@ -8,7 +8,7 @@ TEST_BASE_SETTINGS = {
     'CONNECTION_PARAM': {
         'user': '_system',
         'password': 'SYS',
-        'host': '172.16.1.10',
+        'host': '10.1.1.8',  #''172.16.1.10',
         'port': '1972',
         'wsdl_port': '57772',
         'namespace': 'SKCQMS'
@@ -71,8 +71,6 @@ class TestQmsIntegration(TestCase):
 class TestQmsIntegrationAppointment(TestCase):
     def setUp(self):
         self.qms = QMS(TEST_BASE_SETTINGS)
-        self.date_qms_str = self.qms.query.execute_query('SetFakeRaspOnSunday', "vABdAAuAAAC", "09:00-09:30")
-        self.date_qms_str2 = self.qms.query.execute_query('SetFakeRaspOnSunday', "vABdAAuAAAC", "10:00-10:30")
 
         specialist_matching = ObjectMatchingTable(id=1, internal_name="main.Specialist", external_name="244")
         patient_matching = ObjectMatchingTable(id=2, internal_name="main.Patient", external_name="153")
@@ -115,10 +113,13 @@ class TestQmsIntegrationAppointment(TestCase):
         set_external_id(self.procedure_cabinet, "vABdAApASAA")
 
         self.specialist.performing_services.add(self.service1)
-
+        self.specialist.performing_services.add(self.service2)
         first_sunday = datetime.date.today() + datetime.timedelta(6 - datetime.date.today().weekday())
         date1 = first_sunday
         date2 = date1 + datetime.timedelta(7)
+        self.date_qms_str = self.qms.query.execute_query('SetFakeRaspOnSunday', "vABdAAuAAAC", "09:00-09:30")
+        self.date_qms_str2 = self.qms.query.execute_query('SetFakeRaspOnSunday', "vABdAAuAAAC", "10:00-10:30",
+                                                          date2.strftime("%Y%m%d"))
         self.cell1 = Cell(date=date1,
                           time_start=datetime.time(9, 0),
                           time_end=datetime.time(9, 30))
@@ -191,6 +192,14 @@ class TestQmsIntegrationAppointment(TestCase):
         self.assertEqual(contingent_code, "102")
         self.assertEqual(ap.additional_data['lab_number'][0:7], "TMP" + self.cell1.date.strftime("%Y"))
         self.qms.query.execute_query('Cancel1860', qqc1860)
+
+    def test_second_appointment(self):
+        ap = Appointment.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
+                                            self.cell1.date,
+                                            self.cell1)
+        ap2 = Appointment.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
+                                            self.cell2.date,
+                                            self.cell2)
 
 
 

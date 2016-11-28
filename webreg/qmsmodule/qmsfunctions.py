@@ -16,6 +16,7 @@ SOAP = 2
 
 log = logging.getLogger("qmsfunctions")
 
+
 class QMS:
     def __init__(self, cache_settings, connection_mode=ODBC):
         if connection_mode == ODBC:
@@ -178,10 +179,15 @@ class QMS:
         """
 
         # TODO: добавить во входные аргументы additional_data и брать оттуда pNDiag, pKDo, Nnapr...
-        # TODO: если услуга прием найти по специализации предыдущий эпизод
-        self.query.execute_query("Create174", user, patient,
-                                 date.strftime("%Y%m%d"), None, None, 1, None, None)
+
+        # попытка найти предыдущий эпизод
+        self.query.execute_query("GetPreviousqqc174", patient, specialist,
+                                 30, date.strftime("%Y%m%d"))
         qqc174 = self.query.result
+        if not qqc174:
+            self.query.execute_query("Create174", user, patient,
+                                     date.strftime("%Y%m%d"), None, None, 1, None, None)
+            qqc174 = self.query.result
         if not qqc174:
             log.error("Не создан эпизод в qms. " + str(locals()))
             return None
@@ -191,6 +197,10 @@ class QMS:
         if not qqc186:
             log.error("Не создана услуга ввода назначений. " + str(locals()))
             return None
+        self.query.execute_query("Create293", qqc186, user)
+        qqc293 = self.query.result
+        if not qqc293:
+            log.error("Не создан источник финансирования" + str(locals()))
         if time_start:
             # назначение в расписание
             self.query.execute_query("Create1860Schedule", specialist, qqc186, date.strftime("%Y%m%d"),
@@ -203,7 +213,7 @@ class QMS:
                                      None, service)
 
         (qqc1860, status) = tuple(self.query.fetch_all()[0])
-        if status != "назначение создано":
+        if (not qqc1860) or status != "назначение создано":
             log.error(status + str(locals()))
             return None
         return qqc1860
@@ -240,6 +250,10 @@ class QMS:
         if not qqc186:
             log.error("Не создана услуга ввода назначений. " + str(locals()))
             return None, None
+        self.query.execute_query("Create293", qqc186, user)
+        qqc293 = self.query.result
+        if not qqc293:
+            log.error("Не создан источник финансирования" + str(locals()))
         lab_param_str = ""
         if lab_param:
             lab_param_str = lab_param.get("lab_speciman", "") + "~" + \
@@ -253,7 +267,7 @@ class QMS:
                                  (date + datetime.timedelta(7)).strftime("%Y%m%d"),
                                  None, service, lab_param_str)
         (qqc1860, lab_number, status) = tuple(self.query.fetch_all()[0])
-        if status != "назначение создано":
+        if (not qqc1860) or status != "назначение создано":
             log.error(status + str(locals()))
             return None, None
         return qqc1860, lab_number
