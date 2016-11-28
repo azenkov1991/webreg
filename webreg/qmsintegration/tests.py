@@ -162,6 +162,10 @@ class TestQmsIntegrationAppointment(TestCase):
         self.assertEqual(service_date, "0", "Неверная дата назначения в qms")
         self.qms.query.execute_query('Cancel1860', qqc1860)
 
+    def test_create_appointment_laboratory(self):
+        
+
+
 
 
 

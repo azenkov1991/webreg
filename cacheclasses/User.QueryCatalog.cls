@@ -74,7 +74,7 @@ ClassMethod InitQms() [ ProcedureBlock = 0 ]
 ClassMethod InitQMSqqc186(qqc186) [ ProcedureBlock = 0 ]
 {
 	new quser
-	set qARM=##class(%TqARM).%New() do qARM.Create()
+	set qARM=##class(Library.TqARM).%New() do qARM.Create()
 	set quser = qW.GG(244,"quser",qUSER.qqc244(qW.GG(186,"pIDo",qqc186),qW.GG(186,"pID",qqc186),qW.GG(186,"pIDz",qqc186)))
 	if (quser'=""){
 		do ##class(tdv.Util).createQmsContext(quser,,,0)
@@ -82,6 +82,36 @@ ClassMethod InitQMSqqc186(qqc186) [ ProcedureBlock = 0 ]
 	else{
 		do ##class(tdv.Util).createQmsContext("ЗенковАЛ",,,0)
 	}
+}
+
+/// Для тестирования функционала записи в расписание
+ClassMethod SetFakeRaspOnSunday(qqc244, time, date = "") As %String [ ProcedureBlock = 0 ]
+{
+   	if ($G(date)="" || $$getDayWeek'=6){
+		set currentDayWeek = $$getDayWeek($ZD($H,8))
+		set dayToSunday = 6 - currentDayWeek
+		set firstSunday = $H + dayToSunday
+		set date = $ZD(firstSunday, 8)
+   	}
+   	if $D(^Q(1, 244, qqc244)){
+   		set ^Q(1, 244, qqc244, "Ytr", date)=date_"~7~~~~~~~~~~~~~~~~~~"
+		set index=""
+		set index = $O(^Q(1, 244, qqc244, "Ytr",date,index),-1) + 1
+		set ^Q(1, 244, qqc244, "Ytr",date,index)=time_"~7~~~~~~~~~~СТОМАТОЛОГИЯ~~~~~~~~"_$ZD($H,3)_" 16:46 ЗенковАЛ"
+   	}
+	quit date
+getDayWeek(date)
+	quit ($ZDH(date,8)#7 + 3)#7
+}
+
+ClassMethod DeleteFakeRasp(qqc244, date) As %Boolean [ ProcedureBlock = 0 ]
+{
+	if $$getDayWeek(date)=6{
+		if $D(^Q(1, 244, qqc244)){
+			k ^Q(1, 244, qqc244, "Ytr", date)
+		}
+	}
+	quit 1
 }
 
 /// Возврашает краткую специалзацию врача
@@ -616,12 +646,29 @@ ClassMethod cancel1860func(ByRef qHandle) [ ProcedureBlock = 0 ]
 {
 	set $zt = "cancel1860"
 	
-	new qqc1860,qqc186,reason,result
+	new qqc1860,qqc186,reason,result,qqc1860Allstr,findAnother1860,index
 	 
 	set qqc1860 = qHandle(1)
 	set reason = qHandle(2)
-	do ..InitQMSqqc186($E(qqc1860,1,19))
-	set result=qUSER.Ch1860(qqc1860,,,,reason)
+	set qqc186 = $E(qqc1860,1,19)
+	do ..InitQMSqqc186(qqc186)
+	set qqc174 = $E(qqc186,1,qW.ObjLget(174))
+	// Если в эпизоде нет больше назначений кроме текущего то удалить 174 объект
+	set qqc1860Allstr = qqc1860_" "_qW.FastKey(1860,"n","",1,qW.GG(186,"n",qqc186),qqc174)
+	set findAnother1860=0
+	set index = ""
+	for{
+		set index = qW.UserOrd(1,1860,index,qqc174)
+		q:index=""
+		if qqc1860Allstr '[ index set findAnother1860=1 quit
+	}
+	if findAnother1860{
+		set result=qUSER.Ch1860(qqc1860,,,,reason)
+	}
+	else{
+		do qW.rDel(174,qqc174)
+		set result=""
+	}
 	set ^||result(1) = $LB(result)
 	quit
 cancel1860
@@ -1471,9 +1518,6 @@ ClassMethod getSpecialistPerformingServices(ByRef qHandle) [ ProcedureBlock = 0 
     if ($D(qW)=0) do ..InitQms()
     
     set Du = qW.GG(244,"Du",qqc244)
-    set ^qZenkTest = Du
-    set ^qZenkTest(qqc244) = qqc244
-    m ^qZenkTest("qHandle") = qHandle
     for i=1:1:$length(Du," ")
     {
         set ^||result(i)= $LB($P(Du," ",i))
