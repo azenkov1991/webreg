@@ -98,11 +98,22 @@ class TestQmsIntegrationAppointment(TestCase):
         self.service1.save()
         self.service2 = OKMUService(code="B01.047.02", name="Прием врача-терапевта повторный", is_finished=1, level=4)
         self.service2.save()
+        self.lab_service = OKMUService(code="A08.05.004", name="Исследование уровня лейкоцитов в крови",
+                                       type="Лаборатория", is_finished=1, level=4)
+        self.lab_service.save()
         self.specialist = Specialist(fio="Садилова Надежда Дмитриевна",
                                      specialization=Specialization.objects.create(name="Терапевт"),
                                      department=self.department)
         self.specialist.save()
+
         set_external_id(self.specialist, "vABdAAuAAAC")
+        self.procedure_cabinet = Specialist(fio="Процедурный кабинет для внешних ЛПУ",
+                                            specialization=Specialization.objects.create(name="процедурный кабиет"),
+                                            department=self.department)
+        self.procedure_cabinet.save()
+        self.procedure_cabinet.performing_services.add(self.lab_service)
+        set_external_id(self.procedure_cabinet, "vABdAApASAA")
+
         self.specialist.performing_services.add(self.service1)
 
         first_sunday = datetime.date.today() + datetime.timedelta(6 - datetime.date.today().weekday())
@@ -163,8 +174,23 @@ class TestQmsIntegrationAppointment(TestCase):
         self.qms.query.execute_query('Cancel1860', qqc1860)
 
     def test_create_appointment_laboratory(self):
-        
-
+        ap = Appointment.create_appointment(self.user_profile, self.patient, self.procedure_cabinet,
+                                            self.lab_service, self.cell1.date, None,
+                                            {"cl_lab_condition": "19-24",
+                                             "contingent_code": "102"}
+                                            )
+        qqc1860 = get_external_id(ap)
+        self.qms.query.execute_query("GG", "1860", "u", qqc1860)
+        service_name = self.qms.query.result
+        self.assertEqual(service_name, "Исследование_уровня_лейкоцитов_в_крови", "Неверное имя услуги в qms")
+        self.qms.query.execute_query("GG", "1860", "qlsClinCode", qqc1860)
+        cl_lab_condition = self.qms.query.result
+        self.assertEqual(cl_lab_condition, "19-24")
+        self.qms.query.execute_query("GG", "1860", "pCodKO", qqc1860)
+        contingent_code = self.qms.query.result
+        self.assertEqual(contingent_code, "102")
+        self.assertEqual(ap.additional_data['lab_number'][0:7], "TMP" + self.cell1.date.strftime("%Y"))
+        self.qms.query.execute_query('Cancel1860', qqc1860)
 
 
 

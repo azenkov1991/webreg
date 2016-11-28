@@ -51,7 +51,7 @@ def create_appointment(fn):
         appointment = fn(user_profile, patient, specialist, service, date, cell, additional_data)
         set_external_id(appointment, qqc1860)
         if lab_number:
-            appointment.additional_data["lab_numper"] = lab_number
+            appointment.additional_data = {"lab_number": lab_number}
             appointment.save()
         return appointment
     return create_appointment_in_qms
