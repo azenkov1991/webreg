@@ -24,6 +24,12 @@ class CacheSOAPQuery:
     Класс выполняющий запросы к базе данных через SOAP
         Если произошла ошибка выбрасывает исключение CacheQueryError
     """
+    def __nullstate(self):
+        self.clients = {}
+        self.data = []          # ответ запроса таблица
+        self.columns = []       # список полей
+        self._result = None      # Первое поле первой строки ответа
+
     def __init__(self, connection_param, queries, cache_coding='cp1251', always_new_connect=False):
         self.user = connection_param.get("user", "_SYSTEM")
         self.password = connection_param.get("password", "_SYS")
@@ -35,10 +41,19 @@ class CacheSOAPQuery:
                                  connection_param['namespace'] + '/' + '{class_name}.cls?wsdl'
         self.always_new_connect = always_new_connect
         self.cache_coding = cache_coding
-        self.clients = {}
-        self.data = []          # ответ запроса таблица
-        self.columns = []       # список полей
-        self.result = None      # Первое поле первой строки ответа
+        self.__nullstate()
+
+    @property
+    def result(self):
+        """
+        :return:
+        Возвращает первое поле первой строки ответа
+        Для методов, которые возвращают один ответ
+        """
+        if self._result:
+            return self._result
+        else:
+            return self.data[0][0]
 
     def get_columns(self):
         """
@@ -78,6 +93,7 @@ class CacheSOAPQuery:
 
     def execute_query(self, query_name, *params):
         assert query_name in self.queries
+        self.__nullstate()
         self.logger.debug('Execute query' + query_name)
         try:
             client = self._get_client(self.queries[query_name]['class'])
@@ -88,9 +104,9 @@ class CacheSOAPQuery:
             # Если вызов метода класса а не запроса
             if self.queries[query_name].get('class_method'):
                 func = getattr(client.service, self.queries[query_name]['class_method'])
-                self.result = func(*params)
-                self.logger.debug(str(self.result))
-                return self.result
+                self._result = func(*params)
+                self.logger.debug(str(self._result))
+                return self._result
             func = getattr(client.service, self.queries[query_name]['query'])
             results = func(*params)
         except Exception as err:
@@ -113,7 +129,7 @@ class CacheSOAPQuery:
             self.logger.error(err)
             raise CacheQueryError("Execute query error")
         self.data = list(data)
-        self.result = data[0][0]
+        self._result = data[0][0]
         self.logger.debug("\n".join(list(map(lambda u: "| ".join(map(lambda q: str(q) if q else '', u)), data))))
 
     def fetch_all(self):
@@ -138,6 +154,11 @@ class CacheODBCQuery:
     Класс выполняющий запросы к базе данных по ODBC.
     Если произошла ошибка выбрасывает исключение CacheQueryError
     """
+    def __nullstate__(self):
+        self.query = None
+        self.good = True
+        self._result = None  # Первое поле первой строки ответа
+
     def __init__(self, connection_param, queries, cache_coding='cp1251', always_new_connect=False):
         """
         connection_param - словарь настроек
@@ -161,12 +182,25 @@ class CacheODBCQuery:
         self.cache_coding = cache_coding
         self.always_new_connect = always_new_connect
         self.url = self.host + "[" + self.port + "]:" + self.namespace
-        self.conn = None
-        self.query = None
-        self.good = None
         self.database = None
-        self.result = None  # Первое поле первой строки ответа
+        self.conn = None
+        self.__nullstate__()
         self._make_connection()
+
+    @property
+    def result(self):
+        """
+        :return:
+        Возвращает первое поле первой строки ответа
+        Для методов, которые возвращают один ответ
+        """
+        if self._result:
+            return self._result
+        else:
+            try:
+                return self._fetch()[0]
+            except AttributeError:
+                return None
 
     def _make_connection(self):
         del self.conn
@@ -187,11 +221,12 @@ class CacheODBCQuery:
         *params - параметры запроса
         """
         assert query_name in self.queries
+        self.__nullstate__()
         self.logger.debug('Execute query' + query_name)
         # Если вызов метода класса а не запроса
         if self.queries[query_name].get('class_method'):
-            self.result = self._execute_class_method(query_name, *params)
-            return self.result
+            self._result = self._execute_class_method(query_name, *params)
+            return self._result
         try:
             # create a query
             if self.always_new_connect:
@@ -230,9 +265,9 @@ class CacheODBCQuery:
             return []
         else:
             self.logger.debug("| ".join(list(map(str, lst))))
-            if self.result is None:
-                self.result = lst[0]
-            return lst
+            if self._result is None:
+                self._result = lst[0]
+        return lst
 
     def fetch_all(self):
         """

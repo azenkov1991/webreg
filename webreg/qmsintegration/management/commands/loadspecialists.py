@@ -21,7 +21,7 @@ class Command(BaseCommand):
         try:
             spec = Specialist(fio=fio, specialization=specialization, department_id=department_id, is_active=is_active)
             spec.save()
-            set_external_id(spec, "244", qqc244)
+            set_external_id(spec, qqc244)
         except Exception as ex:
             logger.error("Не удалось загрузить специалиста из qms " + qqc244 + ' ' + fio + "\n" +
                          str(ex))

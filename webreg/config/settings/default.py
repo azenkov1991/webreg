@@ -38,6 +38,11 @@ LOGGING_CONF = {
             'propagate': False,
             'level': 'DEBUG',
         },
+        'qmsfunctions': {
+            'handlers': ['dbhandler', 'console'],
+            'propagate': False,
+            'level': 'DEBUG',
+        },
         'default': {
             'handlers': ['console'],
             'level': 'ERROR',

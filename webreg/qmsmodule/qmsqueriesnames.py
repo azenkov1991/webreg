@@ -35,6 +35,22 @@ QMS_QUERIES = {
                             'class': 'User.Query',
                             'query': 'Cre174'
                 },
+                'GetSecondService': {
+                            'class': 'User.QueryCatalog',
+                            'class_method': 'GetSecondService'
+                },
+                'GetPreviousqqc174': {
+                            'class': 'User.QueryCatalog',
+                            'query': 'GetPreviousqqc174'
+                },
+                'SetFakeRaspOnSunday': {
+                            'class': 'User.QueryCatalog',
+                            'class_method': 'SetFakeRaspOnSunday'
+                },
+                'DeleteFakeRasp': {
+                            'class': 'User.QueryCatalog',
+                            'class_method': 'DeleteFakeRasp'
+                },
                 'Create186': {
                             'class': 'User.Query',
                             'query': 'Cre186'
@@ -42,6 +58,10 @@ QMS_QUERIES = {
                 'Create186Lab': {
                             'class': 'User.qZenk.QueryLab',
                             'query': 'Cre186'
+                },
+                'Create293': {
+                            'class': 'User.Query',
+                            'query': 'Cre293'
                 },
                 'Create1860Lab': {
                             'class': 'User.qZenk.QueryLab',
@@ -54,6 +74,18 @@ QMS_QUERIES = {
                 'Create1860': {
                             'class': 'User.Query',
                             'query': 'Cre1860'
+                },
+                'Cancel1860': {
+                            'class': 'User.QueryCatalog',
+                            'query': 'cancel1860'
+                },
+                'Delete174': {
+                            'class': 'User.Query',
+                            'query': 'delete174'
+                },
+                'HardDelete174': {
+                            'class': 'User.QueryCatalog',
+                            'class_method': 'Delete174'
                 },
                 'LoadOKMU': {
                             'class': 'User.QueryCatalog',
@@ -70,6 +102,10 @@ QMS_QUERIES = {
                 'SpecialistPerformingServices': {
                             'class': 'User.QueryCatalog',
                             'query': 'SpecialistPerformingServices'
+                },
+                'GG': {
+                    'class': 'User.Query',
+                    'query': 'GG'
                 }
 
     }

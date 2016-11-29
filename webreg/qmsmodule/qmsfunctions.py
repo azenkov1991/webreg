@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+import logging
 import re
 import datetime
-from util.datetime import  daterange
+from util.datetime import daterange
 
 try:
     from .cachequery import *
@@ -12,6 +13,8 @@ except SystemError:
 
 ODBC = 1
 SOAP = 2
+
+log = logging.getLogger("qmsfunctions")
 
 
 class QMS:
@@ -70,7 +73,6 @@ class QMS:
             query_result = self.query.fetch_all()[0]
             if query_result[0] != u'OK':
                 return None
-            print(query_result[1])
             columns = self.query.get_columns()
             query_result = dict(zip(columns, query_result))
             for (k1, k2) in zip(['birth_date', 'address_reg', 'address_liv'],
@@ -161,8 +163,110 @@ class QMS:
                 cell_list.append(cell)
         return cell_list
 
-    def create_appointment(self, patient, specialist, service, date, time=None):
-        pass
+    def create_appointment(self, user, patient, specialist, service, date, time_start=None, time_end=None):
+        """
+        Функция создания назначения в qms
+        :param user: qqc244 специалиста от которого назначаем
+        :param patient:  qqc153 пациента
+        :param specialist: qqc244 специалиста к кторому назанчаем
+        :param service: код ОКМУ услуги
+        :param date: дата назначения
+        :param time_start: время назначения. Если время назначения None, то назначение в очередь
+        :param time_end:
+        :return:
+        возвращает qqc1860 назначения или None
+        """
 
-    def create_laboratory_appointment(self, patient, specialit, sevice, date):
-        pass
+        # TODO: добавить во входные аргументы additional_data и брать оттуда pNDiag, pKDo, Nnapr...
+
+        # попытка найти предыдущий эпизод
+        self.query.execute_query("GetPreviousqqc174", patient, specialist,
+                                 30, date.strftime("%Y%m%d"))
+        qqc174 = self.query.result
+        if not qqc174:
+            self.query.execute_query("Create174", user, patient,
+                                     date.strftime("%Y%m%d"), None, None, 1, None, None)
+            qqc174 = self.query.result
+        if not qqc174:
+            log.error("Не создан эпизод в qms. " + str(locals()))
+            return None
+        self.query.execute_query("Create186", user, date.strftime("%Y%m%d"),
+                                 datetime.datetime.now().strftime("%H:%M"), qqc174)
+        qqc186 = self.query.result
+        if not qqc186:
+            log.error("Не создана услуга ввода назначений. " + str(locals()))
+            return None
+        self.query.execute_query("Create293", qqc186, user)
+        qqc293 = self.query.result
+        if not qqc293:
+            log.error("Не создан источник финансирования" + str(locals()))
+        if time_start:
+            # назначение в расписание
+            self.query.execute_query("Create1860Schedule", specialist, qqc186, date.strftime("%Y%m%d"),
+                                     time_start.strftime("%H:%M") + "-" + time_end.strftime("%H:%M"),
+                                     service)
+        else:
+            # назначенеи в очередь
+            self.query.execute_query("Create1860", specialist, qqc186, date.strftime("%Y%m%d"),
+                                     (date + datetime.timedelta(7)).strftime("%Y%m%d"),
+                                     None, service)
+
+        (qqc1860, status) = tuple(self.query.fetch_all()[0])
+        if (not qqc1860) or status != "назначение создано":
+            log.error(status + str(locals()))
+            return None
+        return qqc1860
+
+    def create_laboratory_appointment(self, user, patient, specialist, service, date, lab_param=None):
+        """
+        Создание лабораторнх назначений в qms
+        :param user: qqc244 Пользователя в qms
+        :param patient: qqc153
+        :param specialist: qqc244
+        :param service: Du
+        :param date: Дата назначения datetime
+        :param lab_param - словарь необязательных параметров лабораторного назначения
+            lab_speciman лабораторный образец
+            contingent_code код контингента обследованных
+            preg_week срок беременности в неделях
+            cl_lab_condition	клинические условия
+            height	рост пациета
+            weight	вес пациента
+            day_diur суточный диурез
+            cmnt примечание для лаборатории
+        :return:
+        qqc1860 назначения
+        """
+        self.query.execute_query("Create174", user, patient,
+                                 date.strftime("%Y%m%d"), None, None, 1, None, None)
+        qqc174 = self.query.result
+        if not qqc174:
+            log.error("Не создан эпизод в qms. " + str(locals()))
+            return None, None
+        self.query.execute_query("Create186Lab", user, date.strftime("%Y%m%d"),
+                                 datetime.datetime.now().strftime("%H:%M"), qqc174)
+        qqc186 = self.query.result
+        if not qqc186:
+            log.error("Не создана услуга ввода назначений. " + str(locals()))
+            return None, None
+        self.query.execute_query("Create293", qqc186, user)
+        qqc293 = self.query.result
+        if not qqc293:
+            log.error("Не создан источник финансирования" + str(locals()))
+        lab_param_str = ""
+        if lab_param:
+            lab_param_str = lab_param.get("lab_speciman", "") + "~" + \
+                                    lab_param.get("contingent_code", "") + "~" + \
+                                    lab_param.get("preg_week", "") + "~" + \
+                                    lab_param.get("cl_lab_condition", "") + "~" + \
+                                    lab_param.get("height", "") + "~" + \
+                                    lab_param.get("day_diur", "") + "~" + \
+                                    lab_param.get("cmnt", "")
+        self.query.execute_query("Create1860Lab", specialist, qqc186, date.strftime("%Y%m%d"),
+                                 (date + datetime.timedelta(7)).strftime("%Y%m%d"),
+                                 None, service, lab_param_str)
+        (qqc1860, lab_number, status) = tuple(self.query.fetch_all()[0])
+        if (not qqc1860) or status != "назначение создано":
+            log.error(status + str(locals()))
+            return None, None
+        return qqc1860, lab_number

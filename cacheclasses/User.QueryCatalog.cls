@@ -74,7 +74,7 @@ ClassMethod InitQms() [ ProcedureBlock = 0 ]
 ClassMethod InitQMSqqc186(qqc186) [ ProcedureBlock = 0 ]
 {
 	new quser
-	set qARM=##class(%TqARM).%New() do qARM.Create()
+	set qARM=##class(Library.TqARM).%New() do qARM.Create()
 	set quser = qW.GG(244,"quser",qUSER.qqc244(qW.GG(186,"pIDo",qqc186),qW.GG(186,"pID",qqc186),qW.GG(186,"pIDz",qqc186)))
 	if (quser'=""){
 		do ##class(tdv.Util).createQmsContext(quser,,,0)
@@ -84,8 +84,48 @@ ClassMethod InitQMSqqc186(qqc186) [ ProcedureBlock = 0 ]
 	}
 }
 
+/// Для тестирования функционала записи в расписание
+ClassMethod SetFakeRaspOnSunday(qqc244, time, date = "") As %String [ ProcedureBlock = 0 ]
+{
+   	if (($G(date)="") || ($$getDayWeek(date)'=6)){
+		set currentDayWeek = $$getDayWeek($ZD($H,8))
+		set dayToSunday = 6 - currentDayWeek
+		set firstSunday = $H + dayToSunday
+		set date = $ZD(firstSunday, 8)
+   	}
+   	if $D(^Q(1, 244, qqc244)){
+   		set ^Q(1, 244, qqc244, "Ytr", date)=date_"~7~~~~~~~~~~~~~~~~~~"
+		set index=""
+		set index = $O(^Q(1, 244, qqc244, "Ytr",date,index),-1) + 1
+		set ^Q(1, 244, qqc244, "Ytr",date,index)=time_"~7~~~~~~~~~~СТОМАТОЛОГИЯ~~~~~~~~"_$ZD($H,3)_" 16:46 ЗенковАЛ"
+   	}
+	quit date
+getDayWeek(date)
+	quit ($ZDH(date,8)#7 + 3)#7
+}
+
+ClassMethod DeleteFakeRasp(qqc244, date) As %Boolean [ ProcedureBlock = 0 ]
+{
+	if $$getDayWeek(date)=6{
+		if $D(^Q(1, 244, qqc244)){
+			k ^Q(1, 244, qqc244, "Ytr", date)
+			if $D(^QNaz(5, qqc244, date))
+			{
+				k ^QNaz(5, qqc244, date)
+			}
+		}
+	}
+	quit 1
+}
+
+ClassMethod Delete174(qqc174) As %String [ ProcedureBlock = 0 ]
+{
+	do ..InitQms()
+	quit qW.rDel(174,qqc174)
+}
+
 /// Возврашает краткую специалзацию врача
-ClassMethod GetSpec(qqc244) [ ProcedureBlock = 0 ]
+ClassMethod GetSpec(qqc244) As %String [ ProcedureBlock = 0 ]
 {
 	new spec, n634, nResqqc, lspec, n637
 	set spec = qW.GG(244,"@puR.k",qqc244)
@@ -355,6 +395,24 @@ ClassMethod getResoursesForDepartment(qqc153) [ ProcedureBlock = 0 ]
 	}
 }
 
+/// Если у пациента есть предыдущий эпизод с такой же специализацией
+/// Вернет услугу повторного приема
+ClassMethod GetSecondService(qqc153, qqc244, Du, numOfDays, date) As %String [ ProcedureBlock = 0 ]
+{
+	set qHandle(1) = $G(qqc153)
+	set qHandle(2) = $G(qqc244)
+	set qHandle(3) = $G(numOfDays)
+	set qHandle(4) = $G(date)
+	do ##class(QueryCatalog).getPreviousqqc174(.qHandle)
+	if $LI(^||result(1),1)="" quit ""
+	set qqc235=$E(qqc244,1,3)
+	set qqc83 = qW.FastKey(83, "Du","",1,Du,qqc235)
+	set okmuGroup = $P(Du,",",1,2)
+	set qqc82 = qW.FastKey(82, "Du","",1,okmuGroup,qqc235)
+	set u = $Replace(qW.GG(83,"u",qqc83),"первичный","повторный")
+	quit qW.GG(83,"Du",qW.FastKey(83,"u","",1,u,qqc82))
+}
+
 /// Возращает qqc174 открытого эпизода содержащего услугу со специализацией 
 /// совпадающей со специализацией переданного qqc244
 /// Дата выполнения услуги  
@@ -381,7 +439,7 @@ ClassMethod GetPreviousqqc174Fetch(ByRef qHandle As %Binary, ByRef Row As %List,
 ClassMethod getPreviousqqc174(ByRef qHandle) [ ProcedureBlock = 0 ]
 {
 	set $zt = "testerror"
-	new date,qqc153,qqc244,numOfDays
+	new date,qqc153,qqc244,numOfDays,qqc174,qqc1860
 	do ..InitQms()
 	set qqc153 = qHandle(1)
 	set qqc244 = qHandle(2)
@@ -390,7 +448,7 @@ ClassMethod getPreviousqqc174(ByRef qHandle) [ ProcedureBlock = 0 ]
 	if date="" set date= $ZD($H,8)
 	if numOfDays="" set numOfDays=30
 	set n647 = qW.GG(244,"n647",qqc244)
-	set ^||result(1) =""
+	set ^||result(1) =$LB("")
 	
 	for dateIH = ($ZDH(date,8)-numOfDays):1:$ZDH(date,8){
 		set dateI = $ZD(dateIH,8)
@@ -616,12 +674,29 @@ ClassMethod cancel1860func(ByRef qHandle) [ ProcedureBlock = 0 ]
 {
 	set $zt = "cancel1860"
 	
-	new qqc1860,qqc186,reason,result
+	new qqc1860,qqc186,reason,result,qqc1860Allstr,findAnother1860,index
 	 
 	set qqc1860 = qHandle(1)
 	set reason = qHandle(2)
-	do ..InitQMSqqc186($E(qqc1860,1,19))
-	set result=qUSER.Ch1860(qqc1860,,,,reason)
+	set qqc186 = $E(qqc1860,1,19)
+	do ..InitQMSqqc186(qqc186)
+	set qqc174 = $E(qqc186,1,qW.ObjLget(174))
+	// Если в эпизоде нет больше назначений кроме текущего то удалить 174 объект
+	set qqc1860Allstr = qqc1860_" "_qW.FastKey(1860,"n","",1,qW.GG(186,"n",qqc186),qqc174)
+	set findAnother1860=0
+	set index = ""
+	for{
+		set index = qW.UserOrd(1,1860,index,qqc174)
+		q:index=""
+		if qqc1860Allstr '[ index set findAnother1860=1 quit
+	}
+	if findAnother1860{
+		set result=qUSER.Ch1860(qqc1860,,,,reason)
+	}
+	else{
+		do qW.rDel(174,qqc174)
+		set result=""
+	}
 	set ^||result(1) = $LB(result)
 	quit
 cancel1860
@@ -1471,9 +1546,6 @@ ClassMethod getSpecialistPerformingServices(ByRef qHandle) [ ProcedureBlock = 0 
     if ($D(qW)=0) do ..InitQms()
     
     set Du = qW.GG(244,"Du",qqc244)
-    set ^qZenkTest = Du
-    set ^qZenkTest(qqc244) = qqc244
-    m ^qZenkTest("qHandle") = qHandle
     for i=1:1:$length(Du," ")
     {
         set ^||result(i)= $LB($P(Du," ",i))
