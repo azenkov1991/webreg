@@ -105,8 +105,7 @@ class QMS:
         if not (reduce(lambda res, element: res and element in kwargs,
                 ('birth_date', 'first_name', 'last_name', 'middle_name'), True) or
                 reduce(lambda res, element: res and element in kwargs,
-                ('birth_date', 'polis_number'), True) or
-                'patient_id' in kwargs):
+                ('birth_date', 'polis_number'), True)):
             raise ValueError('Wrong arguments')
         self.query.execute_query('SearchPatient', self.DATABASE_CODE, 0, kwargs.get('polis_seria', ""),
                                  kwargs.get('polis_number', ""), kwargs.get('birth_date', ""),
