@@ -73,9 +73,9 @@ class TestQmsFunctions(TestCase):
         date = datetime.datetime.today()
         qqc153 = "vABAJnb"
         (qqc1860, lab_number) = self.qms.create_laboratory_appointment(qqc244n, qqc153, qqc244, Du, date,
-                                                                       {"lab_speciman": "Кровь_цельная_венозная",
-                                                                        "cl_lab_condition": "19-24",
-                                                                        "contingent_code": "102"})
+                                                                       **{"lab_speciman": "Кровь_цельная_венозная",
+                                                                          "cl_lab_condition": "19-24",
+                                                                          "contingent_code": "102"})
         self.assertTrue(qqc1860, "qqc1860 не должно быть пусто")
         self.qms.query.execute_query("GG", "1860", "pCodKO", qqc1860)
         self.assertEqual(self.qms.query.result, "102")

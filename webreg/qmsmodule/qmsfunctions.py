@@ -176,11 +176,12 @@ class QMS:
         :param time_start: время назначения. Если время назначения None, то назначение в очередь
         :param time_end:
         :additional_data: - дополнительные параметры создания назначений
+            diagnos_code - код диагноза направлений
+            diagnos_description - описание диагноза
         :return:
         возвращает qqc1860 назначения или None
         """
 
-        # TODO: добавить во входные аргументы additional_data и брать оттуда pNDiag, pKDo, Nnapr...
         diagnos_code = additional_data.get("diagnos_code", None)
         diagnos_descripion = additional_data.get("diagnos_description", None)
         # попытка найти предыдущий эпизод
