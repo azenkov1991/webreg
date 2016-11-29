@@ -12,8 +12,9 @@ class TimeStampedModel(models.Model):
     class Meta:
         abstract = True
 
-class SpecialistActive(models.Model):
-    is_active = models.BooleanField(verbose_name="Активно")
+
+class ActiveMixin(models.Model):
+    is_active = models.BooleanField(verbose_name="Активно", default=True)
 
     def active_objects(self):
         self.active_objects = self.objects.get(is_active=True)

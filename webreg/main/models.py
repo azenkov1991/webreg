@@ -5,8 +5,7 @@ from django.core.exceptions import ValidationError
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.contrib.postgres.fields import JSONField
 from catalogs.models import OKMUService
-from qmsintegration import decorators as qms
-from mixins.models import TimeStampedModel, SpecialistActive
+from mixins.models import TimeStampedModel, ActiveMixin
 
 log = logging.getLogger("webreg")
 
@@ -61,7 +60,7 @@ class Specialization(models.Model):
         verbose_name_plural = "Специализации"
 
 
-class Specialist(SpecialistActive):
+class Specialist(ActiveMixin):
     fio = models.CharField(max_length=128, verbose_name="Полное имя")
     specialization = models.ForeignKey(Specialization, verbose_name="Специализация")
     performing_services = models.ManyToManyField(OKMUService, verbose_name="Выполняемые услуги")

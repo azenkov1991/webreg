@@ -52,8 +52,8 @@ class QmsUser(models.Model):
 
 
 class ObjectMatchingTable(models.Model):
-    internal_name = models.CharField(max_length=128, verbose_name='Имя таблицы', unique=True)
-    external_name = models.CharField(max_length=128, verbose_name='Имя во внешней системе', unique=True)
+    internal_name = models.CharField(max_length=128, verbose_name='Имя таблицы')
+    external_name = models.CharField(max_length=128, verbose_name='Имя во внешней системе')
 
     class Meta:
         verbose_name_plural = 'Таблица соответсвий объектов '
@@ -111,11 +111,10 @@ def set_external_id(model, qqc):
     try:
         omt = ObjectMatchingTable.objects.get(internal_name=internal_name)
     except models.ObjectDoesNotExist:
-        omt = ObjectMatchingTable(internal_name=internal_name, external_name=qmsObj)
-        omt.save()
-
+        log.error("Попытка установки id объекта, отсутствующего в ObjectMatchingTable object = " + internal_name )
+        raise QmsIntegrationError
     try:
-        IdMatchingTable.objects.get(internal_id=internal_id, external_id=qqc,
+        imt = IdMatchingTable.objects.get(internal_id=internal_id, external_id=qqc,
                                           object_matching_table_id=omt.id)
     except IdMatchingTable.DoesNotExist:
         imt = IdMatchingTable(internal_id=internal_id, external_id=qqc,
