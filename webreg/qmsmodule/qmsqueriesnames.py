@@ -79,6 +79,14 @@ QMS_QUERIES = {
                             'class': 'User.QueryCatalog',
                             'query': 'cancel1860'
                 },
+                'Delete174': {
+                            'class': 'User.Query',
+                            'query': 'delete174'
+                },
+                'HardDelete174': {
+                            'class': 'User.QueryCatalog',
+                            'class_method': 'Delete174'
+                },
                 'LoadOKMU': {
                             'class': 'User.QueryCatalog',
                             'query': 'OKMU'

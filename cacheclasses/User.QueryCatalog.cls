@@ -87,7 +87,7 @@ ClassMethod InitQMSqqc186(qqc186) [ ProcedureBlock = 0 ]
 /// Для тестирования функционала записи в расписание
 ClassMethod SetFakeRaspOnSunday(qqc244, time, date = "") As %String [ ProcedureBlock = 0 ]
 {
-   	if ($G(date)="" || $$getDayWeek'=6){
+   	if (($G(date)="") || ($$getDayWeek(date)'=6)){
 		set currentDayWeek = $$getDayWeek($ZD($H,8))
 		set dayToSunday = 6 - currentDayWeek
 		set firstSunday = $H + dayToSunday
@@ -109,13 +109,23 @@ ClassMethod DeleteFakeRasp(qqc244, date) As %Boolean [ ProcedureBlock = 0 ]
 	if $$getDayWeek(date)=6{
 		if $D(^Q(1, 244, qqc244)){
 			k ^Q(1, 244, qqc244, "Ytr", date)
+			if $D(^QNaz(5, qqc244, date))
+			{
+				k ^QNaz(5, qqc244, date)
+			}
 		}
 	}
 	quit 1
 }
 
+ClassMethod Delete174(qqc174) As %String [ ProcedureBlock = 0 ]
+{
+	do ..InitQms()
+	quit qW.rDel(174,qqc174)
+}
+
 /// Возврашает краткую специалзацию врача
-ClassMethod GetSpec(qqc244) [ ProcedureBlock = 0 ]
+ClassMethod GetSpec(qqc244) As %String [ ProcedureBlock = 0 ]
 {
 	new spec, n634, nResqqc, lspec, n637
 	set spec = qW.GG(244,"@puR.k",qqc244)
@@ -385,6 +395,24 @@ ClassMethod getResoursesForDepartment(qqc153) [ ProcedureBlock = 0 ]
 	}
 }
 
+/// Если у пациента есть предыдущий эпизод с такой же специализацией
+/// Вернет услугу повторного приема
+ClassMethod GetSecondService(qqc153, qqc244, Du, numOfDays, date) As %String [ ProcedureBlock = 0 ]
+{
+	set qHandle(1) = $G(qqc153)
+	set qHandle(2) = $G(qqc244)
+	set qHandle(3) = $G(numOfDays)
+	set qHandle(4) = $G(date)
+	do ##class(QueryCatalog).getPreviousqqc174(.qHandle)
+	if $LI(^||result(1),1)="" quit ""
+	set qqc235=$E(qqc244,1,3)
+	set qqc83 = qW.FastKey(83, "Du","",1,Du,qqc235)
+	set okmuGroup = $P(Du,",",1,2)
+	set qqc82 = qW.FastKey(82, "Du","",1,okmuGroup,qqc235)
+	set u = $Replace(qW.GG(83,"u",qqc83),"первичный","повторный")
+	quit qW.GG(83,"Du",qW.FastKey(83,"u","",1,u,qqc82))
+}
+
 /// Возращает qqc174 открытого эпизода содержащего услугу со специализацией 
 /// совпадающей со специализацией переданного qqc244
 /// Дата выполнения услуги  
@@ -411,7 +439,7 @@ ClassMethod GetPreviousqqc174Fetch(ByRef qHandle As %Binary, ByRef Row As %List,
 ClassMethod getPreviousqqc174(ByRef qHandle) [ ProcedureBlock = 0 ]
 {
 	set $zt = "testerror"
-	new date,qqc153,qqc244,numOfDays
+	new date,qqc153,qqc244,numOfDays,qqc174,qqc1860
 	do ..InitQms()
 	set qqc153 = qHandle(1)
 	set qqc244 = qHandle(2)
@@ -420,7 +448,7 @@ ClassMethod getPreviousqqc174(ByRef qHandle) [ ProcedureBlock = 0 ]
 	if date="" set date= $ZD($H,8)
 	if numOfDays="" set numOfDays=30
 	set n647 = qW.GG(244,"n647",qqc244)
-	set ^||result(1) =""
+	set ^||result(1) =$LB("")
 	
 	for dateIH = ($ZDH(date,8)-numOfDays):1:$ZDH(date,8){
 		set dateI = $ZD(dateIH,8)

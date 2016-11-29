@@ -8,7 +8,7 @@ TEST_BASE_SETTINGS = {
     'CONNECTION_PARAM': {
         'user': '_system',
         'password': 'SYS',
-        'host': '10.1.1.8',  #''172.16.1.10',
+        'host': '172.16.1.10',
         'port': '1972',
         'wsdl_port': '57772',
         'namespace': 'SKCQMS'
@@ -200,6 +200,18 @@ class TestQmsIntegrationAppointment(TestCase):
         ap2 = Appointment.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
                                             self.cell2.date,
                                             self.cell2)
+        qqc1860 = get_external_id(ap)
+        qqc1860_2 = get_external_id(ap2)
+        self.qms.query.execute_query("GG", "1860", "u", qqc1860)
+        service_name = self.qms.query.result
+        self.assertEqual(service_name, "Прием_(осмотр,_консультация)_врача-терапевта_первичный")
+        self.qms.query.execute_query("GG", "1860", "u", qqc1860_2)
+        service_name2 = self.qms.query.result
+        self.assertEqual(service_name2, "Прием_(осмотр,_консультация)_врача-терапевта_повторный")
+        self.qms.query.execute_query('Cancel1860', qqc1860_2)
+        self.qms.query.execute_query('Cancel1860', qqc1860)
+        self.qms.query.execute_query('HardDelete174', qqc1860[0:10])
+
 
 
 
