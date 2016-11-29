@@ -164,7 +164,8 @@ class QMS:
                 cell_list.append(cell)
         return cell_list
 
-    def create_appointment(self, user, patient, specialist, service, date, time_start=None, time_end=None):
+    def create_appointment(self, user, patient, specialist, service, date, time_start=None, time_end=None,
+                           **additional_data):
         """
         Функция создания назначения в qms
         :param user: qqc244 специалиста от которого назначаем
@@ -174,19 +175,21 @@ class QMS:
         :param date: дата назначения
         :param time_start: время назначения. Если время назначения None, то назначение в очередь
         :param time_end:
+        :additional_data: - дополнительные параметры создания назначений
         :return:
         возвращает qqc1860 назначения или None
         """
 
         # TODO: добавить во входные аргументы additional_data и брать оттуда pNDiag, pKDo, Nnapr...
-
+        diagnos_code = additional_data.get("diagnos_code", None)
+        diagnos_descripion = additional_data.get("diagnos_description", None)
         # попытка найти предыдущий эпизод
         self.query.execute_query("GetPreviousqqc174", patient, specialist,
                                  30, date.strftime("%Y%m%d"))
         qqc174 = self.query.result
         if not qqc174:
             self.query.execute_query("Create174", user, patient,
-                                     date.strftime("%Y%m%d"), None, None, 1, None, None)
+                                     date.strftime("%Y%m%d"), diagnos_code, diagnos_descripion, 1, None, None)
             qqc174 = self.query.result
         if not qqc174:
             log.error("Не создан эпизод в qms. " + str(locals()))
@@ -218,7 +221,7 @@ class QMS:
             return None
         return qqc1860
 
-    def create_laboratory_appointment(self, user, patient, specialist, service, date, lab_param=None):
+    def create_laboratory_appointment(self, user, patient, specialist, service, date, **lab_param):
         """
         Создание лабораторнх назначений в qms
         :param user: qqc244 Пользователя в qms

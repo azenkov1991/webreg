@@ -29,7 +29,7 @@ def check_enable(decorator):
 
 @check_enable
 def create_appointment(fn):
-    def create_appointment_in_qms(user_profile, patient, specialist, service, date, cell=None, additional_data=None):
+    def create_appointment_in_qms(user_profile, patient, specialist, service, date, cell=None, **additional_data):
         qqc244 = get_external_id(specialist)
         qqc153 = get_external_id(patient)
         qqc244n = user_profile.qmsuser.qqc244
@@ -42,7 +42,7 @@ def create_appointment(fn):
             # Если лабораторное назначение
             if service.type == "Лаборатория":
                 qqc1860, lab_number = qms.create_laboratory_appointment(qqc244n, qqc153, qqc244,
-                                                                        service.code, date, additional_data)
+                                                                        service.code, date, **additional_data)
             # Если обычное назначение
             else:
                 # подмена услуги с первичного приема на повторный
@@ -57,13 +57,14 @@ def create_appointment(fn):
                             raise AppointmentError("Не найдена услуга повторного приема")
                 qqc1860 = qms.create_appointment(qqc244n, qqc153, qqc244, service.code, date,
                                                  cell.time_start if cell else None,
-                                                 cell.time_end if cell else None)
+                                                 cell.time_end if cell else None,
+                                                 **additional_data)
             if not qqc1860:
                 raise AppointmentError("Ошибка интегации с qms")
         except CacheQueryError:
             raise AppointmentError("Ошибка интеграции с qms")
         try:
-            appointment = fn(user_profile, patient, specialist, service, date, cell, additional_data)
+            appointment = fn(user_profile, patient, specialist, service, date, cell, **additional_data)
             set_external_id(appointment, qqc1860)
             if lab_number:
                 appointment.additional_data = {"lab_number": lab_number}

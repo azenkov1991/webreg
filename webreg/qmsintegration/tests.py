@@ -176,9 +176,9 @@ class TestQmsIntegrationAppointment(TestCase):
 
     def test_create_appointment_laboratory(self):
         ap = Appointment.create_appointment(self.user_profile, self.patient, self.procedure_cabinet,
-                                            self.lab_service, self.cell1.date, None,
-                                            {"cl_lab_condition": "19-24",
-                                             "contingent_code": "102"}
+                                            self.lab_service, self.cell1.date,
+                                            **{"cl_lab_condition": "19-24",
+                                               "contingent_code": "102"}
                                             )
         qqc1860 = get_external_id(ap)
         self.qms.query.execute_query("GG", "1860", "u", qqc1860)

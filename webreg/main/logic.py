@@ -3,7 +3,7 @@ from qmsintegration import decorators as qms
 
 
 @qms.create_appointment
-def create_appointment(user_profile, patient, specialist, service, date, cell=None, additional_data=None):
+def create_appointment(user_profile, patient, specialist, service, date, cell=None, **additional_data):
     exception_details = "Пациент: " + patient.fio + " Специалист: " + specialist.fio + \
                         " Дата: " + str(date)
     if cell:
