@@ -16,10 +16,10 @@ class Command(BaseCommand):
         parser.add_argument("-d", "--delete", help="Перед загрузкой все специалисты будут удалены",
                             action="store_true", dest="delete")
 
-    def cre_spec(self, fio, specialization, department_id, qqc244, IsActive):
+    def cre_spec(self, fio, specialization, department_id, qqc244, is_active):
         spec = None
         try:
-            spec = Specialist(fio=fio, specialization=specialization, department_id=department_id, IsActive=IsActive)
+            spec = Specialist(fio=fio, specialization=specialization, department_id=department_id, is_active=is_active)
             spec.save()
             set_external_id(spec, "244", qqc244)
         except Exception as ex:
@@ -32,14 +32,14 @@ class Command(BaseCommand):
         specialist = Specialist.objects.get(pk=int_id)
         return specialist
 
-    def get_specialist(self, fio, specialization, department_id, qqc244, IsActive):
+    def get_specialist(self, fio, specialization, department_id, qqc244, is_active):
         if entity_exist("244", qqc244):
             spec = self.get_exist_specialist(qqc244=qqc244)
             spec.fio = fio
             spec.specialization = specialization
-            spec.IsActive = IsActive
+            spec.is_active = is_active
         else:
-            spec = self.cre_spec(fio=fio, specialization=specialization, department_id=department_id, qqc244=qqc244, IsActive=IsActive)
+            spec = self.cre_spec(fio=fio, specialization=specialization, department_id=department_id, qqc244=qqc244, is_active=is_active)
         spec.save()
         return spec
 
@@ -76,6 +76,24 @@ class Command(BaseCommand):
         for usl in postgre_usls:
             specialist.performing_services.remove(OKMUService.objects.get(code=usl))
 
+    def load_specs_in_department(self, qms, department):
+        qms_specialists = qms.get_all_doctors(department.name)
+        postgre_specialists = [spec for spec in Specialist.objects.filter(department=department, is_active=True)]
+        for spec in qms_specialists:
+            if spec.IsActive:
+                if spec.firstName and spec.lastName and spec.middleName:
+                    fio = spec.firstName + " " + spec.lastName + ' ' + spec.middleName
+                    specialization = self.get_specialization(spec["specialization"])
+                    specialist = self.get_specialist(fio=fio, specialization=specialization, department_id=department.id,
+                                                     qqc244=spec.qqc244, is_active=True)
+                    if specialist in postgre_specialists:
+                        postgre_specialists.remove(specialist)
+                    self.update_linked_usls(qms=qms, specialist=specialist, qqc244=spec.qqc244)
+                    specialist.save()
+        for spec in postgre_specialists:
+            spec.is_active = False
+            spec.save()
+
     def handle(self, *args, **options):
         dbname = options["dbname"]
         try:
@@ -95,22 +113,7 @@ class Command(BaseCommand):
             delete_external_ids(specialists)
 
         qms = QMS(qmsdb.settings)
-        qms_specialists = qms.get_all_doctors(department.name)
-        postgre_specialists = [spec for spec in Specialist.objects.filter(department=department, IsActive=True)]
-        for spec in qms_specialists:
-            if spec.IsActive:
-                if spec.firstName and spec.lastName and spec.middleName:
-                    fio = spec.firstName + " " + spec.lastName + ' ' + spec.middleName
-                    specialization = self.get_specialization(spec["specialization"])
-                    specialist = self.get_specialist(fio=fio, specialization=specialization, department_id=department.id,
-                                                     qqc244=spec.qqc244, IsActive=spec.IsActive)
-                    if specialist in postgre_specialists:
-                        postgre_specialists.remove(specialist)
-                    self.update_linked_usls(qms=qms, specialist=specialist, qqc244=spec.qqc244)
-                    specialist.save()
-        for spec in postgre_specialists:
-            spec.IsActive = False
-            spec.save()
+        self.load_specs_in_department(qms=qms, department=department)
 
 
 

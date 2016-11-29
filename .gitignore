@@ -41,6 +41,8 @@ htmlcov
 
 # Pycharm
 .idea/*
+webreg/.idea
+webreg/.idea/*
 
 
 # Vim

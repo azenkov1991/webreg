@@ -11,3 +11,12 @@ class TimeStampedModel(models.Model):
 
     class Meta:
         abstract = True
+
+class SpecialistActive(models.Model):
+    is_active = models.BooleanField(verbose_name="Активно")
+
+    def active_objects(self):
+        self.active_objects = self.objects.get(is_active=True)
+
+    class Meta:
+        abstract = True

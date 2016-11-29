@@ -29,8 +29,8 @@ class QmsDB(models.Model):
 
 
 class ObjectMatchingTable(models.Model):
-    internal_name = models.CharField(max_length=128, verbose_name='Имя таблицы')
-    external_name = models.CharField(max_length=128, verbose_name='Имя во внешней системе')
+    internal_name = models.CharField(max_length=128, verbose_name='Имя таблицы', unique=True)
+    external_name = models.CharField(max_length=128, verbose_name='Имя во внешней системе', unique=True)
 
     class Meta:
         verbose_name_plural = 'Таблица соответсвий объектов '
@@ -85,9 +85,8 @@ def set_external_id(model, qmsObj, qqc):
     except models.ObjectDoesNotExist:
         omt = ObjectMatchingTable(internal_name=internal_name, external_name=qmsObj)
         omt.save()
-
     try:
-        imt = IdMatchingTable.objects.get(internal_id=internal_id, external_id=qqc,
+        IdMatchingTable.objects.get(internal_id=internal_id, external_id=qqc,
                                           object_matching_table_id=omt.id)
     except models.ObjectDoesNotExist:
         imt = IdMatchingTable(internal_id=internal_id, external_id=qqc,

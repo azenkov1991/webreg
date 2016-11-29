@@ -48,6 +48,7 @@ LOCAL_APPS = (
     'catalogs',
     'main',
     'qmsintegration',
+    'mixins',
 )
 
 MIDDLEWARE = [

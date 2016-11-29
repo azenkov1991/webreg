@@ -6,7 +6,7 @@ from django.core.exceptions import NON_FIELD_ERRORS
 from django.contrib.postgres.fields import JSONField
 from catalogs.models import OKMUService
 from qmsintegration import decorators as qms
-from mixins.models import TimeStampedModel
+from mixins.models import TimeStampedModel, SpecialistActive
 
 log = logging.getLogger("webreg")
 
@@ -52,12 +52,11 @@ class Specialization(models.Model):
         verbose_name_plural = "Специализации"
 
 
-class Specialist(models.Model):
+class Specialist(SpecialistActive):
     fio = models.CharField(max_length=128, verbose_name="Полное имя")
     specialization = models.ForeignKey(Specialization, verbose_name="Специализация")
     performing_services = models.ManyToManyField(OKMUService, verbose_name="Выполняемые услуги")
     department = models.ForeignKey(Department, verbose_name="Подразделение")
-    IsActive = models.BooleanField(verbose_name="Активен")
 
     def __str__(self):
         return self.fio
@@ -68,7 +67,7 @@ class Specialist(models.Model):
 
 
 class Cabinet(models.Model):
-    number = models.PositiveIntegerField(verbose_name="Номер кабинета", unique=True)
+    number = models.PositiveIntegerField(verbose_name="Номер кабинета")
     name = models.CharField(max_length=128, verbose_name="Название")
     department = models.ForeignKey(Department, verbose_name="Подразделение")
 
@@ -110,6 +109,13 @@ class SlotType(models.Model):
     clinic = models.ForeignKey(
         Clinic, verbose_name="Мед. учреждение"
     )
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Тип слота"
+        verbose_name_plural = "Типы слотов"
 
 
 class Cell(models.Model):
