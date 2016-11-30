@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.contrib.postgres.fields import JSONField
 from catalogs.models import OKMUService
-from mixins.models import TimeStampedModel, ActiveMixin
+from mixins.models import TimeStampedModel, SafeDeleteMixin
 
 log = logging.getLogger("webreg")
 
@@ -60,7 +60,7 @@ class Specialization(models.Model):
         verbose_name_plural = "Специализации"
 
 
-class Specialist(ActiveMixin):
+class Specialist(SafeDeleteMixin):
     fio = models.CharField(max_length=128, verbose_name="Полное имя")
     specialization = models.ForeignKey(Specialization, verbose_name="Специализация")
     performing_services = models.ManyToManyField(OKMUService, verbose_name="Выполняемые услуги")
@@ -181,7 +181,7 @@ class Cell(models.Model):
         verbose_name_plural = "Ячейки"
 
 
-class Appointment(TimeStampedModel):
+class Appointment(TimeStampedModel, SafeDeleteMixin):
     user_profile = models.ForeignKey(UserProfile, verbose_name="Профиль пользователя")
     date = models.DateField(verbose_name="Дата приема", db_index=True)
     specialist = models.ForeignKey(Specialist, verbose_name="Специалист")
