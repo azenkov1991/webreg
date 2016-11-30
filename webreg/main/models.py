@@ -165,7 +165,7 @@ class Cell(models.Model):
             if cell.intersection(other_cell):
                 raise ValidationError("Ячека пересекается с другой ячейкой у специалиста")
         if cell.time_end <= cell.time_start:
-            raise ValidationError({NON_FIELD_ERRORS: ["Время оканчания приема должно быть больше времени начала"]})
+            raise ValidationError({NON_FIELD_ERRORS: ["Время окончания приема должно быть больше времени начала"]})
 
     def intersection(self, cell):
         if (((cell.time_start <= self.time_start) and (self.time_start < cell.time_end)) or
