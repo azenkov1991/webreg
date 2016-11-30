@@ -55,6 +55,14 @@ def create_appointment(fn):
                             service = OKMUService.objects.get(code=new_code)
                         except OKMUService.DoesNotExist:
                             raise AppointmentError("Не найдена услуга повторного приема")
+                # Проверка занятости ячейки в qms
+                if cell:
+                    qms.query.execute_query("CellIsFree", qqc244, date.strftime("%Y%m%d"),
+                                            cell.time_start.strftime("%H:%M"),
+                                            cell.time_end.strftime("%H:%M"))
+                    if not qms.query.result:
+                        raise AppointmentError("Ячейка уже занята")
+
                 qqc1860 = qms.create_appointment(qqc244n, qqc153, qqc244, service.code, date,
                                                  cell.time_start if cell else None,
                                                  cell.time_end if cell else None,

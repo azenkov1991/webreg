@@ -118,6 +118,15 @@ ClassMethod DeleteFakeRasp(qqc244, date) As %Boolean [ ProcedureBlock = 0 ]
 	quit 1
 }
 
+ClassMethod CellIsFree(qqc244, date, timeStart, timeEnd) As %Boolean [ ProcedureBlock = 0 ]
+{
+	do ..InitQms()
+	set timePeriod = timeStart_"-"_timeEnd
+	D qEXP.QueryRasp(qqc244,date,1)
+	if '$D(^||rasp(qqc244,1,timePeriod)) quit 0
+	quit $P(^||rasp(qqc244,1,timePeriod),".")<$P($P(^||rasp(qqc244,1,timePeriod),"~"),".",2)
+}
+
 ClassMethod Delete174(qqc174) As %String [ ProcedureBlock = 0 ]
 {
 	do ..InitQms()

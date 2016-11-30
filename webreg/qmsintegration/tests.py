@@ -138,6 +138,11 @@ class TestQmsIntegrationAppointment(TestCase):
                                polis_number="123456789012345")
         self.patient.save()
         set_external_id(self.patient, "vABAJnb")
+        self.patient2 = Patient(first_name="Тест", last_name="Тест", middle_name="Мужчина",
+                                birth_date = datetime.date(1991, 12, 4),
+                                polis_number = "123456789012345")
+        self.patient2.save()
+        set_external_id(self.patient2, "vABAF.x")
 
     def tearDown(self):
         self.qms.query.execute_query('DeleteFakeRasp', "vABdAAuAAAC", self.date_qms_str)
@@ -160,6 +165,19 @@ class TestQmsIntegrationAppointment(TestCase):
             self.qms.query.execute_query('Cancel1860', qqc1860)
         except AppointmentError:
             assert False
+
+    def test_create_two_appointments_in_one_cell(self):
+        with self.assertRaises(AppointmentError) as cm:
+            ap = Appointment.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
+                                                self.cell1.date,
+                                                self.cell1)
+
+            ap2 = Appointment.create_appointment(self.user_profile, self.patient2, self.specialist, self.service1,
+                                                 self.cell1.date,
+                                                 self.cell1)
+        qqc1860 = get_external_id(ap)
+        self.qms.query.execute_query('Cancel1860', qqc1860)
+        self.assertEqual(str(cm.exception), "Ячейка уже занята")
 
     def test_create_appointment_order(self):
         ap = Appointment.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
