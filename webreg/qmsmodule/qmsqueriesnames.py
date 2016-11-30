@@ -67,6 +67,10 @@ QMS_QUERIES = {
                             'class': 'User.Query',
                             'query': 'Cre293'
                 },
+                'CreateDiagnosStatus': {
+                            'class': 'User.Query',
+                            'query': 'CreDiagA'
+                },
                 'Create1860Lab': {
                             'class': 'User.qZenk.QueryLab',
                             'query': 'Cre1860'

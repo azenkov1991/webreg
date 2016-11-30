@@ -200,6 +200,12 @@ class QMS:
         if not qqc186:
             log.error("Не создана услуга ввода назначений. " + str(locals()))
             return None
+        # создание статуса диагноза направления
+        if diagnos_code and diagnos_descripion:
+            self.query.execute_query("CreateDiagnosStatus", qqc186, diagnos_code, diagnos_descripion)
+            qqc293_diag = self.query.result
+            if not qqc293_diag:
+                log.error("Не создан статус диагноз направления" + str(locals()))
         self.query.execute_query("Create293", qqc186, user)
         qqc293 = self.query.result
         if not qqc293:
@@ -221,7 +227,7 @@ class QMS:
             return None
         return qqc1860
 
-    def create_laboratory_appointment(self, user, patient, specialist, service, date, **lab_param):
+    def create_laboratory_appointment(self, user, patient, specialist, service, date, **additional_data):
         """
         Создание лабораторнх назначений в qms
         :param user: qqc244 Пользователя в qms
@@ -229,7 +235,7 @@ class QMS:
         :param specialist: qqc244
         :param service: Du
         :param date: Дата назначения datetime
-        :param lab_param - словарь необязательных параметров лабораторного назначения
+        :param additional_data - словарь необязательных параметров лабораторного назначения
             lab_speciman лабораторный образец
             contingent_code код контингента обследованных
             preg_week срок беременности в неделях
@@ -238,11 +244,17 @@ class QMS:
             weight	вес пациента
             day_diur суточный диурез
             cmnt примечание для лаборатории
+
+            diagnos_code - код диагноза направлений
+            diagnos_description - описание диагноза
         :return:
         qqc1860 назначения
         """
+        diagnos_code = additional_data.get("diagnos_code", None)
+        diagnos_descripion = additional_data.get("diagnos_description", None)
         self.query.execute_query("Create174", user, patient,
-                                 date.strftime("%Y%m%d"), None, None, 1, None, None)
+                                 date.strftime("%Y%m%d"), diagnos_code, diagnos_descripion, 1, None, None)
+
         qqc174 = self.query.result
         if not qqc174:
             log.error("Не создан эпизод в qms. " + str(locals()))
@@ -253,19 +265,25 @@ class QMS:
         if not qqc186:
             log.error("Не создана услуга ввода назначений. " + str(locals()))
             return None, None
+        # создание статуса диагноза направления
+        if diagnos_code and diagnos_descripion:
+            self.query.execute_query("CreateDiagnosStatus", qqc186, diagnos_code, diagnos_descripion)
+            qqc293_diag = self.query.result
+            if not qqc293_diag:
+                log.error("Не создан статус диагноз направления" + str(locals()))
         self.query.execute_query("Create293", qqc186, user)
         qqc293 = self.query.result
         if not qqc293:
             log.error("Не создан источник финансирования" + str(locals()))
         lab_param_str = ""
-        if lab_param:
-            lab_param_str = lab_param.get("lab_speciman", "") + "~" + \
-                                    lab_param.get("contingent_code", "") + "~" + \
-                                    lab_param.get("preg_week", "") + "~" + \
-                                    lab_param.get("cl_lab_condition", "") + "~" + \
-                                    lab_param.get("height", "") + "~" + \
-                                    lab_param.get("day_diur", "") + "~" + \
-                                    lab_param.get("cmnt", "")
+        if additional_data:
+            lab_param_str = additional_data.get("lab_speciman", "") + "~" + \
+                            additional_data.get("contingent_code", "") + "~" + \
+                            additional_data.get("preg_week", "") + "~" + \
+                            additional_data.get("cl_lab_condition", "") + "~" + \
+                            additional_data.get("height", "") + "~" + \
+                            additional_data.get("day_diur", "") + "~" + \
+                            additional_data.get("cmnt", "")
         self.query.execute_query("Create1860Lab", specialist, qqc186, date.strftime("%Y%m%d"),
                                  (date + datetime.timedelta(7)).strftime("%Y%m%d"),
                                  None, service, lab_param_str)
