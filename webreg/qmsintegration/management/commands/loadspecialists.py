@@ -76,8 +76,8 @@ class Command(BaseCommand):
         for usl in postgre_usls:
             specialist.performing_services.remove(OKMUService.objects.get(code=usl))
 
-    def load_specs_in_department(self, qms, department):
-        qms_specialists = qms.get_all_doctors(department.name)
+    def load_specs_in_department(self, qms, department, qms_department):
+        qms_specialists = qms.get_all_doctors(qms_department)
         postgre_specialists = [spec for spec in Specialist.objects.filter(department=department, is_active=True)]
         for spec in qms_specialists:
             if spec.IsActive:
@@ -100,20 +100,17 @@ class Command(BaseCommand):
             qmsdb = QmsDB.objects.get(name=dbname)
         except models.ObjectDoesNotExist:
             raise CommandError("Нет описания базы данных Qms с именем " + dbname)
+        department_id = options["department"]
         try:
-            department = Department.objects.get(name=options["pID"])
-        except:
-            department_id = options["department"]
-            try:
-                department = Department.objects.get(pk=department_id)
-            except models.ObjectDoesNotExist:
-                raise CommandError("Нет подразделения с id = " + department_id)
+            department = Department.objects.get(pk=department_id)
+        except models.ObjectDoesNotExist:
+            raise CommandError("Нет подразделения с id = " + department_id)
         if options["delete"]:
             specialists = Specialist.objects.filter(department_id=department.id)
             delete_external_ids(specialists)
 
         qms = QMS(qmsdb.settings)
-        self.load_specs_in_department(qms=qms, department=department)
+        self.load_specs_in_department(qms=qms, department=department, qms_department=options["pID"])
 
 
 

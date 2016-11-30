@@ -16,8 +16,5 @@ class TimeStampedModel(models.Model):
 class ActiveMixin(models.Model):
     is_active = models.BooleanField(verbose_name="Активно", default=True)
 
-    def active_objects(self):
-        self.active_objects = self.objects.get(is_active=True)
-
     class Meta:
         abstract = True
