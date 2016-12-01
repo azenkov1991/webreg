@@ -9,6 +9,7 @@ class TestMainModule(TestCase):
     def setUp(self):
         import main.logic
         self.create_appointment = main.logic.create_appointment
+        self.cancel_appointment = main.logic.cancel_appointment
         try:
             self.user = User.objects.get(username="TestUser")
         except User.DoesNotExist:
@@ -52,35 +53,45 @@ class TestMainModule(TestCase):
     def test_create_legal_appointment(self):
         try:
             ap = self.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
-                                                datetime.date.today() + datetime.timedelta(1),
-                                                self.cell1)
+                                         datetime.date.today() + datetime.timedelta(1),
+                                         self.cell1)
+            self.cancel_appointment(ap)
         except AppointmentError:
             assert False
 
     def test_create_appointment_past(self):
         with self.assertRaises(AppointmentError):
             self.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
-                                           datetime.date(2016, 5, 4),
-                                           self.cell1)
+                                    datetime.date(2016, 5, 4),
+                                    self.cell1)
 
     def test_create_second_appointment(self):
         with self.assertRaises(AppointmentError):
             ap = self.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
-                                                datetime.date.today() + datetime.timedelta(1),
-                                                self.cell1)
+                                         datetime.date.today() + datetime.timedelta(1),
+                                         self.cell1)
             ap = self.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
-                                                datetime.date.today() + datetime.timedelta(1),
-                                                self.cell1)
+                                         datetime.date.today() + datetime.timedelta(1),
+                                         self.cell1)
 
     def test_create_appointment_with_wrong_service(self):
         with self.assertRaises(AppointmentError):
             ap = self.create_appointment(self.user_profile, self.patient, self.specialist, self.service2,
-                                                datetime.date.today() + datetime.timedelta(1),
-                                                self.cell1)
+                                         datetime.date.today() + datetime.timedelta(1),
+                                         self.cell1)
 
     def test_create_appointment_without_cell(self):
         ap = self.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
-                                            datetime.date.today() + datetime.timedelta(1))
+                                     datetime.date.today() + datetime.timedelta(1))
+        self.cancel_appointment(ap)
+
+    def test_cancel_appointment(self):
+        ap = self.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
+                                     datetime.date.today() + datetime.timedelta(1),
+                                     self.cell1)
+        self.cancel_appointment(ap)
+        self.assertTrue(ap.deleted)
+        self.assertGreater(ap.deleted_time, ap.created_time)
 
 
 

@@ -232,6 +232,20 @@ class TestQmsIntegrationAppointment(TestCase):
         self.qms.query.execute_query('Cancel1860', qqc1860)
         self.qms.query.execute_query('HardDelete174', qqc1860[0:10])
 
+    def test_cancel_appointment(self):
+        ap = Appointment.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
+                                            self.cell1.date,
+                                            self.cell1)
+        qqc1860 = get_external_id(ap)
+        self.qms.query.execute_query("GG", "1860", "u", qqc1860)
+        service_name = self.qms.query.result
+        self.assertEqual(service_name, "Прием_(осмотр,_консультация)_врача-терапевта_первичный",
+                         "Неверное имя создания услуги в Qms")
+        Appointment.cancel_appointment(ap)
+        self.qms.query.execute_query("GG", "1860", "u", qqc1860)
+        service_name = self.qms.query.result
+        self.assertEqual(service_name, None)
+
 
 
 

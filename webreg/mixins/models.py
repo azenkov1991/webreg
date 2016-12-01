@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
 from django.db import models
+from django.utils.timezone import now
 
 
 class TimeStampedModel(models.Model):
@@ -32,7 +32,7 @@ class SafeDeleteMixin(models.Model):
     all_objects = models.Manager()
 
     def safe_delete(self):
-        self.deleted_time = datetime.now()
+        self.deleted_time = now()
         self.deleted = True
 
     def undelete(self):

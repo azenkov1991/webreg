@@ -35,3 +35,11 @@ def create_appointment(user_profile, patient, specialist, service, date, cell=No
         raise AppointmentError("Ошибка при сохранении модели назначения" + exception_details)
 
 Appointment.create_appointment = create_appointment
+
+
+@qms.cancel_appointment
+def cancel_appointment(appointment):
+    appointment.safe_delete()
+
+Appointment.cancel_appointment = cancel_appointment
+

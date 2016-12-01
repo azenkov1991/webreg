@@ -30,8 +30,11 @@ def check_enable(decorator):
 @check_enable
 def create_appointment(fn):
     def create_appointment_in_qms(user_profile, patient, specialist, service, date, cell=None, **additional_data):
-        qqc244 = get_external_id(specialist)
-        qqc153 = get_external_id(patient)
+        try:
+            qqc244 = get_external_id(specialist)
+            qqc153 = get_external_id(patient)
+        except QmsIntegrationError:
+            raise AppointmentError("Ошибка интеграции с qms")
         qqc244n = user_profile.qmsuser.qqc244
         clinic = user_profile.clinic
         if not clinic:
@@ -84,8 +87,23 @@ def create_appointment(fn):
     return create_appointment_in_qms
 
 
-
-
+@check_enable
+def cancel_appointment(fn):
+    def cancel_appointment_in_qms(appointment):
+        try:
+            qqc1860 = get_external_id(appointment)
+        except QmsIntegrationError:
+            raise AppointmentError("Ошибка интеграции с Qms")
+        clinic = appointment.user_profile.clinic
+        if not clinic:
+            clinic = appointment.specialist.department.clinic
+        try:
+            qms = QMS(clinic.qmsdb.settings)
+            qms.query.execute_query("Cancel1860", qqc1860)
+        except CacheQueryError:
+            raise AppointmentError("Ошибка интеграции с Qms")
+        fn(appointment)
+    return cancel_appointment_in_qms
 
 
 
