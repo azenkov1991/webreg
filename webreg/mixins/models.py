@@ -34,10 +34,12 @@ class SafeDeleteMixin(models.Model):
     def safe_delete(self):
         self.deleted_time = now()
         self.deleted = True
+        self.save()
 
     def undelete(self):
         self.deleted_time = None
         self.deleted = False
+        self.save()
 
     class Meta:
         abstract = True
