@@ -247,10 +247,13 @@ class CacheODBCQuery:
 
     def _execute_class_method(self, query_name, *params):
         try:
-            params_list = list(map(lambda param: str(param), params))
-            return self.database.run_class_method(self.queries[query_name]['class'],
-                                                  self.queries[query_name]['class_method'],
-                                                  params_list)
+            params_list = list(map(lambda param: str(param).encode(self.cache_coding), params))
+            answer = self.database.run_class_method(self.queries[query_name]['class'],
+                                           self.queries[query_name]['class_method'],
+                                           params_list)
+            if isinstance(answer, bytes):
+                return answer.decode(self.cache_coding)
+            return answer
         except (intersys.pythonbind3.cache_exception, KeyError) as err:
             self.logger.error(err)
             self.good = False

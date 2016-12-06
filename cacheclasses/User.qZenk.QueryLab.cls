@@ -96,7 +96,7 @@ ClassMethod getCre186(qqc244 As %String, date As %String, time As %String, qqc17
  s qqc235=$E(qqc244,1,qW.ObjLget(235))
  s pars=qW.GG(235,"pIDo",$E(qqc244,1,qW.ObjLget(235)))_"~"_qW.GG(244,"RSpID",qqc244)_"~"_qW.GG(244,"pIDz",qqc244)_"~"_qW.GG(244,"puR",qqc244)_"~"_qW.GG(244,"pAz",qqc244)
  s qqc186=qUSER.Cre186(qqc174,date,time,,,,"Q01.01.001",pars)
- s W("u") = " Ввод_назначений (Лаборатория)"
+ s W("u") = "Ввод_назначений (Лаборатория)"
  D qW.rCor(186,qqc186,"u",,2)
  set status = "Услуга создана"
  q $listBuild(qqc186,status)

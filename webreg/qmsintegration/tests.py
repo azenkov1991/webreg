@@ -8,7 +8,7 @@ TEST_BASE_SETTINGS = {
     'CONNECTION_PARAM': {
         'user': '_system',
         'password': 'SYS',
-        'host': '172.16.1.10',
+        'host': '10.1.1.8',
         'port': '1972',
         'wsdl_port': '57772',
         'namespace': 'SKCQMS'
@@ -99,6 +99,10 @@ class TestQmsIntegrationAppointment(TestCase):
         self.lab_service = OKMUService(code="A08.05.004", name="Исследование уровня лейкоцитов в крови",
                                        type="Лаборатория", is_finished=1, level=4)
         self.lab_service.save()
+        self.lab_service2 = OKMUService(code="A09.05.023", name="Исследование_уровня_глюкозы_в_крови",
+                                        type="Лаборатория", is_finished=1, level=4)
+        self.lab_service2.save()
+
         self.specialist = Specialist(fio="Садилова Надежда Дмитриевна",
                                      specialization=Specialization.objects.create(name="Терапевт"),
                                      department=self.department)
@@ -110,6 +114,7 @@ class TestQmsIntegrationAppointment(TestCase):
                                             department=self.department)
         self.procedure_cabinet.save()
         self.procedure_cabinet.performing_services.add(self.lab_service)
+        self.procedure_cabinet.performing_services.add(self.lab_service2)
         set_external_id(self.procedure_cabinet, "vABdAApASAA")
 
         self.specialist.performing_services.add(self.service1)
@@ -178,6 +183,7 @@ class TestQmsIntegrationAppointment(TestCase):
         qqc1860 = get_external_id(ap)
         self.qms.query.execute_query('Cancel1860', qqc1860)
         self.assertEqual(str(cm.exception), "Ячейка уже занята")
+        self.qms.query.execute_query('HardDelete174', qqc1860[0:10])
 
     def test_create_appointment_order(self):
         ap = Appointment.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
@@ -200,7 +206,11 @@ class TestQmsIntegrationAppointment(TestCase):
                                                "diagnos_code": "A00.1",
                                                "diagnos_description": "He must die!!!"}
                                             )
+        ap2 = Appointment.create_appointment(self.user_profile, self.patient, self.procedure_cabinet,
+                                             self.lab_service2, self.cell2.date)
+
         qqc1860 = get_external_id(ap)
+        qqc1860_2 = get_external_id(ap2)
         self.qms.query.execute_query("GG", "1860", "u", qqc1860)
         service_name = self.qms.query.result
         self.assertEqual(service_name, "Исследование_уровня_лейкоцитов_в_крови", "Неверное имя услуги в qms")
@@ -211,15 +221,18 @@ class TestQmsIntegrationAppointment(TestCase):
         contingent_code = self.qms.query.result
         self.assertEqual(contingent_code, "102")
         self.assertEqual(ap.additional_data['lab_number'][0:7], "TMP" + self.cell1.date.strftime("%Y"))
+        self.assertEqual(qqc1860[0:19], qqc1860_2[0:19])
         self.qms.query.execute_query('Cancel1860', qqc1860)
+        self.qms.query.execute_query('Cancel1860', qqc1860_2)
+        self.qms.query.execute_query('HardDelete174', qqc1860[0:10])
 
     def test_second_appointment(self):
         ap = Appointment.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
                                             self.cell1.date,
                                             self.cell1)
         ap2 = Appointment.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
-                                            self.cell2.date,
-                                            self.cell2)
+                                             self.cell2.date,
+                                             self.cell2)
         qqc1860 = get_external_id(ap)
         qqc1860_2 = get_external_id(ap2)
         self.qms.query.execute_query("GG", "1860", "u", qqc1860)
@@ -228,6 +241,7 @@ class TestQmsIntegrationAppointment(TestCase):
         self.qms.query.execute_query("GG", "1860", "u", qqc1860_2)
         service_name2 = self.qms.query.result
         self.assertEqual(service_name2, "Прием_(осмотр,_консультация)_врача-терапевта_повторный")
+        self.assertEqual(qqc1860[0:19], qqc1860_2[0:19], "Услуги ввода назначений должны совпадать")
         self.qms.query.execute_query('Cancel1860', qqc1860_2)
         self.qms.query.execute_query('Cancel1860', qqc1860)
         self.qms.query.execute_query('HardDelete174', qqc1860[0:10])

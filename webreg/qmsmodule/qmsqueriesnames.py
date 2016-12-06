@@ -9,7 +9,7 @@ QMS_QUERIES = {
                 },
                 'CreatePatient': {
                             'class': 'User.Query',
-                            'class_method': 'CrePatient'
+                            'query': 'CrePatientQuery'
                 },
                 'AvailSpec': {
                             'class': 'User.QueryCatalog',
@@ -46,6 +46,10 @@ QMS_QUERIES = {
                 'GetPreviousqqc174': {
                             'class': 'User.QueryCatalog',
                             'query': 'GetPreviousqqc174'
+                },
+                'GetPreviousqqc186': {
+                            'class': 'User.QueryCatalog',
+                            'class_method': 'GetPreviousqqc186'
                 },
                 'SetFakeRaspOnSunday': {
                             'class': 'User.QueryCatalog',

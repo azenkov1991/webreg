@@ -180,36 +180,47 @@ class QMS:
         :return:
         возвращает qqc1860 назначения или None
         """
-
+        today_date_qms = datetime.datetime.now().strftime("%Y%m%d")
         diagnos_code = additional_data.get("diagnos_code", None)
         diagnos_descripion = additional_data.get("diagnos_description", None)
-        # попытка найти предыдущий эпизод
-        self.query.execute_query("GetPreviousqqc174", patient, specialist,
-                                 30, date.strftime("%Y%m%d"))
-        qqc174 = self.query.result
-        if not qqc174:
-            self.query.execute_query("Create174", user, patient,
-                                     date.strftime("%Y%m%d"), diagnos_code, diagnos_descripion, 1, None, None)
-            qqc174 = self.query.result
-        if not qqc174:
-            log.error("Не создан эпизод в qms. " + str(locals()))
-            return None
-        self.query.execute_query("Create186", user, date.strftime("%Y%m%d"),
-                                 datetime.datetime.now().strftime("%H:%M"), qqc174)
+        # поиск существующей услуги ввода назначений
+        self.query.execute_query("GetPreviousqqc186", user, today_date_qms, patient)
         qqc186 = self.query.result
+
+        if not qqc186:
+            # попытка найти предыдущий эпизод
+            self.query.execute_query("GetPreviousqqc174", patient, specialist,
+                                     30, date.strftime("%Y%m%d"))
+            qqc174 = self.query.result
+            if not qqc174:
+                self.query.execute_query("Create174", user, patient,
+                                         today_date_qms, diagnos_code, diagnos_descripion, 1, None, None)
+                qqc174 = self.query.result
+            if not qqc174:
+                log.error("Не создан эпизод в qms. " + str(locals()))
+                return None
+
+            self.query.execute_query("Create186", user, today_date_qms,
+                                     datetime.datetime.now().strftime("%H:%M"), qqc174)
+            qqc186 = self.query.result
+
         if not qqc186:
             log.error("Не создана услуга ввода назначений. " + str(locals()))
             return None
+
         # создание статуса диагноза направления
         if diagnos_code and diagnos_descripion:
             self.query.execute_query("CreateDiagnosStatus", qqc186, diagnos_code, diagnos_descripion)
             qqc293_diag = self.query.result
             if not qqc293_diag:
                 log.error("Не создан статус диагноз направления" + str(locals()))
+
+        # создание источника финансирования
         self.query.execute_query("Create293", qqc186, user)
         qqc293 = self.query.result
         if not qqc293:
             log.error("Не создан источник финансирования" + str(locals()))
+
         if time_start:
             # назначение в расписание
             self.query.execute_query("Create1860Schedule", specialist, qqc186, date.strftime("%Y%m%d"),
@@ -250,18 +261,26 @@ class QMS:
         :return:
         qqc1860 назначения
         """
+        today_date_qms = datetime.datetime.now().strftime("%Y%m%d")
         diagnos_code = additional_data.get("diagnos_code", None)
         diagnos_descripion = additional_data.get("diagnos_description", None)
-        self.query.execute_query("Create174", user, patient,
-                                 date.strftime("%Y%m%d"), diagnos_code, diagnos_descripion, 1, None, None)
 
-        qqc174 = self.query.result
-        if not qqc174:
-            log.error("Не создан эпизод в qms. " + str(locals()))
-            return None, None
-        self.query.execute_query("Create186Lab", user, date.strftime("%Y%m%d"),
-                                 datetime.datetime.now().strftime("%H:%M"), qqc174)
+        # поиск существующей услуги ввода назначений
+        self.query.execute_query("GetPreviousqqc186", user, today_date_qms, patient, 1)
         qqc186 = self.query.result
+
+        if not qqc186:
+            self.query.execute_query("Create174", user, patient,
+                                     today_date_qms, diagnos_code, diagnos_descripion, 1, None, None)
+            qqc174 = self.query.result
+            if not qqc174:
+                log.error("Не создан эпизод в qms. " + str(locals()))
+                return None, None
+
+            self.query.execute_query("Create186Lab", user, today_date_qms,
+                                         datetime.datetime.now().strftime("%H:%M"), qqc174)
+            qqc186 = self.query.result
+
         if not qqc186:
             log.error("Не создана услуга ввода назначений. " + str(locals()))
             return None, None
@@ -271,10 +290,13 @@ class QMS:
             qqc293_diag = self.query.result
             if not qqc293_diag:
                 log.error("Не создан статус диагноз направления" + str(locals()))
+
+        # создание источника финансирования
         self.query.execute_query("Create293", qqc186, user)
         qqc293 = self.query.result
         if not qqc293:
             log.error("Не создан источник финансирования" + str(locals()))
+        # формирование аргумента дополнительных параметров лабораторного назначения
         lab_param_str = ""
         if additional_data:
             lab_param_str = additional_data.get("lab_speciman", "") + "~" + \
