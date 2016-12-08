@@ -109,6 +109,7 @@ class CacheSOAPQuery:
                 return self._result
             func = getattr(client.service, self.queries[query_name]['query'])
             results = func(*params)
+            return self
         except Exception as err:
             self.logger.error(err)
             raise CacheQueryError("Execute query error")
@@ -240,6 +241,7 @@ class CacheODBCQuery:
                     param = str(params[paramIndex])
                     self.query.set_par(paramIndex+1, param)
             self.query.execute()
+            return self
         except (intersys.pythonbind3.cache_exception, KeyError) as err:
             self.logger.error(err)
             self.good = False
