@@ -61,9 +61,19 @@ class CellAdmin(admin.ModelAdmin):
     search_fields = ('specialist', 'date')
     ordering = ('-date', 'specialist')
 
-class EmptyAdmin(admin.ModelAdmin):
-    pass
 
+class UserSlotRestrictionInline(admin.TabularInline):
+    model = UserSlotRestriction
+    extra = 1
+    raw_id_fields = ('user_profile',)
+
+
+class UserProfileAdmin(admin.ModelAdmin):
+    inlines = [UserSlotRestrictionInline, ]
+
+
+class NumberOfServiceRestrictionAdmin(admin.ModelAdmin):
+    exclude = ('number_of_used',)
 
 admin.site.register(Specialist, SpecialistAdmin)
 admin.site.register(Cell, CellAdmin)
@@ -72,5 +82,7 @@ admin.site.register(Patient, PatientAdmin)
 admin.site.register(Appointment, AppointmentAdmin)
 admin.site.register(Clinic, ClinicAdmin)
 admin.site.register(Department, DepartmentAdmin)
-admin.site.register(Specialization, EmptyAdmin)
+admin.site.register(Specialization, admin.ModelAdmin)
+admin.site.register(UserProfile, UserProfileAdmin)
+admin.site.register(NumberOfServiceRestriction, NumberOfServiceRestrictionAdmin)
 

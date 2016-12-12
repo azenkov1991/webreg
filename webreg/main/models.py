@@ -4,6 +4,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.contrib.postgres.fields import JSONField
+from django.core.validators import MinValueValidator
 from catalogs.models import OKMUService
 from mixins.models import TimeStampedModel, SafeDeleteMixin
 
@@ -17,6 +18,8 @@ class AppointmentError(Exception):
 class UserProfile(models.Model):
     user = models.ForeignKey('auth.User')
     clinic = models.ForeignKey('Clinic', verbose_name="Мед. учреждение", null=True, blank=True)
+    slot_restrictions = models.ManyToManyField('main.SlotType', through='main.UserSlotRestriction',
+                                               verbose_name="Ограничения на тип ячейки")
 
     class Meta:
         verbose_name = "Профиль пользователя"
@@ -193,6 +196,37 @@ class Appointment(TimeStampedModel, SafeDeleteMixin):
     class Meta:
         verbose_name = "Назначение"
         verbose_name_plural = "Назначения"
+
+
+class UserSlotRestriction(models.Model):
+    user_profile = models.ForeignKey(UserProfile, verbose_name="Профиль пользователя")
+    slot_type = models.ForeignKey(SlotType, verbose_name="Тип ячейки")
+
+    class Meta:
+        verbose_name = "Разрешение на тип ячейки"
+        verbose_name_plural = "Разрешения на тип ячейки"
+
+
+class NumberOfServiceRestriction(models.Model):
+    service = models.ForeignKey(OKMUService, verbose_name="Услуга")
+    number = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Количество")
+    number_of_used = models.IntegerField(validators=[MinValueValidator(0)],
+                                         verbose_name="Количество назначенныхх",
+                                         default=0,
+                                         )
+    user_profile = models.ForeignKey(UserProfile, verbose_name="Профиль пользователя")
+    date_start = models.DateField(verbose_name="Начало действия ограничения")
+    date_end = models.DateField(verbose_name="Конец действия ограничения")
+
+    @property
+    def remain(self):
+        return self.number - self.number_of_used
+
+    class Meta:
+        verbose_name = "Ограничение на кол-во услуг"
+        verbose_name_plural = "Ограничения на кол-во услуг"
+
+
 
 
 
