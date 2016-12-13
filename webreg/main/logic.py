@@ -20,6 +20,16 @@ def create_appointment(user_profile, patient, specialist, service, date, cell=No
     # eсли ячейка не принадлежит специалисту
     if cell and (cell.specialist != specialist):
         raise AppointmentError("Ячейка не принадлежит специалисту." + exception_details)
+    # проверка на ограничение по количеству разрешенных услуг
+    restriction = NumberOfServiceRestriction.get_restriction(date, user_profile, service)
+    if restriction and (not (restriction.remain > 0)):
+        raise AppointmentError("Превышен лимит назначения" + exception_details)
+    # проверка на ограничение по типу слота
+    if user_profile.slot_restrictions.all().exists() and \
+       cell and cell.slot_type:
+        if cell.slot_type not in user_profile.slot_restrictions.all():
+            raise AppointmentError("Нарушено ограничение на тип слота" + exception_details)
+
     try:
         appointment = Appointment(user_profile=user_profile, date=date,
                                   specialist=specialist, service=service,
@@ -29,6 +39,8 @@ def create_appointment(user_profile, patient, specialist, service, date, cell=No
         if additional_data:
             appointment.additional_data = additional_data
         appointment.save()
+        if restriction:
+            restriction.increment()
         return appointment
     except Exception as ex:
         log.error(str(ex))

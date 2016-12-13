@@ -1,3 +1,4 @@
+import datetime
 from django.test import TestCase
 from constance.test import override_config
 from django.contrib.auth.models import User
@@ -32,14 +33,20 @@ class TestMainModule(TestCase):
         self.specialist.performing_services.add(self.service1)
 
         date1 = datetime.date.today() + datetime.timedelta(1)
-        date2 = datetime.date.today() - datetime.timedelta(2)
+        date2 = datetime.date.today() + datetime.timedelta(2)
+        self.slot_type1 = SlotType(name="Тип слота1",clinic=self.clinic)
+        self.slot_type1.save()
+        self.slot_type2 = SlotType(name="Тип слота2", clinic=self.clinic)
+        self.slot_type2.save()
         self.cell1 = Cell(date=date1,
                           time_start=datetime.time(10, 0),
-                          time_end=datetime.time(10, 30))
+                          time_end=datetime.time(10, 30),
+                          slot_type=self.slot_type1)
         self.cell1.specialist = self.specialist
         self.cell2 = Cell(date=date2,
                           time_start=datetime.time(10, 0),
-                          time_end=datetime.time(10, 30))
+                          time_end=datetime.time(10, 30),
+                          slot_type=self.slot_type2)
         self.cell1.specialist = self.specialist
         self.cell2.specialist = self.specialist
         self.cell1.save()
@@ -92,6 +99,45 @@ class TestMainModule(TestCase):
         self.cancel_appointment(ap)
         self.assertTrue(ap.deleted)
         self.assertGreater(ap.deleted_time, ap.created_time)
+
+    def test_number_of_service_restriction(self):
+        restriction = NumberOfServiceRestriction(user_profile=self.user_profile,
+                                                 service=self.service1,
+                                                 number=3,
+                                                 date_start=datetime.date.today(),
+                                                 date_end=datetime.date.today() + datetime.timedelta(5))
+        restriction.save()
+        ap = self.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
+                                     datetime.date.today() + datetime.timedelta(1))
+        ap2 = self.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
+                                      datetime.date.today() + datetime.timedelta(2))
+        ap3 = self.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
+                                      datetime.date.today() + datetime.timedelta(3))
+        restriction = NumberOfServiceRestriction.get_restriction(datetime.date.today(), self.user_profile,
+                                                                 self.service1)
+        self.assertEqual(restriction.remain, 0)
+        with self.assertRaises(AppointmentError):
+            ap4 = self.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
+                                          datetime.date.today() + datetime.timedelta(4))
+
+        ap5 = self.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
+                                      datetime.date.today() + datetime.timedelta(8))
+
+    def test_slot_type_restriction(self):
+        restriction = UserSlotRestriction(user_profile=self.user_profile, slot_type=self.slot_type1)
+        restriction.save()
+        ap = self.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
+                                     datetime.date.today() + datetime.timedelta(1),
+                                     self.cell1)
+        with self.assertRaises(AppointmentError):
+            ap2 = self.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
+                                          self.cell2.date,
+                                          self.cell2)
+
+
+
+
+
 
 
 
