@@ -8,7 +8,7 @@ TEST_BASE_SETTINGS = {
     'CONNECTION_PARAM': {
         'user': '_system',
         'password': 'SYS',
-        'host': '10.1.1.8',
+        'host': '172.16.1.10',
         'port': '1972',
         'wsdl_port': '57772',
         'namespace': 'SKCQMS'
