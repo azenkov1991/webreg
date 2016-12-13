@@ -85,4 +85,5 @@ admin.site.register(Department, DepartmentAdmin)
 admin.site.register(Specialization, admin.ModelAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(NumberOfServiceRestriction, NumberOfServiceRestrictionAdmin)
+admin.site.register(SlotType, admin.ModelAdmin)
 

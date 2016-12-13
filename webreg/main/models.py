@@ -243,14 +243,14 @@ class NumberOfServiceRestriction(models.Model):
         except ValidationError as e:
             raise e
         else:
-            if NumberOfServiceRestriction.objdects.filter(
+            if NumberOfServiceRestriction.objects.filter(
                 service=self.service,
                 user_profile=self.user_profile,
                 date_start__range=[self.date_start, self.date_end]
             ).exists():
                 raise ValidationError("Ограничение на заданный период уже существует")
 
-            if NumberOfServiceRestriction.objdects.filter(
+            if NumberOfServiceRestriction.objects.filter(
                 service=self.service,
                 user_profile=self.user_profile,
                 date_end__range=[self.date_start, self.date_end]
