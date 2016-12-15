@@ -63,7 +63,7 @@ class CellAdmin(admin.ModelAdmin):
 
 
 class UserSlotRestrictionInline(admin.TabularInline):
-    model = UserSlotRestriction
+    model = SlotRestriction
     extra = 1
     # raw_id_fields = ('user_profile',)
 

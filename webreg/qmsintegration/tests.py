@@ -81,7 +81,16 @@ class TestQmsIntegrationAppointment(TestCase):
 
         self.user = User(username="TestUser2")
         self.user.save()
-        self.user_profile = UserProfile(user=self.user)
+        self.profile_settings = ProfileSettings(name="test")
+        self.profile_settings.save()
+        self.site = Site(name="test", domain="127.0.0.1")
+        self.site.save()
+        self.user_profile = UserProfile(user=self.user,
+                                        profile_settings=self.profile_settings,
+                                        site=self.site)
+        self.user_profile = UserProfile(user=self.user,
+                                        profile_settings=self.profile_settings,
+                                        site=self.site)
         self.user_profile.save()
         self.qms_user = QmsUser(name="Платежка", qqc244="vABdABЪABAA", user_profile=self.user_profile)
         self.qms_user.save()

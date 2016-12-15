@@ -16,7 +16,13 @@ class TestMainModule(TestCase):
         except User.DoesNotExist:
             self.user = User(username="TestUser")
         self.user.save()
-        self.user_profile = UserProfile(user=self.user)
+        self.profile_settings = ProfileSettings(name="test")
+        self.profile_settings.save()
+        self.site = Site(name="test", domain="127.0.0.1")
+        self.site.save()
+        self.user_profile = UserProfile(user=self.user,
+                                        profile_settings=self.profile_settings,
+                                        site=self.site)
         self.user_profile.save()
         self.clinic = Clinic(name="СКЦ", city="Красноярск", address="Vbhdsfdsf")
         self.clinic.save()
@@ -34,7 +40,7 @@ class TestMainModule(TestCase):
 
         date1 = datetime.date.today() + datetime.timedelta(1)
         date2 = datetime.date.today() + datetime.timedelta(2)
-        self.slot_type1 = SlotType(name="Тип слота1",clinic=self.clinic)
+        self.slot_type1 = SlotType(name="Тип слота1", clinic=self.clinic)
         self.slot_type1.save()
         self.slot_type2 = SlotType(name="Тип слота2", clinic=self.clinic)
         self.slot_type2.save()
@@ -124,7 +130,8 @@ class TestMainModule(TestCase):
                                       datetime.date.today() + datetime.timedelta(8))
 
     def test_slot_type_restriction(self):
-        restriction = UserSlotRestriction(user_profile=self.user_profile, slot_type=self.slot_type1)
+
+        restriction = SlotRestriction(profile_settings=self.profile_settings, slot_type=self.slot_type1)
         restriction.save()
         ap = self.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
                                      datetime.date.today() + datetime.timedelta(1),

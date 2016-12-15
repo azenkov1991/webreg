@@ -22,6 +22,13 @@ class UserProfile(models.Model):
     profile_settings = models.ForeignKey('main.ProfileSettings', verbose_name="Настройки профиля")
     site = models.ForeignKey('sites.Site', verbose_name="Сайт")
 
+    def get_slot_restrictions(self):
+        """
+        :return:
+        Возвращает query_set типов слотов
+        """
+        return self.profile_settings.slot_restrictions.all()
+
     class Meta:
         verbose_name = "Профиль пользователя"
         verbose_name_plural = "Профиля пользователей"
@@ -29,7 +36,7 @@ class UserProfile(models.Model):
 
 class ProfileSettings(models.Model):
     name = models.CharField(max_length=128, verbose_name="Наименование настроек")
-    slot_restrictions = models.ManyToManyField('main.SlotType', through='main.UserSlotRestriction',
+    slot_restrictions = models.ManyToManyField('main.SlotType', through='main.SlotRestriction',
                                                verbose_name="Ограничения на тип ячейки")
 
     def __str__(self):
@@ -212,7 +219,7 @@ class Appointment(TimeStampedModel, SafeDeleteMixin):
         verbose_name_plural = "Назначения"
 
 
-class UserSlotRestriction(models.Model):
+class SlotRestriction(models.Model):
     profile_settings = models.ForeignKey(ProfileSettings, verbose_name="Настройки профиля пользователя")
     slot_type = models.ForeignKey(SlotType, verbose_name="Тип ячейки")
 
