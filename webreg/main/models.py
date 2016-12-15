@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.contrib.postgres.fields import JSONField
 from django.core.validators import MinValueValidator
+from django.contrib.sites.models import Site
 from catalogs.models import OKMUService
 from mixins.models import TimeStampedModel, SafeDeleteMixin
 
@@ -18,12 +19,25 @@ class AppointmentError(Exception):
 class UserProfile(models.Model):
     user = models.ForeignKey('auth.User')
     clinic = models.ForeignKey('Clinic', verbose_name="Мед. учреждение", null=True, blank=True)
-    slot_restrictions = models.ManyToManyField('main.SlotType', through='main.UserSlotRestriction',
-                                               verbose_name="Ограничения на тип ячейки")
+    profile_settings = models.ForeignKey('main.ProfileSettings', verbose_name="Настройки профиля")
+    site = models.ForeignKey('sites.Site', verbose_name="Сайт")
 
     class Meta:
         verbose_name = "Профиль пользователя"
         verbose_name_plural = "Профиля пользователей"
+
+
+class ProfileSettings(models.Model):
+    name = models.CharField(max_length=128, verbose_name="Наименование настроек")
+    slot_restrictions = models.ManyToManyField('main.SlotType', through='main.UserSlotRestriction',
+                                               verbose_name="Ограничения на тип ячейки")
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Настройки профиля"
+        verbose_name_plural = "Настройки профилей"
 
 
 class Clinic(models.Model):
@@ -199,7 +213,7 @@ class Appointment(TimeStampedModel, SafeDeleteMixin):
 
 
 class UserSlotRestriction(models.Model):
-    user_profile = models.ForeignKey(UserProfile, verbose_name="Профиль пользователя")
+    profile_settings = models.ForeignKey(ProfileSettings, verbose_name="Настройки профиля пользователя")
     slot_type = models.ForeignKey(SlotType, verbose_name="Тип ячейки")
 
     class Meta:

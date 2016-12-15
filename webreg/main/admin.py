@@ -65,10 +65,10 @@ class CellAdmin(admin.ModelAdmin):
 class UserSlotRestrictionInline(admin.TabularInline):
     model = UserSlotRestriction
     extra = 1
-    raw_id_fields = ('user_profile',)
+    # raw_id_fields = ('user_profile',)
 
 
-class UserProfileAdmin(admin.ModelAdmin):
+class ProfileSettingsAdmin(admin.ModelAdmin):
     inlines = [UserSlotRestrictionInline, ]
 
 
@@ -83,7 +83,8 @@ admin.site.register(Appointment, AppointmentAdmin)
 admin.site.register(Clinic, ClinicAdmin)
 admin.site.register(Department, DepartmentAdmin)
 admin.site.register(Specialization, admin.ModelAdmin)
-admin.site.register(UserProfile, UserProfileAdmin)
+admin.site.register(UserProfile, admin.ModelAdmin)
 admin.site.register(NumberOfServiceRestriction, NumberOfServiceRestrictionAdmin)
 admin.site.register(SlotType, admin.ModelAdmin)
+admin.site.register(ProfileSettings, ProfileSettingsAdmin)
 
