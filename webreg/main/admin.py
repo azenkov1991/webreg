@@ -75,6 +75,13 @@ class ProfileSettingsAdmin(admin.ModelAdmin):
 class NumberOfServiceRestrictionAdmin(admin.ModelAdmin):
     exclude = ('number_of_used',)
 
+
+class SiteServicePermissoionAdmin(admin.ModelAdmin):
+    raw_id_fields = ('services',)
+    autocomplete_lookup_fields = {
+        'm2m': ['services', ]
+    }
+
 admin.site.register(Specialist, SpecialistAdmin)
 admin.site.register(Cell, CellAdmin)
 admin.site.register(Cabinet, CabinetAdmin)
@@ -87,4 +94,5 @@ admin.site.register(UserProfile, admin.ModelAdmin)
 admin.site.register(NumberOfServiceRestriction, NumberOfServiceRestrictionAdmin)
 admin.site.register(SlotType, admin.ModelAdmin)
 admin.site.register(ProfileSettings, ProfileSettingsAdmin)
+admin.site.register(SiteServicePermission, SiteServicePermissoionAdmin)
 
