@@ -81,7 +81,16 @@ class TestQmsIntegrationAppointment(TestCase):
 
         self.user = User(username="TestUser2")
         self.user.save()
-        self.user_profile = UserProfile(user=self.user)
+        self.profile_settings = ProfileSettings(name="test")
+        self.profile_settings.save()
+        self.site = Site(name="test", domain="127.0.0.1")
+        self.site.save()
+        self.user_profile = UserProfile(user=self.user,
+                                        profile_settings=self.profile_settings,
+                                        site=self.site)
+        self.user_profile = UserProfile(user=self.user,
+                                        profile_settings=self.profile_settings,
+                                        site=self.site)
         self.user_profile.save()
         self.qms_user = QmsUser(name="Платежка", qqc244="vABdABЪABAA", user_profile=self.user_profile)
         self.qms_user.save()
@@ -103,6 +112,9 @@ class TestQmsIntegrationAppointment(TestCase):
                                         type="Лаборатория", is_finished=1, level=4)
         self.lab_service2.save()
 
+        site_permissions = SiteServicePermission(site=self.site)
+        site_permissions.save()
+        site_permissions.services.add(self.service1, self.service2, self.lab_service, self.lab_service2)
         self.specialist = Specialist(fio="Садилова Надежда Дмитриевна",
                                      specialization=Specialization.objects.create(name="Терапевт"),
                                      department=self.department)
