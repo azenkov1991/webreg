@@ -32,12 +32,19 @@ class TestMainModule(TestCase):
         self.service1.save()
         self.service2 = OKMUService(code="A01.01.02", name="Прием терапевта2", is_finished=1, level=4)
         self.service2.save()
+        self.service_not_allowed_for_site = OKMUService(code="A01.05.01", name="Прием невролога",
+                                                        is_finished=1, level=4)
+        self.service_not_allowed_for_site.save()
+        site_permissions = SiteServicePermission(site=self.site)
+        site_permissions.save()
+        site_permissions.services.add(self.service1, self.service2)
+
         self.specialist = Specialist(fio="Терапевт Петр Иванович",
                                      specialization=Specialization.objects.create(name="Терапевт"),
                                      department=self.department)
         self.specialist.save()
         self.specialist.performing_services.add(self.service1)
-
+        self.specialist.performing_services.add(self.service_not_allowed_for_site)
         date1 = datetime.date.today() + datetime.timedelta(1)
         date2 = datetime.date.today() + datetime.timedelta(2)
         self.slot_type1 = SlotType(name="Тип слота1", clinic=self.clinic)
@@ -141,7 +148,12 @@ class TestMainModule(TestCase):
                                           self.cell2.date,
                                           self.cell2)
 
-
+    def test_site_services_permissions(self):
+        with self.assertRaises(AppointmentError):
+            ap = self.create_appointment(self.user_profile, self.patient, self.specialist,
+                                     self.service_not_allowed_for_site,
+                                     datetime.date.today() + datetime.timedelta(1),
+                                     self.cell1)
 
 
 

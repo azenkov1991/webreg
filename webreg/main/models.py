@@ -6,6 +6,8 @@ from django.core.exceptions import NON_FIELD_ERRORS
 from django.contrib.postgres.fields import JSONField
 from django.core.validators import MinValueValidator
 from mixins.models import TimeStampedModel, SafeDeleteMixin
+from django.contrib.sites.models import Site
+from catalogs.models import OKMUService
 
 log = logging.getLogger("webreg")
 
