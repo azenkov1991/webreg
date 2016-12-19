@@ -5,8 +5,9 @@ from django.core.exceptions import ValidationError
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.contrib.postgres.fields import JSONField
 from django.core.validators import MinValueValidator
-from catalogs.models import OKMUService
 from mixins.models import TimeStampedModel, SafeDeleteMixin
+from django.contrib.sites.models import Site
+from catalogs.models import OKMUService
 
 log = logging.getLogger("webreg")
 
@@ -18,12 +19,32 @@ class AppointmentError(Exception):
 class UserProfile(models.Model):
     user = models.ForeignKey('auth.User')
     clinic = models.ForeignKey('Clinic', verbose_name="Мед. учреждение", null=True, blank=True)
-    slot_restrictions = models.ManyToManyField('main.SlotType', through='main.UserSlotRestriction',
-                                               verbose_name="Ограничения на тип ячейки")
+    profile_settings = models.ForeignKey('main.ProfileSettings', verbose_name="Настройки профиля")
+    site = models.ForeignKey('sites.Site', verbose_name="Сайт")
+
+    def get_slot_restrictions(self):
+        """
+        :return:
+        Возвращает query_set типов слотов
+        """
+        return self.profile_settings.slot_restrictions.all()
 
     class Meta:
         verbose_name = "Профиль пользователя"
         verbose_name_plural = "Профиля пользователей"
+
+
+class ProfileSettings(models.Model):
+    name = models.CharField(max_length=128, verbose_name="Наименование настроек")
+    slot_restrictions = models.ManyToManyField('main.SlotType', through='main.SlotRestriction',
+                                               verbose_name="Ограничения на тип ячейки")
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Настройки профиля"
+        verbose_name_plural = "Настройки профилей"
 
 
 class Clinic(models.Model):
@@ -66,7 +87,7 @@ class Specialization(models.Model):
 class Specialist(SafeDeleteMixin):
     fio = models.CharField(max_length=128, verbose_name="Полное имя")
     specialization = models.ForeignKey(Specialization, verbose_name="Специализация")
-    performing_services = models.ManyToManyField(OKMUService, verbose_name="Выполняемые услуги")
+    performing_services = models.ManyToManyField("catalogs.OKMUService", verbose_name="Выполняемые услуги")
     department = models.ForeignKey(Department, verbose_name="Подразделение")
 
     def __str__(self):
@@ -135,7 +156,7 @@ class Cell(models.Model):
     time_end = models.TimeField(verbose_name="Окончание приема")
     specialist = models.ForeignKey(Specialist, verbose_name="Специалист")
     cabinet = models.ForeignKey(Cabinet, verbose_name="Кабинет", null=True, blank=True)
-    performing_services = models.ManyToManyField(OKMUService, verbose_name="Выполняемые услуги")
+    performing_services = models.ManyToManyField("catalogs.OKMUService", verbose_name="Выполняемые услуги")
     slot_type = models.ForeignKey(SlotType, verbose_name="Тип слота", null=True, blank=True)
 
     @property
@@ -188,7 +209,7 @@ class Appointment(TimeStampedModel, SafeDeleteMixin):
     user_profile = models.ForeignKey(UserProfile, verbose_name="Профиль пользователя")
     date = models.DateField(verbose_name="Дата приема", db_index=True)
     specialist = models.ForeignKey(Specialist, verbose_name="Специалист")
-    service = models.ForeignKey(OKMUService, verbose_name="Услуга")
+    service = models.ForeignKey("catalogs.OKMUService", verbose_name="Услуга")
     patient = models.ForeignKey(Patient, verbose_name="Пациент")
     cell = models.ForeignKey(Cell, verbose_name="Ячейка", null=True, blank=True)
     additional_data = JSONField(verbose_name="Дополнительные параметры", null=True, blank=True)
@@ -198,8 +219,8 @@ class Appointment(TimeStampedModel, SafeDeleteMixin):
         verbose_name_plural = "Назначения"
 
 
-class UserSlotRestriction(models.Model):
-    user_profile = models.ForeignKey(UserProfile, verbose_name="Профиль пользователя")
+class SlotRestriction(models.Model):
+    profile_settings = models.ForeignKey(ProfileSettings, verbose_name="Настройки профиля пользователя")
     slot_type = models.ForeignKey(SlotType, verbose_name="Тип ячейки")
 
     class Meta:
@@ -208,7 +229,7 @@ class UserSlotRestriction(models.Model):
 
 
 class NumberOfServiceRestriction(models.Model):
-    service = models.ForeignKey(OKMUService, verbose_name="Услуга")
+    service = models.ForeignKey("catalogs.OKMUService", verbose_name="Услуга")
     number = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Количество")
     number_of_used = models.IntegerField(validators=[MinValueValidator(0)],
                                          verbose_name="Количество назначенныхх",
@@ -261,6 +282,14 @@ class NumberOfServiceRestriction(models.Model):
         verbose_name = "Ограничение на кол-во услуг"
         verbose_name_plural = "Ограничения на кол-во услуг"
 
+
+class SiteServicePermission(models.Model):
+    services = models.ManyToManyField("catalogs.OKMUService", verbose_name="Услуга")
+    site = models.OneToOneField("sites.Site", verbose_name="Сайт")
+
+    class Meta:
+        verbose_name = "Разрашеение на назначение услуг"
+        verbose_name_plural = "Разрешения на назначения услуг"
 
 
 

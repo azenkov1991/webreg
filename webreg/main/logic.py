@@ -25,10 +25,16 @@ def create_appointment(user_profile, patient, specialist, service, date, cell=No
     if restriction and (not (restriction.remain > 0)):
         raise AppointmentError("Превышен лимит назначения" + exception_details)
     # проверка на ограничение по типу слота
-    if user_profile.slot_restrictions.all().exists() and \
-       cell and cell.slot_type:
-        if cell.slot_type not in user_profile.slot_restrictions.all():
-            raise AppointmentError("Нарушено ограничение на тип слота" + exception_details)
+    if cell and cell.slot_type:
+        slot_restrictions = user_profile.get_slot_restrictions()
+        if slot_restrictions.exists():
+            if not (cell.slot_type in slot_restrictions):
+                raise AppointmentError("Нарушено ограничение на тип слота" + exception_details)
+
+    # проверка допустимых услуг у сайта
+    if not SiteServicePermission.objects.get(site_id=user_profile.site.id). \
+            services.filter(id=service.id).exists():
+        raise AppointmentError("Попытка назначения услуги не разрешенной для сайта" + exception_details)
 
     try:
         appointment = Appointment(user_profile=user_profile, date=date,

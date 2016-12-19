@@ -16,7 +16,13 @@ class TestMainModule(TestCase):
         except User.DoesNotExist:
             self.user = User(username="TestUser")
         self.user.save()
-        self.user_profile = UserProfile(user=self.user)
+        self.profile_settings = ProfileSettings(name="test")
+        self.profile_settings.save()
+        self.site = Site(name="test", domain="127.0.0.1")
+        self.site.save()
+        self.user_profile = UserProfile(user=self.user,
+                                        profile_settings=self.profile_settings,
+                                        site=self.site)
         self.user_profile.save()
         self.clinic = Clinic(name="СКЦ", city="Красноярск", address="Vbhdsfdsf")
         self.clinic.save()
@@ -26,15 +32,22 @@ class TestMainModule(TestCase):
         self.service1.save()
         self.service2 = OKMUService(code="A01.01.02", name="Прием терапевта2", is_finished=1, level=4)
         self.service2.save()
+        self.service_not_allowed_for_site = OKMUService(code="A01.05.01", name="Прием невролога",
+                                                        is_finished=1, level=4)
+        self.service_not_allowed_for_site.save()
+        site_permissions = SiteServicePermission(site=self.site)
+        site_permissions.save()
+        site_permissions.services.add(self.service1, self.service2)
+
         self.specialist = Specialist(fio="Терапевт Петр Иванович",
                                      specialization=Specialization.objects.create(name="Терапевт"),
                                      department=self.department)
         self.specialist.save()
         self.specialist.performing_services.add(self.service1)
-
+        self.specialist.performing_services.add(self.service_not_allowed_for_site)
         date1 = datetime.date.today() + datetime.timedelta(1)
         date2 = datetime.date.today() + datetime.timedelta(2)
-        self.slot_type1 = SlotType(name="Тип слота1",clinic=self.clinic)
+        self.slot_type1 = SlotType(name="Тип слота1", clinic=self.clinic)
         self.slot_type1.save()
         self.slot_type2 = SlotType(name="Тип слота2", clinic=self.clinic)
         self.slot_type2.save()
@@ -124,7 +137,8 @@ class TestMainModule(TestCase):
                                       datetime.date.today() + datetime.timedelta(8))
 
     def test_slot_type_restriction(self):
-        restriction = UserSlotRestriction(user_profile=self.user_profile, slot_type=self.slot_type1)
+
+        restriction = SlotRestriction(profile_settings=self.profile_settings, slot_type=self.slot_type1)
         restriction.save()
         ap = self.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
                                      datetime.date.today() + datetime.timedelta(1),
@@ -134,7 +148,12 @@ class TestMainModule(TestCase):
                                           self.cell2.date,
                                           self.cell2)
 
-
+    def test_site_services_permissions(self):
+        with self.assertRaises(AppointmentError):
+            ap = self.create_appointment(self.user_profile, self.patient, self.specialist,
+                                     self.service_not_allowed_for_site,
+                                     datetime.date.today() + datetime.timedelta(1),
+                                     self.cell1)
 
 
 
