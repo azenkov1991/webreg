@@ -110,25 +110,25 @@ class Command(BaseCommand):
             specialists = Specialist.objects.filter(department_id=department.id)
         if specialists == None:
             raise CommandError("Необходимо задать специалиста или подразделение со специалистами")
-
+        date_now = datetime.datetime.now().date()
         for specialist in specialists:
             qqc244 = get_external_id(specialist)
-            cells = qms.get_timetable(qqc244, date_from, date_to)
+            qms_cells = qms.get_timetable(qqc244, date_from, date_to)
             local_cells = [c for c in Cell.objects.filter(date__range=[date_from, date_to], specialist_id=specialist.id)] # получаем все ячейки за заданный период по заданному спецу, которые лежат в базе
             # дальше мы перебираем ячейки из qMS. Но если в qMS удалят ячейку, то мы ее не обойдем в цикле. Чтобы не "забыть" про такие ячейки, мы получаем все ячейки из нашей базы, сохраняем их в списке.
             # И те, которые были обработаны, удаляются из списка. Оставшиеся в списке обрабатываются согласно логике программы (удаляются, если на них не производилась запись)
-            for cell_item in cells:
+            for cell_item in qms_cells:
                 kwargs = {'date': cell_item.date, 'specialist': specialist, 'time_start': cell_item.time_start,
                           'time_end': cell_item.time_end, 'slot_type': cell_item.slot_type,
                           'cabinet': cell_item.cabinet, 'okmu_list': cell_item.okmu_list,
                           'department': department}
                 cell = self.find_cell(except_if_not_exist=True, **kwargs)
                 if cell == None: # если ячейки у нас еще нет
-                    if (cell_item.date >= datetime.datetime.now().date()) and (cell_item.free == "1"): # а дата этой ячейки не в прошлом и она не занята
+                    if (cell_item.date >= date_now) and (cell_item.free == "1"): # а дата этой ячейки не в прошлом и она не занята
                         self.find_cell(except_if_not_exist=False, **kwargs) # создаем ее. local_cells не трогаем, т.к. там этой ячейки не может быть
                         # если дата ячейки в прошлом, ячейки не было и она появилась в qMS, то незачем ее грузить
                 else: # если ячейка уже добавлена
-                    if (cell.date >= datetime.datetime.now().date()) or (cell.appointment_set.exists()): # если дата ячейки не в прошлом или на эту ячейку была произведена запись
+                    if (cell.date >= date_now) or (cell.appointment_set.exists()): # если дата ячейки не в прошлом или на эту ячейку была произведена запись
                         local_cells.remove(cell) # удаляем эту ячейку из кандидатов на "удаление"
                     # если дата ячейки в прошлом и на нее была произведена запись, то ячейку нужно удалить
             for cell in local_cells: # удаляем кандидатов на удаление
