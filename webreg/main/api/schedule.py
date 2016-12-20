@@ -23,7 +23,7 @@ class CellSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cell
-        fields = fields = ('id', 'date', 'time_start', 'time_end', 'cabinet')
+        fields = ('id', 'date', 'time_start', 'time_end', 'cabinet', 'slot_type')
 
 
 class SpecialistsFreeCells(APIView):
@@ -33,21 +33,10 @@ class SpecialistsFreeCells(APIView):
     def get(self, request, specialist_id, date_from, date_to):
         specialist_id = int(specialist_id)
         site = get_current_site(request)
-        user_profile = UserProfile.get(site_id=site.id, user_id=request.user.id)
-        slot_types = user_profile.get_slot_restriction().values('id')
+        user_profile = UserProfile.objects.get(site_id=site.id, user_id=request.user.id)
+        slot_types = user_profile.get_slot_restrictions().values('id')
+        cells = Cell.objects.filter(date__range=(date_from, date_to),
+                                    specialist_id=specialist_id)
         if slot_types:
-            cells = Cell.objects.filter(date__range=(date_from, date_to),
-                                        specialist_id=specialist_id,
-                                        slot_type__in=slot_types)
-        else:
-            cells = Cell.objects.filter(date__range=(date_from, date_to),
-                                        specialist_id=specialist_id)
-        return Response(CellSerializer(cells).data)
-
-
-
-
-
-
-
-
+            cells = cells.filter(slot_type__in=slot_types)
+        return Response(CellSerializer(cells, many=True).data)
