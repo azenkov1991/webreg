@@ -51,6 +51,10 @@ class AppointmentForm(forms.ModelForm):
 
 class AppointmentAdmin(admin.ModelAdmin):
     form = AppointmentForm
+    list_display = ('date', 'specialist', 'service', 'patient')
+    list_filter = ('date', 'specialist')
+    search_fields = ('specialist', '-date')
+    ordering = ('-date', 'specialist')
 
 
 class CellAdmin(admin.ModelAdmin):

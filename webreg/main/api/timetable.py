@@ -18,6 +18,12 @@ class SlotTypeSerializer(serializers.ModelSerializer):
         fields = ('id', 'color', 'name')
 
 
+class PatientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Patient
+        fields = ('id', 'fio')
+
+
 class CellSerializer(serializers.ModelSerializer):
     cabinet = CabinetTimeTableSerializer()
     slot_type = SlotTypeSerializer()
@@ -31,12 +37,15 @@ class SpecialistsFreeCells(ProfileRequiredMixin, APIView):
     """
     Возвращает свободные ячейки специалиста
     """
-    def get(self, request, specialist_id, date_from, date_to):
+    def get(self, request, specialist_id, date_from, date_to, slot_type_id=""):
         specialist_id = int(specialist_id)
         user_profile = request.user_profile
         slot_types = user_profile.get_slot_restrictions().values('id')
         cells = Cell.objects.filter(date__range=(date_from, date_to),
-                                    specialist_id=specialist_id)
+                                    specialist_id=specialist_id,
+                                    appointment__isnull=True)
+        if slot_type_id:
+            cells = cells.filter(slot_type_id=int(slot_type_id))
         if slot_types:
-            cells = cells.filter(slot_type__in=slot_types)
+            cells = cells.filter(slot_type_id__in=slot_types)
         return Response(CellSerializer(cells, many=True).data)

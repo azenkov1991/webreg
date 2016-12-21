@@ -156,7 +156,7 @@ class Cell(models.Model):
     time_end = models.TimeField(verbose_name="Окончание приема")
     specialist = models.ForeignKey(Specialist, verbose_name="Специалист")
     cabinet = models.ForeignKey(Cabinet, verbose_name="Кабинет", null=True, blank=True)
-    performing_services = models.ManyToManyField("catalogs.OKMUService", verbose_name="Выполняемые услуги")
+    performing_services = models.ManyToManyField("catalogs.OKMUService", verbose_name="Выполняемые услуги", blank=True)
     slot_type = models.ForeignKey(SlotType, verbose_name="Тип слота", null=True, blank=True)
 
     @property
@@ -178,7 +178,7 @@ class Cell(models.Model):
     @classmethod
     def save_cell_validation(cls, cell):
         today_cells = Cell.objects.filter(date=cell.date).exclude(id=cell.id)
-        cells_in_cabinet = today_cells.filter(cabinet=cell.cabinet)
+        cells_in_cabinet = today_cells.filter(cabinet=cell.cabinet) if cell.cabinet else []
         # проверка пересечения ячеек в кабинете
         for other_cell in cells_in_cabinet:
             if cell.intersection(other_cell):
