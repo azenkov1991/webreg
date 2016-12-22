@@ -1,7 +1,9 @@
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from rest_framework import serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from main.mixins import ProfileRequiredMixin
+
 
 from main.models import *
 
@@ -37,6 +39,8 @@ class SpecialistsFreeCells(ProfileRequiredMixin, APIView):
     """
     Возвращает свободные ячейки специалиста
     """
+    raise_exception = True
+    
     def get(self, request, specialist_id, date_from, date_to, slot_type_id=""):
         specialist_id = int(specialist_id)
         user_profile = request.user_profile
@@ -51,10 +55,13 @@ class SpecialistsFreeCells(ProfileRequiredMixin, APIView):
         return Response(CellSerializer(cells, many=True).data)
 
 
-class SpecialistAllCells(ProfileRequiredMixin, APIView):
+class SpecialistAllCells(PermissionRequiredMixin, APIView):
     """
     Возвращает все ячейки расписания с информацией о назначенном пациенте
     """
+    permission_required = "main.view_timetable"
+    raise_exception = True
+
     def get(self, request, specialist_id, date_from, date_to):
         specialist_id = int(specialist_id)
         cells = Cell.objects.filter(date__range=(date_from, date_to),
@@ -64,7 +71,6 @@ class SpecialistAllCells(ProfileRequiredMixin, APIView):
         for i, value in enumerate(cells_list):
             try:
                 appointment = Appointment.objects.get(cell_id=int(value['id']))
-                print (value['id'])
                 cells_list[i]['patient'] = PatientSerializer(appointment.patient).data
             except Appointment.DoesNotExist:
                 pass

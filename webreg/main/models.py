@@ -203,6 +203,9 @@ class Cell(models.Model):
     class Meta:
         verbose_name = "Ячейка"
         verbose_name_plural = "Ячейки"
+        permissions = (
+            ("view_timetable", "Разрешение на просмотр расписания"),
+        )
 
 
 class Appointment(TimeStampedModel, SafeDeleteMixin):
