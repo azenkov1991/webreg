@@ -21,7 +21,7 @@ class SlotTypeSerializer(serializers.ModelSerializer):
 class PatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Patient
-        fields = ('id', 'fio')
+        fields = ('id', 'fio', 'birth_date')
 
 
 class CellSerializer(serializers.ModelSerializer):
@@ -49,3 +49,25 @@ class SpecialistsFreeCells(ProfileRequiredMixin, APIView):
         if slot_types:
             cells = cells.filter(slot_type_id__in=slot_types)
         return Response(CellSerializer(cells, many=True).data)
+
+
+class SpecialistAllCells(ProfileRequiredMixin, APIView):
+    """
+    Возвращает все ячейки расписания с информацией о назначенном пациенте
+    """
+    def get(self, request, specialist_id, date_from, date_to):
+        specialist_id = int(specialist_id)
+        cells = Cell.objects.filter(date__range=(date_from, date_to),
+                                    specialist_id=specialist_id)
+
+        cells_list = CellSerializer(cells, many=True).data
+        for i, value in enumerate(cells_list):
+            try:
+                appointment = Appointment.objects.get(cell_id=int(value['id']))
+                print (value['id'])
+                cells_list[i]['patient'] = PatientSerializer(appointment.patient).data
+            except Appointment.DoesNotExist:
+                pass
+        return Response(cells_list)
+
+
