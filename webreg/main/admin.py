@@ -18,18 +18,16 @@ class ClinicAdmin(admin.ModelAdmin):
     inlines = [DepartmentInline, ]
 
 
-class PerformingServicesInline(admin.TabularInline):
-    model = Specialist.performing_services.through
-    extra = 1
-
-
 class SpecialistAdmin(admin.ModelAdmin):
     list_display = (
         'fio', 'specialization', 'department',
     )
     list_display_links = ('fio', 'specialization')
     search_fields = ('fio', 'specialization')
-    inlines = [PerformingServicesInline, ]
+    raw_id_fields = ('performing_services',)
+    autocomplete_lookup_fields = {
+        'm2m': ['performing_services', ]
+    }
 
 
 class CabinetAdmin(admin.ModelAdmin):
@@ -53,6 +51,10 @@ class AppointmentForm(forms.ModelForm):
 
 class AppointmentAdmin(admin.ModelAdmin):
     form = AppointmentForm
+    list_display = ('date', 'specialist', 'service', 'patient')
+    list_filter = ('date', 'specialist')
+    search_fields = ('specialist', '-date')
+    ordering = ('-date', 'specialist')
 
 
 class CellAdmin(admin.ModelAdmin):
@@ -60,12 +62,15 @@ class CellAdmin(admin.ModelAdmin):
     list_filter = ('date', 'specialist')
     search_fields = ('specialist', 'date')
     ordering = ('-date', 'specialist')
+    raw_id_fields = ('performing_services',)
+    autocomplete_lookup_fields = {
+        'm2m': ['performing_services', ]
+    }
 
 
 class UserSlotRestrictionInline(admin.TabularInline):
     model = SlotRestriction
     extra = 1
-    # raw_id_fields = ('user_profile',)
 
 
 class ProfileSettingsAdmin(admin.ModelAdmin):

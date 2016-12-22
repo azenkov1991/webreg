@@ -55,6 +55,9 @@ class ObjectMatchingTable(models.Model):
     internal_name = models.CharField(max_length=128, verbose_name='Имя таблицы')
     external_name = models.CharField(max_length=128, verbose_name='Имя во внешней системе')
 
+    def __str__(self):
+        return self.internal_name + '->' + self.external_name
+
     class Meta:
         verbose_name_plural = 'Таблица соответсвий объектов '
 
