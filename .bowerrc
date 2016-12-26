@@ -1,0 +1,7 @@
+{
+
+  "directory": "webreg/main/static/library",
+  "ignoredDependencies": [
+    "jquery"
+  ]
+}
