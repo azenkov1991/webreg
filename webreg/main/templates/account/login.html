@@ -3,11 +3,11 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 
-{% block head_title %}{% trans "Sign In" %}{% endblock %}
+{% block head_title %}Вход{% endblock %}
 
 {% block inner %}
 
-<h1>{% trans "Sign In" %}</h1>
+<h1>Вход</h1>
 
 
 <form class="login" method="POST" action="{% url 'account_login' %}">
@@ -16,8 +16,11 @@
   {% if redirect_field_value %}
   <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
   {% endif %}
+  {% comment %}
   <a class="button secondaryAction" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
-  <button class="primaryAction btn btn-primary" type="submit">{% trans "Sign In" %}</button>
+  {% endcomment %}
+
+  <button class="primaryAction btn btn-primary" type="submit">Войти</button>
 </form>
 
 {% endblock %}
