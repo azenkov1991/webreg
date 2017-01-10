@@ -17,7 +17,10 @@ urlpatterns = [
     url(r'^accounts/login', login, {'template_name': "account/login.html",
                                     'extra_context': {'redirect_field_value': '/',
                                                       'redirect_field_name': 'next'}}, name="account_login"),
-    url(r'^accounts/logout', logout, {'template_name': "account/logout.html"}, name="account_logout"),
+    url(r'^accounts/logout', logout, {'template_name': "account/logout.html",
+                                      'extra_context': {'redirect_field_value': '/',
+                                                        'redirect_field_name': 'next'}
+                                      }, name="account_logout"),
     url(r'^accounts/password-reset', password_reset, {'template_name': "account/password_reset_.html"},
         name="account_reset_password")
 ]
