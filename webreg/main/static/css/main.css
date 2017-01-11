@@ -5,8 +5,7 @@ html, body{
 }
 
 #body {
-
-  padding-bottom: 60px;
+  padding-bottom: 70px;
 }
 
 #main-container {
@@ -18,9 +17,9 @@ html, body{
   background-color: #555;
   position:absolute;
   bottom:0;
-  height:60px;
   width: 100%;
   color: white;
   padding: 15px;
+  font-size: 9pt;
 }
 

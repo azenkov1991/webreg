@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'constance.backends.database',
     'constance',
-    'crispy_forms'
+    'crispy_forms',
+    'flatblocks'
 ]
 
 

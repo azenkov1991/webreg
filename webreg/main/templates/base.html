@@ -1,4 +1,5 @@
 {% load staticfiles i18n %}<!DOCTYPE html>
+{% load flatblocks %}
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -77,8 +78,14 @@
 
         {% block modal %}{% endblock modal %}
       </div> <!-- id=body-->
-      <footer class="text-center" id="footer">
-        <p>Footer Text</p>
+      <footer id="footer">
+        <div class="row">
+          <div class="col-md-4 visible-md visible-lg">
+            <img src="{% static '/img/logo_footer2.png' %}" width="190px" height="56px">
+          </div>
+          <div class="col-sm-6 col-md-4"> {% flatblock "footercol1" %} </div>
+          <div class="col-sm-6 col-md-4"> {% flatblock "footercol2" %} </div>
+        </div>
       </footer>
     </div> <!-- /main-container -->
   </body>
