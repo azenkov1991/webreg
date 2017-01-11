@@ -1,0 +1,26 @@
+
+html, body{
+  height: 100%;
+  min-height: 600px;
+}
+
+#body {
+
+  padding-bottom: 60px;
+}
+
+#main-container {
+   min-height: 100%;
+   position: relative;
+}
+
+#footer {
+  background-color: #555;
+  position:absolute;
+  bottom:0;
+  height:60px;
+  width: 100%;
+  color: white;
+  padding: 15px;
+}
+
