@@ -56,29 +56,30 @@
             </div>
           </div>
         </nav>
-        <div class="col-sm-2 sidenav">
-          <div class="list-group table-of-contents">
-            {% block sidenavigation%}
-            <a class="list-group-item" href="#link1">link1</a>
-            <a class="list-group-item" href="#link2">link2</a>
-            <a class="list-group-item" href="#link3">link3</a>
-            <a class="list-group-item" href="#link4">link4</a>
-            {% endblock sidenavigation %}
+
+          <div class="col-sm-2 sidenav">
+            <div class="list-group table-of-contents">
+              {% block sidenavigation%}
+              <a class="list-group-item" href="#link1">link1</a>
+              <a class="list-group-item" href="#link2">link2</a>
+              <a class="list-group-item" href="#link3">link3</a>
+              <a class="list-group-item" href="#link4">link4</a>
+              {% endblock sidenavigation %}
+            </div>
           </div>
-        </div>
-        <div class="container">
 
-          {% if messages %}
-              {% for message in messages %}
-                  <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
-              {% endfor %}
-          {% endif %}
+          <div>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
 
-          {% block content %}
+            {% block content %}
 
-          {% endblock content %}
+            {% endblock content %}
+          </div>
 
-        </div> <!-- /container -->
 
         {% block javascript %}
           <script src="{% static 'library/jquery/dist/jquery.min.js' %}"> </script>
