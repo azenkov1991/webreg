@@ -16,6 +16,7 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.contrib.auth.decorators import login_required
 from django.views import defaults as default_views
 from main.urls import apiurlpatterns as mainapiurlpatterns
 from main.urls import urlpatterns as main_urlpatterns

@@ -16,6 +16,7 @@
 
     {% block css %}
     <link rel="stylesheet" href="{% static 'library/bootstrap/dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrapstyle.css' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     {% endblock %}
   </head>
@@ -55,7 +56,16 @@
             </div>
           </div>
         </nav>
-
+        <div class="col-sm-2 sidenav">
+          <div class="list-group table-of-contents">
+            {% block sidenavigation%}
+            <a class="list-group-item" href="#link1">link1</a>
+            <a class="list-group-item" href="#link2">link2</a>
+            <a class="list-group-item" href="#link3">link3</a>
+            <a class="list-group-item" href="#link4">link4</a>
+            {% endblock sidenavigation %}
+          </div>
+        </div>
         <div class="container">
 
           {% if messages %}
@@ -79,12 +89,14 @@
         {% block modal %}{% endblock modal %}
       </div> <!-- id=body-->
       <footer id="footer">
-        <div class="row">
-          <div class="col-md-4 visible-md visible-lg">
-            <img src="{% static '/img/logo_footer2.png' %}" width="190px" height="56px">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-4 visible-md visible-lg">
+              <img src="{% static '/img/logo_footer2.png' %}" width="190px" height="56px">
+            </div>
+            <div class="col-sm-6 col-md-4"> {% flatblock "footercol1" %} </div>
+            <div class="col-sm-6 col-md-4"> {% flatblock "footercol2" %} </div>
           </div>
-          <div class="col-sm-6 col-md-4"> {% flatblock "footercol1" %} </div>
-          <div class="col-sm-6 col-md-4"> {% flatblock "footercol2" %} </div>
         </div>
       </footer>
     </div> <!-- /main-container -->

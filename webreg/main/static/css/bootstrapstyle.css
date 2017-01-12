@@ -1,0 +1,40 @@
+/*#9adacd
+#4fbfa8
+#2d7b6b*/
+
+
+
+body {
+  background-color: #f0fffa;
+}
+
+.list-group-item{
+  background-color: #9adacd;
+}
+a.list-group-item:hover,
+button.list-group-item:hover,
+a.list-group-item:focus,
+button.list-group-item:focus {
+  color: #ffffff;
+  background-color: #4fbfa8;
+}
+.btn {
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+  padding: 8px 12px;
+}
+
+.btn-primary {
+  border-color: #2d7b6b;
+  background-color: #4fbfa8;
+}
+.btn-primary:hover{
+  background-color: #2d7b6b;
+}
+
+.btn-info {
+  border-color: #3c7c7c;
+  background-color: #4baaaa;
+}
+.btn-info:hover{
+  background-color: #3c7c7c;
+}
