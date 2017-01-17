@@ -25,7 +25,7 @@ class Command(BaseCommand):
             name = tses.name
             color = tses.color
             try:
-                tses_obj = SlotType.objects.get(name=name, color=color)
+                tses_obj = SlotType.objects.get(name=name)
             except SlotType.DoesNotExist:
                 tses_obj = SlotType()
 
