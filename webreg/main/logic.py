@@ -61,3 +61,9 @@ def cancel_appointment(appointment):
 
 Appointment.cancel_appointment = cancel_appointment
 
+
+def get_free_cells(specialist, date_from, date_to):
+    cells = Cell.objects.filter(date__range=(date_from, date_to),
+                                specialist_id=specialist.id,
+                                appointment__isnull=True)
+    return cells
