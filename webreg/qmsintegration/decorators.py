@@ -4,6 +4,7 @@ from catalogs.models import OKMUService
 from qmsintegration.models import *
 from qmsmodule.qmsfunctions import QMS
 from qmsmodule.cachequery import CacheQueryError
+from .common import update_specialist_timetable
 
 
 def check_enable(decorator):
@@ -106,4 +107,11 @@ def cancel_appointment(fn):
     return cancel_appointment_in_qms
 
 
-
+@check_enable
+def get_free_cells(fn):
+    def get_free_cells_in_qms(specialist, date_from, date_to):
+        clinic = specialist.department.clinic
+        qms = QMS(clinic.qmsdb.settings)
+        update_specialist_timetable(specialist, date_from, date_to, qms)
+        return fn(specialist, date_from, date_to)
+    return get_free_cells_in_qms
