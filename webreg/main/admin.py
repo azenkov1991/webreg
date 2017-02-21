@@ -2,7 +2,7 @@ from django.contrib import admin
 from django import forms
 from .models import *
 from catalogs.models import OKMUService
-
+from mixins.admin import safe_delete_mixin_admin
 
 class DepartmentAdmin(admin.ModelAdmin):
     list_display = ('name', 'clinic')
@@ -18,6 +18,7 @@ class ClinicAdmin(admin.ModelAdmin):
     inlines = [DepartmentInline, ]
 
 
+@safe_delete_mixin_admin
 class SpecialistAdmin(admin.ModelAdmin):
     list_display = (
         'fio', 'specialization', 'department',
@@ -49,6 +50,7 @@ class AppointmentForm(forms.ModelForm):
             self.fields['service'].queryset = OKMUService.objects.all()
 
 
+@safe_delete_mixin_admin
 class AppointmentAdmin(admin.ModelAdmin):
     form = AppointmentForm
     list_display = ('date', 'specialist', 'service', 'patient')

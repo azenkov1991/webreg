@@ -14,14 +14,23 @@ class TimeStampedModel(models.Model):
         abstract = True
 
 
-class ActiveManager(models.Manager):
+class SafeDeleteQuerySet(models.query.QuerySet):
+    def safe_delete(self):
+        self.update(deleted_time=now(),
+                    deleted=True)
+
+    def undelete(self):
+        self.update(deleted_time=None,
+                    deleted=False)
+
+class ActiveManager(models.manager.BaseManager.from_queryset(SafeDeleteQuerySet)):
     def get_queryset(self):
-        return super(ActiveManager, self).get_queryset().filter(deleted=False)
+        return super().get_queryset().filter(deleted=False)
 
 
-class DeletedManager(models.Manager):
+class DeletedManager(models.manager.BaseManager.from_queryset(SafeDeleteQuerySet)):
     def get_queryset(self):
-        return super(DeletedManager, self).get_queryset().filter(deleted=True)
+        return super().get_queryset().filter(deleted=True)
 
 
 class SafeDeleteMixin(models.Model):
@@ -29,7 +38,7 @@ class SafeDeleteMixin(models.Model):
     deleted = models.BooleanField(verbose_name="Удален", default=False)
     objects = ActiveManager()
     deleted_objects = DeletedManager()
-    all_objects = models.Manager()
+    all_objects = SafeDeleteQuerySet.as_manager()
 
     def safe_delete(self):
         self.deleted_time = now()
@@ -41,5 +50,9 @@ class SafeDeleteMixin(models.Model):
         self.deleted = False
         self.save()
 
+    def active(self):
+        return not self.deleted
+    active.boolean = True
+    active.short_description="Активен"
     class Meta:
         abstract = True
