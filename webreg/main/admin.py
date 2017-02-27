@@ -24,7 +24,7 @@ class SpecialistAdmin(admin.ModelAdmin):
         'fio', 'specialization', 'department',
     )
     list_display_links = ('fio', 'specialization')
-    search_fields = ('fio', 'specialization')
+    search_fields = ('fio',)
     raw_id_fields = ('performing_services',)
     autocomplete_lookup_fields = {
         'm2m': ['performing_services', ]

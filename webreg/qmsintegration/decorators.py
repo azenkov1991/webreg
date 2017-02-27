@@ -21,11 +21,13 @@ def check_enable(decorator):
 
     def false_decorator(fn):
         return fn
-
-    if config.QMS_INTEGRATION_ENABLE:
-        return decorator
-    else:
-        return false_decorator
+    try:
+        if config.QMS_INTEGRATION_ENABLE:
+            return decorator
+        else:
+            return false_decorator
+    except:
+        return  false_decorator
 
 
 @check_enable

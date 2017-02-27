@@ -24,6 +24,7 @@ class SafeDeleteQuerySet(models.query.QuerySet):
                     deleted=False)
 
 class ActiveManager(models.manager.BaseManager.from_queryset(SafeDeleteQuerySet)):
+    use_for_related_fields = True
     def get_queryset(self):
         return super().get_queryset().filter(deleted=False)
 

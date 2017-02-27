@@ -13,8 +13,7 @@ class Command(BaseCommand):
         parser.add_argument("dbname", help="Название настроек базы QMS из qmsintegration.OmsDB")
         parser.add_argument("pID", help="Подразделение в QMS")
         parser.add_argument("department", help="Id подразделения", type=int)
-        parser.add_argument("-d", "--delete", help="Перед загрузкой все специалисты будут удалены",
-                            action="store_true", dest="delete")
+
 
     def cre_spec(self, fio, specialization, department_id, qqc244):
         spec = None
@@ -105,9 +104,7 @@ class Command(BaseCommand):
             department = Department.objects.get(pk=department_id)
         except models.ObjectDoesNotExist:
             raise CommandError("Нет подразделения с id = " + department_id)
-        if options["delete"]:
-            specialists = Specialist.objects.filter(department_id=department.id)
-            delete_external_ids(specialists)
+
 
         qms = QMS(qmsdb.settings)
         self.load_specs_in_department(qms=qms, department=department, qms_department=options["pID"])

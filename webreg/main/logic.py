@@ -57,6 +57,10 @@ Appointment.create_appointment = create_appointment
 
 @qms.cancel_appointment
 def cancel_appointment(appointment):
+    cell = appointment.cell
+    if cell:
+        cell.free = True
+        cell.save()
     appointment.safe_delete()
 
 Appointment.cancel_appointment = cancel_appointment
@@ -66,6 +70,6 @@ Appointment.cancel_appointment = cancel_appointment
 def get_free_cells(specialist, date_from, date_to):
     cells = Cell.objects.filter(date__range=(date_from, date_to),
                                 specialist_id=specialist.id,
-                                appointment__isnull=True)
+                                free=True)
     return cells
 Cell.get_free_cells = get_free_cells

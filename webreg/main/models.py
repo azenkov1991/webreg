@@ -158,7 +158,7 @@ class Cell(models.Model):
     cabinet = models.ForeignKey(Cabinet, verbose_name="Кабинет", null=True, blank=True)
     performing_services = models.ManyToManyField("catalogs.OKMUService", verbose_name="Выполняемые услуги", blank=True)
     slot_type = models.ForeignKey(SlotType, verbose_name="Тип слота", null=True, blank=True)
-
+    free  = models.BooleanField(verbose_name="Свободна", default=True)
     @property
     def time_str(self):
         return '%s-%s' % (self.time_start.strftime('%H:%M'), self.time_end.strftime('%H:%M'))

@@ -22,15 +22,15 @@ def update_specialist_timetable(specialist, date_from, date_to, qms):
                                                     specialist_id=specialist.id,
                                                     appointment__isnull = True).values_list('id', flat=True))
     # к которым eсть назначения
-    local_cells_appointed = Cell.objects.filter(date__range=[date_from, date_to],
+    local_cells_not_free = Cell.objects.filter (date__range=[date_from, date_to],
                                                 specialist_id=specialist.id,
-                                                appointment__isnull=False)
+                                                free=False)
 
     for qms_cell in qms_cells:
         # для каждой ячейки на которую было сделано назначение удаляем из полученных,
         # так как если была запись то не редактируем
         try:
-            local_cells_appointed.get(date=qms_cell.date,
+            local_cells_not_free.get(date=qms_cell.date,
                                       time_start=qms_cell.time_start,
                                       time_end=qms_cell.time_end)
             qms_cells.remove(qms_cell)
@@ -59,11 +59,11 @@ def update_specialist_timetable(specialist, date_from, date_to, qms):
                                                  specialist_id=specialist.id,
                                                  time_start=qms_cell.time_start,
                                                  time_end=qms_cell.time_end)
-            if not created:
+            if not created and cell.id in local_cells_not_appointed:
                 local_cells_not_appointed.remove(cell.id)
 
             for okmu in qms_cell.okmu_list:
-                cell.performing_services.add(OKMUService.objects.get_or_create(code=okmu,is_finished=1,level=5)[0])
+                cell.performing_services.add(OKMUService.objects.get_or_create(code=okmu,is_finished=1,level=4)[0])
 
     # все оставшиеся ячейки к которым не было назначений удаляются
     Cell.objects.filter(id__in=local_cells_not_appointed).delete()
