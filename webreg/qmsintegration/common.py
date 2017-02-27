@@ -63,7 +63,8 @@ def update_specialist_timetable(specialist, date_from, date_to, qms):
                 local_cells_not_appointed.remove(cell.id)
 
             for okmu in qms_cell.okmu_list:
-                cell.performing_services.add(OKMUService.objects.get_or_create(code=okmu,is_finished=1,level=4)[0])
+                if okmu:
+                    cell.performing_services.add(OKMUService.objects.get_or_create(code=okmu,is_finished=1,level=4)[0])
 
     # все оставшиеся ячейки к которым не было назначений удаляются
     Cell.objects.filter(id__in=local_cells_not_appointed).delete()

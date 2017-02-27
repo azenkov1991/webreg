@@ -158,7 +158,10 @@ class QMS:
                     cell.time_end = datetime.time(0, 0)
                 cell.slot_type = cell_item.fin
                 cell.cabinet = cell_item.cabinet
-                cell.okmu_list = str(cell_item.Du).split(" ")
+
+                cell.okmu_list = (cell_item.Du if cell_item.Du else "").split(" ")
+                if cell.okmu_list==['']:
+                    cell.okmu_list=[]
                 cell.free = bool(cell_item.status)
                 cell_list.append(cell)
         return cell_list
