@@ -62,6 +62,9 @@ def update_specialist_timetable(specialist, date_from, date_to, qms):
             if not created and cell.id in local_cells_not_appointed:
                 local_cells_not_appointed.remove(cell.id)
 
+            for service in cell.performing_services.all():
+                if service.code not in qms_cell.okmu_list:
+                    cell.performing_services.remove(service)
             for okmu in qms_cell.okmu_list:
                 if okmu:
                     cell.performing_services.add(OKMUService.objects.get_or_create(code=okmu,is_finished=1,level=4)[0])

@@ -27,7 +27,7 @@ class Command(BaseCommand):
         return spec
 
     def get_exist_specialist(self, qqc244):
-        int_id = get_internal_id(qqc244, "244")
+        int_id = get_internal_id("244", qqc244)
         specialist = Specialist.all_objects.get(pk=int_id)
         return specialist
 
@@ -41,22 +41,6 @@ class Command(BaseCommand):
         spec.save()
         return spec
 
-    def get_specialization(self, specialization):
-        spec2 = specialization.replace('_', ' ')
-        try:
-            obj = Specialization.objects.get(name__iexact=spec2)
-        except models.ObjectDoesNotExist:
-            obj = Specialization(name = spec2)
-        obj.save()
-        return obj
-
-    def get_usl(self, okmu):
-        try:
-            obj = OKMUService.objects.get(code=okmu)
-        except models.ObjectDoesNotExist:
-            obj = OKMUService(code=okmu, is_finished=True, level=5)
-        obj.save()
-        return obj
 
     def update_linked_usls(self, qms, specialist, qqc244):
         qms_usls = qms.get_usl_for_spec(qqc244)
@@ -67,7 +51,7 @@ class Command(BaseCommand):
                     if usl.code in postgre_usls:
                         postgre_usls.remove(usl.code)
                     else:
-                        usl_obj = self.get_usl(usl.code)
+                        usl_obj, created = OKMUService.objects.get_or_create(code=usl.code, is_finished=1, level=4)
                         specialist.performing_services.add(usl_obj)
                 except models.ObjectDoesNotExist:
                     continue
@@ -76,22 +60,20 @@ class Command(BaseCommand):
 
     def load_specs_in_department(self, qms, department, qms_department):
         qms_specialists = qms.get_all_doctors(qms_department)
-        postgre_specialists = [spec for spec in Specialist.objects.filter(department=department)]
         for spec in qms_specialists:
             if spec.IsActive:
                 if spec.firstName and spec.lastName and spec.middleName:
                     fio = spec.firstName + " " + spec.lastName + ' ' + spec.middleName
-                    specialization = self.get_specialization(spec["specialization"])
+                    specialization, created = Specialization.objects.get_or_create(name=spec["specialization"])
                     specialist = self.get_specialist(fio=fio, specialization=specialization, department_id=department.id,
                                                      qqc244=spec.qqc244)
                     specialist.undelete()
-                    if specialist in postgre_specialists:
-                        postgre_specialists.remove(specialist)
                     self.update_linked_usls(qms=qms, specialist=specialist, qqc244=spec.qqc244)
                     specialist.save()
-        for spec in postgre_specialists:
-            spec.safe_delete()
-            spec.save()
+            else:
+                if entity_exist("244",spec.qqc244):
+                    specialist = self.get_exist_specialist(spec.qqc244)
+                    specialist.safe_delete()
 
     def handle(self, *args, **options):
         dbname = options["dbname"]

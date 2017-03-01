@@ -1,6 +1,7 @@
 import logging
 from django.db import models
 from django.contrib.postgres.fields import JSONField
+from django.db.models.signals import post_delete
 
 
 log = logging.getLogger("webreg")
@@ -71,6 +72,14 @@ class IdMatchingTable(models.Model):
         unique_together = ('internal_id', 'object_matching_table')
         verbose_name_plural = 'Таблица соответсвий id'
 
+def delete_id_from_id_matching_table(sender, **kwargs):
+    IdMatchingTable.objects.get(internal_id=kwargs['instance'].id,
+                                object_matching_table__internal_name=kwargs['instance']._meta.label).delete()
+try:
+    for obj_table in ObjectMatchingTable.objects.all():
+        post_delete.connect(delete_id_from_id_matching_table,sender=obj_table.internal_name)
+except:
+    pass
 
 def get_external_variables(dic):
     """
@@ -137,7 +146,7 @@ def get_external_id(model):
     return imt.external_id
 
 
-def get_internal_id(external_id, qms_obj):
+def get_internal_id(qms_obj, external_id):
     try:
         imt = IdMatchingTable.objects.get(external_id=external_id, object_matching_table__external_name=qms_obj)
     except IdMatchingTable.DoesNotExist:
