@@ -29,7 +29,9 @@ class ActiveManager(models.manager.BaseManager.from_queryset(SafeDeleteQuerySet)
 
     def get(self, *args, **kwargs):
         if ('pk' in kwargs) or ('id' in kwargs):
-            return super().get_queryset().get(*args, **kwargs)
+            return super(ActiveManager, self).get_queryset().get(*args, **kwargs)
+        else:
+            return  self.get_queryset().get(*args, **kwargs)
 
     def all_with_deleted(self):
         """ Return a queryset to every objects, including deleted ones. """
@@ -66,8 +68,10 @@ class SafeDeleteMixin(models.Model):
 
     def active(self):
         return not self.deleted
+
     active.boolean = True
     active.short_description="Активен"
+
     class Meta:
         abstract = True
 

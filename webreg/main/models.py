@@ -99,7 +99,7 @@ class Specialist(SafeDeleteMixin):
 
 
 class Cabinet(models.Model):
-    number = models.PositiveIntegerField(verbose_name="Номер кабинета")
+    number = models.PositiveIntegerField(verbose_name="Номер кабинета", null=True)
     name = models.CharField(max_length=128, verbose_name="Название")
     department = models.ForeignKey(Department, verbose_name="Подразделение")
 

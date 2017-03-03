@@ -46,11 +46,19 @@ def update_specialist_timetable(specialist, date_from, date_to, qms):
 
             slot_type = None
             if qms_cell.slot_type:
-                slot_type = SlotType.objects.get_or_create(name=qms_cell.slot_type)[0]
+                slot_type = SlotType.objects.get_or_create(name=qms_cell.slot_type,
+                                                           clinic_id = specialist.department.clinic.id)[0]
             cabinet = None
             if qms_cell.cabinet:
-                cabinet = Cabinet.objects.update_or_create(defaults={'name':"Кабинет № " + str(qms_cell.cabinet)},
-                                                           number=qms_cell.cabinet,
+                try:
+                    cabinet_number = int(qms_cell.cabinet)
+                    cabinet_name = "Кабинет № " + str(qms_cell.cabinet)
+                except ValueError:
+                    cabinet_name = qms_cell.cabinet
+                    cabinet_number = None
+
+                cabinet = Cabinet.objects.update_or_create(name=cabinet_name,
+                                                           number=cabinet_number,
                                                            department=specialist.department)[0]
 
             cell, created = Cell.objects.update_or_create(defaults={'cabinet':cabinet,

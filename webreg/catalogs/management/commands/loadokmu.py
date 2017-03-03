@@ -8,8 +8,7 @@ from qmsintegration.models import *
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("dbname", help="Название настроек базы QMS из qmsintegration.OmsDB")
-        parser.add_argument("-d", "--delete", help="Перед загрузкой все услуги будут удалены",
-                            action="store_true", dest="delete")
+        parser.add_argument("-u","--update",help="Только обновление существующих услуг", action="store_true")
 
     def handle(self, *args, **options):
         dbname = options["dbname"]
@@ -17,15 +16,18 @@ class Command(BaseCommand):
             qmsdb = QmsDB.objects.get(name=dbname)
         except models.ObjectDoesNotExist:
             raise CommandError("Нет описания базы данных Qms с именем " + dbname)
-        if options["delete"]:
-            OKMUService.objects.all().delete()
-        self.load_okmu(cache_settings=qmsdb.settings)
+        if options["update"]:
+            print("Updating services...")
+            self.load_okmu(qmsdb.settings, True)
+        else:
+            self.load_okmu(qmsdb.settings, False)
 
-    def get_parent(self, parent):
+    def get_parent(self, code):
         try:
-            return OKMUService.objects.get(code=parent)
+            parent = OKMUService.objects.get(code=code)
         except OKMUService.DoesNotExist:
-            return None
+            parent = None
+        return parent
 
     def get_okmu_type(self, list):
         try:
@@ -39,20 +41,8 @@ class Command(BaseCommand):
         except:
             return None
 
-    def get_okmu(self, code, level, is_finished, name, parent, type, settings):
-        try:
-            okmu_obj =  OKMUService.objects.get(code=code)
-        except OKMUService.DoesNotExist:
-            okmu_obj = OKMUService(code=code)
-        okmu_obj.level = level
-        okmu_obj.is_finished = is_finished
-        okmu_obj.name = name
-        okmu_obj.parent = parent
-        okmu_obj.type = type
-        okmu_obj.settings = settings
-        return  okmu_obj
 
-    def load_okmu(self, cache_settings):
+    def load_okmu(self, cache_settings, update_only):
         """
         Загрузка справочников ОКМУ из qms
         """
@@ -68,6 +58,21 @@ class Command(BaseCommand):
                     is_finished = (level >= 4)
                     type = self.get_okmu_type(service_fields_list)
                     settings = self.get_okmu_settings(service_fields_list)
-                    self.get_okmu(code=code, level=level, is_finished=is_finished, name=name, parent=parent, type=type, settings=settings).save()
+                    if update_only and is_finished:
+                        OKMUService.objects.filter(code=code).update(level=level,
+                                                                     is_finished=is_finished,
+                                                                     name=name,
+                                                                     parent=parent,
+                                                                     type=type,
+                                                                     settings=settings)
+                    else:
+                        OKMUService.objects.update_or_create(defaults={'level':level,
+                                                                       'is_finished':is_finished,
+                                                                       'name':name,
+                                                                       'parent':parent,
+                                                                       'type':type,
+                                                                       'settings':settings},
+                                                            code=code)[0].save()
+
 
 

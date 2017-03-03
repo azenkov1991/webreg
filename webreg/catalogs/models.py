@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.db import models
+from mixins.models import SafeDeleteMixin
 from django.contrib.postgres.fields import JSONField
 
 
-class OKMUService(models.Model):
+class OKMUService(SafeDeleteMixin):
     code = models.CharField(
         max_length=32, verbose_name="Код ОКМУ"
     )
