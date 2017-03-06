@@ -1,5 +1,5 @@
 from constance import config
-from main.models import AppointmentError
+from main.models import AppointmentError, Patient
 from catalogs.models import OKMUService
 from qmsintegration.models import *
 from qmsmodule.qmsfunctions import QMS
@@ -117,3 +117,24 @@ def get_free_cells(fn):
         update_specialist_timetable(specialist, date_from, date_to, qms)
         return fn(specialist, date_from, date_to)
     return get_free_cells_in_qms
+
+@check_enable
+def find_patient_by_date_birth(fn):
+    def find_patient_by_date_birth_in_qms(first_name,last_name, middle_name, date_birth, clinic):
+        try:
+            qms = QMS(clinic.qmsdb.settings)
+            patient_data = qms.get_patient_information(first_name=first_name,
+                                        last_name=last_name,
+                                        middle_name=middle_name,
+                                        date_birth=date_birth)
+            if patient_data:
+                Patient.objects.update_or_create(first_name=patient_data['first_name'],
+                                                           last_name=patient_data['last_name'],
+                                                           middle_name=patient_data['middle_name'],
+                                                           date_birth=patient_data['date_birth'])
+        except CacheQueryError:
+            raise AppointmentError("Ошибка интеграции с Qms")
+        return fn(first_name,last_name,middle_name,date_birth)
+    return find_patient_by_date_birth_in_qms
+
+

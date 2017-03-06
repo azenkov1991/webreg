@@ -36,7 +36,7 @@ class QMS:
     def get_patient_information(self, **kwargs):
         """
         Именованые параметры:
-            birth_date в формате ГГГГММДД
+            birth_date
             first_name
             last_name
             middle_name
@@ -85,6 +85,11 @@ class QMS:
         polisstr = query_result['polis']
         result['polis_number'] = re.findall(u"№ (\d*)", polisstr)[0]
         result['polis_seria'] = re.findall(u"Серия (\d*)", polisstr)[0]
+        try:
+            date_birth = datetime.datetime.strptime(result['birth_date'],"%Y%m%d")
+        except ValueError:
+            date_birth = None
+        result['birth_date'] = date_birth
 
         return result
 

@@ -73,3 +73,18 @@ def get_free_cells(specialist, date_from, date_to):
                                 free=True)
     return cells
 Cell.get_free_cells = get_free_cells
+
+
+def find_patient_by_polis_number(polis_number, clinic):
+    try:
+        return Patient.objects.get(polis_number=polis_number, clinic=clinic)
+    except Patient.DoesNotExist:
+        return None
+
+def find_patient_by_date_birth(first_name, last_name, middle_name, date_birth, clinic):
+    return Patient.objects.filter(first_name=first_name,
+                                  last_name=last_name,
+                                  middle_name=middle_name,
+                                  date_birth=date_birth,
+                                  clinic=clinic)
+
