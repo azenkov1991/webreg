@@ -17,7 +17,7 @@ class Command(BaseCommand):
         except models.ObjectDoesNotExist:
             raise CommandError("Нет описания базы данных Qms с именем " + dbname)
         if options["update"]:
-            print("Updating services...")
+            self.stdout.write("Updating services...")
             self.load_okmu(qmsdb.settings, True)
         else:
             self.load_okmu(qmsdb.settings, False)

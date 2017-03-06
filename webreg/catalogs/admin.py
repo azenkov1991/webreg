@@ -8,7 +8,7 @@ class ServiceAdmin(admin.ModelAdmin):
         'code', 'name'
     )
     search_fields = ('code', 'name')
-    list_editable = ('name', )
+    list_filter = ('level',)
 
 class MKBDiagnosAdmin(admin.ModelAdmin):
     list_display = (
