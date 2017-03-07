@@ -121,8 +121,7 @@ class Patient(models.Model):
                                     verbose_name="Номер полиса",
                                     null=True)
     polis_seria = models.CharField(max_length=6, verbose_name="Серия полиса",
-                                   null=True,
-                                   blank=True)
+                                   null=True)
 
     clinic = models.ManyToManyField('main.Clinic', verbose_name="Мед. учреждение")
 

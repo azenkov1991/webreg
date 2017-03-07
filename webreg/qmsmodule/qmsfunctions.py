@@ -46,16 +46,17 @@ class QMS:
         """
         # проверка аргументов ФИО + Дата рождения либо номер полиса + дата рождения
         # либо ид пациента
-
+        if 'birth_date' in kwargs:
+            kwargs['birth_date'] = kwargs['birth_date'].strftime("%Y%m%d")
         if not (reduce(lambda res, element: res and element in kwargs,
                 ('birth_date', 'first_name', 'last_name', 'middle_name'), True) or
                 reduce(lambda res, element: res and element in kwargs,
                 ('birth_date', 'polis_number'), True) or
-                'patient_id' in kwargs):
+                'patient_qqc' in kwargs):
             raise ValueError('Wrong arguments')
         result = {}
-        if 'patient_id' in kwargs:
-            self.query.execute_query('PatientDetail', kwargs['patient_id'])
+        if 'patient_qqc' in kwargs:
+            self.query.execute_query('PatientDetail', kwargs['patient_qqc'])
             query_result = self.query.fetch_all()[0]
             if query_result[0] == "" or query_result[0] is None:
                 return None
@@ -75,8 +76,8 @@ class QMS:
                 return None
             columns = self.query.get_columns()
             query_result = dict(zip(columns, query_result))
-            for (k1, k2) in zip(['birth_date', 'address_reg', 'address_liv'],
-                                ['BirthDate', 'AddressReg', 'AddressLiv']):
+            for (k1, k2) in zip(['birth_date', 'address_reg', 'address_liv','patient_qqc'],
+                                ['BirthDate', 'AddressReg', 'AddressLiv','qqc153'],):
                 result[k1] = query_result[k2]
             fio = query_result['fio'].split("_")
             result['first_name'] = fio[0]
@@ -86,14 +87,14 @@ class QMS:
         result['polis_number'] = re.findall(u"№ (\d*)", polisstr)[0]
         result['polis_seria'] = re.findall(u"Серия (\d*)", polisstr)[0]
         try:
-            date_birth = datetime.datetime.strptime(result['birth_date'],"%Y%m%d")
+            birth_date = datetime.datetime.strptime(result['birth_date'],"%Y%m%d")
         except ValueError:
-            date_birth = None
-        result['birth_date'] = date_birth
+            birth_date = None
+        result['birth_date'] = birth_date
 
         return result
 
-    def get_patient_id(self, **kwargs):
+    def get_patient_qqc(self, **kwargs):
         """
         Именованые параметры:
             birth_date в формате ГГГГММДД
@@ -112,6 +113,8 @@ class QMS:
                 reduce(lambda res, element: res and element in kwargs,
                 ('birth_date', 'polis_number'), True)):
             raise ValueError('Wrong arguments')
+        if 'birth_date' in kwargs:
+            kwargs['birth_date'] = kwargs['birth_date'].strftime("%Y%m%d")
         self.query.execute_query('SearchPatient', self.DATABASE_CODE, 0, kwargs.get('polis_seria', ""),
                                  kwargs.get('polis_number', ""), kwargs.get('birth_date', ""),
                                  kwargs.get('first_name', ""), kwargs.get('last_name', ""),
