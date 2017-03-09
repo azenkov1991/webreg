@@ -2,6 +2,7 @@ import logging
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.db.models.signals import post_delete
+from constance import config
 
 
 log = logging.getLogger("webreg")
@@ -73,8 +74,12 @@ class IdMatchingTable(models.Model):
         verbose_name_plural = 'Таблица соответсвий id'
 
 def delete_id_from_id_matching_table(sender, **kwargs):
-    IdMatchingTable.objects.get(internal_id=kwargs['instance'].id,
-                                object_matching_table__internal_name=kwargs['instance']._meta.label).delete()
+    if config.QMS_INTEGRATION_ENABLE:
+        try:
+            IdMatchingTable.objects.get(internal_id=kwargs['instance'].id,
+                                        object_matching_table__internal_name=kwargs['instance']._meta.label).delete()
+        except IdMatchingTable.DoesNotExist:
+            pass
 try:
     for obj_table in ObjectMatchingTable.objects.all():
         post_delete.connect(delete_id_from_id_matching_table,sender=obj_table.internal_name)

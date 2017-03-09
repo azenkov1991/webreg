@@ -117,7 +117,7 @@ class Patient(models.Model):
     last_name = models.CharField(max_length=128, verbose_name="Имя")
     middle_name = models.CharField(max_length=128, verbose_name="Отчество")
     birth_date = models.DateField(verbose_name="Дата рождения")
-    polis_number = models.CharField(max_length=16, unique=True,
+    polis_number = models.CharField(max_length=16,
                                     verbose_name="Номер полиса",
                                     null=True)
     polis_seria = models.CharField(max_length=6, verbose_name="Серия полиса",

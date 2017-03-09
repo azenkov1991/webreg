@@ -325,3 +325,33 @@ class QMS:
             log.error(status + str(locals()))
             return None, None
         return qqc1860, lab_number
+
+    def create_patient(self, first_name, last_name, middle_name, birth_date, polis_number=None, polis_seria=None):
+        self.query.execute_query('CreatePatient',
+                                 self.DATABASE_CODE,
+                                 "0",
+                                 first_name,
+                                 last_name,
+                                 middle_name,
+                                 birth_date.strftime("%Y%m%d"),
+                                 "",
+                                 "",
+                                 "",
+                                 "",
+                                 "",
+                                 "",
+                                 "",
+                                 "ОМС" if polis_number else "",
+                                 polis_seria,
+                                 polis_number,
+                                 "",
+        )
+        qqc153 = self.query.result
+        if not qqc153:
+            log.error("Ошибка создания пациента в qms" + \
+                      first_name + " "+ last_name + " " + middle_name + \
+                      birth_date.strftime("%d.%m.%Y"))
+        return qqc153
+
+
+
