@@ -124,24 +124,21 @@ def find_patient_by_birth_date(fn):
         try:
             qms = QMS(clinic.qmsdb.settings)
             patient_data = qms.get_patient_information(first_name=first_name,
-                                              last_name=last_name,
-                                              middle_name=middle_name,
-                                              birth_date=birth_date)
-
+                                                       last_name=last_name,
+                                                       middle_name=middle_name,
+                                                       birth_date=birth_date)
             if patient_data:
                 patient, created = Patient.objects.update_or_create(first_name=first_name,
                                                                     last_name=last_name,
                                                                     middle_name=middle_name,
-                                                                    date_birth=birth_date,
-                                                                    clinic=clinic,
+                                                                    birth_date=birth_date,
                                                                     defaults={'polis_number':patient_data['polis_number'],
-                                                                    'polis_seria': patient_data['poiis_seria']})
-                set_external_id(patient, patient_data['ppatient_qqc'])
-                patient.clinic.objects.add(clinic)
+                                                                    'polis_seria': patient_data['polis_seria']})
+                set_external_id(patient, patient_data['patient_qqc'])
+                patient.clinic.add(clinic)
                 return patient
         except CacheQueryError:
             raise AppointmentError("Ошибка интеграции с Qms")
-        return fn(first_name,last_name,middle_name,date_birth)
     return find_patient_by_birth_date_in_qms
 
 @check_enable

@@ -76,20 +76,23 @@ Cell.get_free_cells = get_free_cells
 
 
 @qms.find_patient_by_polis_number
-def find_patient_by_polis_number(polis_number, birth_date, clinic, seria=None):
+def find_patient_by_polis_number(polis_number, birth_date, clinic, polis_seria=None):
     try:
         return Patient.objects.get(polis_number=polis_number,
-                                   seria=seria,
+                                   polis_seria=polis_seria,
                                    birth_date=birth_date,
                                    clinic=clinic)
     except Patient.DoesNotExist:
         return None
 
 @qms.find_patient_by_birth_date
-def find_patient_by_birth_date(first_name, last_name, middle_name, date_birth, clinic):
-    return Patient.objects.filter(first_name=first_name,
-                                  last_name=last_name,
-                                  middle_name=middle_name,
-                                  date_birth=date_birth,
-                                  clinic=clinic)
+def find_patient_by_birth_date(first_name, last_name, middle_name, birth_date, clinic):
+    try:
+        return Patient.objects.get(first_name=first_name,
+                                   last_name=last_name,
+                                   middle_name=middle_name,
+                                   birth_date=birth_date,
+                                   clinic=clinic)
+    except Patient.DoesNotExist:
+        return None
 
