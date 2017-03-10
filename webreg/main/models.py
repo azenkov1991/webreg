@@ -16,6 +16,8 @@ log = logging.getLogger("webreg")
 class AppointmentError(Exception):
     pass
 
+class PatientError(Exception):
+    pass
 
 class UserProfile(models.Model):
     user = models.ForeignKey('auth.User')

@@ -1,5 +1,5 @@
 from constance import config
-from main.models import AppointmentError, Patient
+from main.models import AppointmentError, Patient, PatientError
 from catalogs.models import OKMUService
 from qmsintegration.models import *
 from qmsmodule.qmsfunctions import QMS
@@ -160,7 +160,7 @@ def find_patient_by_polis_number(fn):
                 set_external_id(patient, patient_data['patient_qqc'])
                 return patient
         except CacheQueryError:
-            raise QmsIntegrationError("Ошибка при поиске пациента в Qms")
+            raise PatientError("Ошибка при поиске пациента в Qms")
     return find_patient_by_polis_number_in_qms
 
 @check_enable
@@ -175,6 +175,6 @@ def create_patient(fn):
             patient = fn(clinic, first_name, last_name, middle_name, birth_date, polis_number, polis_seria)
             set_external_id(patient, qqc153)
         except CacheQueryError:
-            raise QmsIntegrationError("Ошибка при создании пациента в Qms")
+            raise PatientError("Ошибка при создании пациента в Qms")
         return patient
     return create_patient_in_qms
