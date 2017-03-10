@@ -1,5 +1,5 @@
 from constance import config
-from main.models import AppointmentError
+from main.models import AppointmentError, Patient, PatientError
 from catalogs.models import OKMUService
 from qmsintegration.models import *
 from qmsmodule.qmsfunctions import QMS
@@ -117,3 +117,64 @@ def get_free_cells(fn):
         update_specialist_timetable(specialist, date_from, date_to, qms)
         return fn(specialist, date_from, date_to)
     return get_free_cells_in_qms
+
+@check_enable
+def find_patient_by_birth_date(fn):
+    def find_patient_by_birth_date_in_qms(clinic, first_name,last_name, middle_name, birth_date):
+        try:
+            qms = QMS(clinic.qmsdb.settings)
+            patient_data = qms.get_patient_information(first_name=first_name,
+                                                       last_name=last_name,
+                                                       middle_name=middle_name,
+                                                       birth_date=birth_date)
+            if patient_data:
+                patient, created = Patient.objects.update_or_create(first_name=first_name,
+                                                                    last_name=last_name,
+                                                                    middle_name=middle_name,
+                                                                    birth_date=birth_date,
+                                                                    defaults={'polis_number':patient_data['polis_number'],
+                                                                    'polis_seria': patient_data['polis_seria']})
+                set_external_id(patient, patient_data['patient_qqc'])
+                patient.clinic.add(clinic)
+                return patient
+        except CacheQueryError:
+            raise QmsIntegrationError("Ошибка интеграции с Qms")
+    return find_patient_by_birth_date_in_qms
+
+@check_enable
+def find_patient_by_polis_number(fn):
+    def find_patient_by_polis_number_in_qms(clinic, polis_number, birth_date, polis_seria=None):
+        try:
+            qms = QMS(clinic.qmsdb.settings)
+            patient_data = qms.get_patient_information(polis_number=polis_number,
+                                                       polis_seria=polis_seria,
+                                                       birth_date=birth_date)
+            if patient_data:
+                patient, created = Patient.objects.update_or_create(defaults={'first_name':patient_data['first_name'],
+                                                                              'last_name':patient_data['last_name'],
+                                                                              'middle_name':patient_data['middle_name']},
+                                                                    polis_number=polis_number,
+                                                                    birth_date=birth_date,
+                                                                    polis_seria=polis_seria)
+                patient.clinic.add(clinic)
+                set_external_id(patient, patient_data['patient_qqc'])
+                return patient
+        except CacheQueryError:
+            raise PatientError("Ошибка при поиске пациента в Qms")
+    return find_patient_by_polis_number_in_qms
+
+@check_enable
+def create_patient(fn):
+    def create_patient_in_qms(clinic, first_name, last_name, middle_name,
+                              birth_date, polis_number=None, polis_seria=None):
+        try:
+            qms = QMS(clinic.qmsdb.settings)
+            qqc153 = qms.create_patient(first_name,last_name,middle_name, birth_date, polis_number, polis_seria)
+            if not qqc153:
+                raise QmsIntegrationError("Ошибка при создании пациента в Qms")
+            patient = fn(clinic, first_name, last_name, middle_name, birth_date, polis_number, polis_seria)
+            set_external_id(patient, qqc153)
+        except CacheQueryError:
+            raise PatientError("Ошибка при создании пациента в Qms")
+        return patient
+    return create_patient_in_qms

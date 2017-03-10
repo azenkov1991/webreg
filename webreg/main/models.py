@@ -8,6 +8,7 @@ from django.core.validators import MinValueValidator
 from mixins.models import TimeStampedModel, SafeDeleteMixin
 from django.contrib.sites.models import Site
 from catalogs.models import OKMUService
+from main.validators import oms_polis_number_validation
 
 log = logging.getLogger("webreg")
 
@@ -15,6 +16,8 @@ log = logging.getLogger("webreg")
 class AppointmentError(Exception):
     pass
 
+class PatientError(Exception):
+    pass
 
 class UserProfile(models.Model):
     user = models.ForeignKey('auth.User')
@@ -116,7 +119,13 @@ class Patient(models.Model):
     last_name = models.CharField(max_length=128, verbose_name="Имя")
     middle_name = models.CharField(max_length=128, verbose_name="Отчество")
     birth_date = models.DateField(verbose_name="Дата рождения")
-    polis_number = models.CharField(max_length=16, verbose_name="Номер полиса")
+    polis_number = models.CharField(max_length=16,
+                                    verbose_name="Номер полиса",
+                                    null=True)
+    polis_seria = models.CharField(max_length=6, verbose_name="Серия полиса",
+                                   null=True)
+
+    clinic = models.ManyToManyField('main.Clinic', verbose_name="Мед. учреждение")
 
     @property
     def fio(self):
@@ -125,6 +134,11 @@ class Patient(models.Model):
     def __str__(self):
         return self.first_name + " " + self.last_name[0] + ". " + \
                self.middle_name[0] + "., " + self.birth_date.strftime("%d.%m.%Y")
+
+    def full_clean(self, exclude=None, validate_unique=True):
+        if not self.polis_seria:
+             oms_polis_number_validation(self.polis_number)
+        super(Patient,self).full_clean(exclude,validate_unique)
 
     class Meta:
         verbose_name = "Пациент"
