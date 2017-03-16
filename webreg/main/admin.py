@@ -89,6 +89,9 @@ class SiteServicePermissoionAdmin(admin.ModelAdmin):
         'm2m': ['services', ]
     }
 
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('user','site')
+
 admin.site.register(Specialist, SpecialistAdmin)
 admin.site.register(Cell, CellAdmin)
 admin.site.register(Cabinet, CabinetAdmin)
@@ -97,7 +100,7 @@ admin.site.register(Appointment, AppointmentAdmin)
 admin.site.register(Clinic, ClinicAdmin)
 admin.site.register(Department, DepartmentAdmin)
 admin.site.register(Specialization, admin.ModelAdmin)
-admin.site.register(UserProfile, admin.ModelAdmin)
+admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(NumberOfServiceRestriction, NumberOfServiceRestrictionAdmin)
 admin.site.register(SlotType, admin.ModelAdmin)
 admin.site.register(ProfileSettings, ProfileSettingsAdmin)

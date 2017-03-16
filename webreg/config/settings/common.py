@@ -110,6 +110,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend',
+                          'main.authentication.PolisNumberBackend']
+
+PATIENT_WRITER_USER = 'patient_writer'
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/

@@ -1,27 +1,26 @@
+from datetime import date
 from django.core.exceptions import ValidationError
-from functools import reduce
-def oms_polis_number_validation(number):
+def oms_polis_number_validation(num):
     def check_sum(num):
-        length = len(num)
-        if length == 0:
-            return None
-        a, b = '', ''
-        for i in range(length - 2, -1, -1):
-            if i % 2 == 0:
-                a = a + num[i]
-            else:
-                b = b + num[i]
-        a = int(a)
-        a *= 2
-        a = str(a) + b
-        b = ''
-        number_sum = 0
-        for ch in a:
-             number_sum +=  int(ch)
-        b = number_sum
-        a = 10 - b % 10 if b != 0 else 0
-        return a
+        sm = 0
+        numlen = len(num)
+        for i in range(0, numlen):
+            index = numlen - i - 1
+            p = int(num[index])
+            if not index % 2:
+                p *= 2
+                if p > 9:
+                    p -= 9
+            sm += p
+        if not sm % 10:
+            return True
+        return False
+    if len(num) not in (6, 7, 9, 16):
+        raise ValidationError('Полис неправильной длины')
+    if len(num) == 16 and not check_sum(num):
+        raise ValidationError('Неправильный номер полиса. Контрольныя сумма не совпадает')
 
-    number = str(number)
-    if not ( check_sum(number) == int(number[len(number) - 1])):
-        raise ValidationError('Контрольныя сумма не совпадает')
+def birth_date_validation(date_birth):
+    if date_birth <= date(year=1900, month=12, day=31):
+        raise ValidationError('Некорректная дата')
+
