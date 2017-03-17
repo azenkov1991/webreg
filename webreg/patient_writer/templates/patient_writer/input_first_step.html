@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<form id="write_patient_form_1" method="POST" action="{% url 'write_patient_first_step' %}">
+  {% include 'form_field_generic.html' %}
+  <div class="from_btn">
+    <input class="btn btn-info" type="submit" value="Далее"/>
+  </div>
+</form>
+{% endblock content %}
+
+
+

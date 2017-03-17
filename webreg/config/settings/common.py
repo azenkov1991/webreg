@@ -149,3 +149,5 @@ CONSTANCE_CONFIG = {
 
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+from patient_writer.settings import *

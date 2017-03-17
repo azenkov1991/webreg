@@ -5,7 +5,7 @@ from main.validators import oms_polis_number_validation
 from main.models import Clinic
 from main.logic import find_patient_by_polis_number
 
-class InputInitialDataForm(forms.Form):
+class InputFirstStepForm(forms.Form):
     city = forms.ModelChoiceField(
         queryset=City.objects.active_city(), label='Город',
         widget=forms.Select()
@@ -86,9 +86,7 @@ class InputInitialDataForm(forms.Form):
             )
         patient = find_patient_by_polis_number(clinic, polis_number, birth_date, polis_seria)
         if not patient:
-            raise forms.ValidationError(
-                "Пациент не"
-            )
+            self.add_error()
         user = authenticate(username=settings.PATIENT_WRITER_USER)
 
             if self.user_cache is None:

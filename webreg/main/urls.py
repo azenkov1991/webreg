@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
 from main.api.timetable import SpecialistsFreeCells, SpecialistAllCells
 from main.forms import AuthenticationForm
 from django.views.generic import TemplateView
@@ -25,4 +25,5 @@ urlpatterns = [
                                       }, name="account_logout"),
     url(r'^accounts/password-reset', password_reset, {'template_name': "account/password_reset_.html"},
         name="account_reset_password")
+    url(r'pwriter', include('patient_writer.urls'))
 ]
