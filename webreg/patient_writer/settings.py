@@ -1,5 +1,6 @@
+from config.settings.common import CONSTANCE_CONFIG
 
-CONSTANCE_CONFIG += {
+CONSTANCE_CONFIG.update({
     'PBSEARCH_ERROR': (''.join((
         'Ошибка! Пациент не найден в базе выбранного города.</br>',
         'Возможные причины:',
@@ -11,4 +12,4 @@ CONSTANCE_CONFIG += {
     ), 'Ошибка поиска пациента'),
 
     'TIMETABLE_DAY': (7, 'Количество дней в расписании'),
-}
+})

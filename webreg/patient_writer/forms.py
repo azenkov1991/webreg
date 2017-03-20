@@ -1,13 +1,17 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.conf import settings
+from datetime import date
+from constance import config
 from main.validators import oms_polis_number_validation
 from main.models import Clinic
 from main.logic import find_patient_by_polis_number
 
+
 class InputFirstStepForm(forms.Form):
-    city = forms.ModelChoiceField(
-        queryset=City.objects.active_city(), label='Город',
+    city = forms.ChoiceField(
+        choices=list(Clinic.objects.order_by().values_list('city','city').distinct()),
+        label='Город',
         widget=forms.Select()
     )
     polis_number = forms.CharField(
@@ -51,7 +55,7 @@ class InputFirstStepForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
-        super(InputInitialDataForm, self).__init__(*args, **kwargs)
+        super(InputFirstStepForm, self).__init__(*args, **kwargs)
 
 
     def clean_polis_seria(self):
@@ -69,9 +73,16 @@ class InputFirstStepForm(forms.Form):
             raise forms.ValidationError('Телефон должен начинаться на +7')
         elif len(phone) != 18:
             raise forms.ValidationError('Неверный формат телефона')
-        return phone.translate({ord('('):None},
-                               {ord(')'):None},
-                               {ord('-'):None})
+        return phone.translate({ord('('):None,
+                               ord(')'):None,
+                               ord('-'):None})
+
+    def clean_birth_date(self):
+        birth_date = self.cleaned_data['birth_date']
+        if birth_date <= date(year=1900, month=12, day=31):
+            raise forms.ValidationError('Некорректная дата')
+        else:
+            return birth_date
 
 
     def clean(self):
@@ -80,24 +91,29 @@ class InputFirstStepForm(forms.Form):
         city, polis_number, polis_seria, birth_date = request_param
 
         clinic = Clinic.objects.filter(city=city).first()
+
         if not clinic:
             raise forms.ValidationError(
                 "Не найдено Мед. учреждение для этого города",
-            )
+        )
         patient = find_patient_by_polis_number(clinic, polis_number, birth_date, polis_seria)
-        if not patient:
-            self.add_error()
-        user = authenticate(username=settings.PATIENT_WRITER_USER)
 
-            if self.user_cache is None:
-                raise forms.ValidationError(
-                    "Мед учреждение",
-                    code='invalid_login',
-                    params={'username': self.username_field.verbose_name},
-                )
+        if not patient:
+            raise forms.ValidationError(
+                config.PBSEARCH_ERROR,
+            )
+        user = authenticate(username=settings.PATIENT_WRITER_USER)
+        print(user)
+        if user is None:
+            raise forms.ValidationError(
+                "Мед учреждение",
+                code='invalid_login',
+                params={'username': self.username_field.verbose_name},
+            )
 
         self.cleaned_data['user_id'] = user.id
         self.cleaned_data['patient_id'] = patient.id
         return self.cleaned_data
 
-
+class InputSecondStepForm(forms.Form):
+    pass

@@ -1,11 +1,10 @@
 {% csrf_token %}
+{% load l10n %}
+{% load crispy_forms_tags %}
 {% for field in form.visible_fields %}
     <div class="form__unit">
-        <label for="id_{{ field.name }}" class="form__unit-item-title {% if field.field.required %}_important{% endif %}">
-            {{ field.label }}
-        </label>
         <span>
-            {{ field }} {{ field.help_text }}
+            {{ field | as_crispy_field}}
         </span>
         {% if field.errors %}
             <script>
@@ -13,9 +12,7 @@
                     $("input[name^='{{ field.name }}']").addClass(".has-error");
                 });
             </script>
-            <div class="form__unit-item-info">
-                <div class="form__unit-item-info-error">Ошибка! {{ field.errors.0 }}</div>
-            </div>
+
         {% endif %}
     </div>
 {% endfor %}
@@ -23,8 +20,8 @@
     <div class="form__unit">
         <div class="form__unit-item">
             <div class="form__unit-item-info">
-                <div class="form__unit-item-info-error">
-                    {{ form.non_field_errors.as_text|safe }}
+                <div class="alert alert-danger form__unit-item-info-error">
+                    {{ form.non_field_errors.as_text|safe}}
                 </div>
             </div>
         </div>
