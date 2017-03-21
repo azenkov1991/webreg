@@ -25,3 +25,8 @@ html, body{
   font-size: 9pt;
 }
 
+.frame{
+  border-style: double;
+  border-color: #2d7b6b;
+}
+
