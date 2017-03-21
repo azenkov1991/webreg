@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<form id="input_form_1" method="POST" action="{% url 'input_first_step' %}">
+  {% include 'form_field_generic.html' %}
+  <div class="from_btn">
+    <input class="btn btn-primary" type="submit" value="Далее"/>
+  </div>
+</form>
+{% endblock content %}
+
+
+

@@ -6,6 +6,7 @@ html, body{
 
 #body {
   padding-bottom: 125px;
+  overflow: auto;
 }
 
 #main-container {

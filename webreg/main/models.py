@@ -8,7 +8,7 @@ from django.core.validators import MinValueValidator
 from mixins.models import TimeStampedModel, SafeDeleteMixin
 from django.contrib.sites.models import Site
 from catalogs.models import OKMUService
-from main.validators import oms_polis_number_validation
+from main.validators import oms_polis_number_validation, birth_date_validation
 
 log = logging.getLogger("webreg")
 
@@ -118,12 +118,13 @@ class Patient(models.Model):
     first_name = models.CharField(max_length=128, verbose_name="Фамилия")
     last_name = models.CharField(max_length=128, verbose_name="Имя")
     middle_name = models.CharField(max_length=128, verbose_name="Отчество")
-    birth_date = models.DateField(verbose_name="Дата рождения")
+    birth_date = models.DateField(verbose_name="Дата рождения",
+                                  validators=[birth_date_validation,])
     polis_number = models.CharField(max_length=16,
                                     verbose_name="Номер полиса",
                                     null=True)
     polis_seria = models.CharField(max_length=6, verbose_name="Серия полиса",
-                                   null=True)
+                                   null=True, blank=True)
 
     clinic = models.ManyToManyField('main.Clinic', verbose_name="Мед. учреждение")
 
