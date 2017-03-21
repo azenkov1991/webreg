@@ -10,7 +10,7 @@ from main.logic import find_patient_by_polis_number
 
 class InputFirstStepForm(forms.Form):
     city = forms.ChoiceField(
-        choices=list(Clinic.objects.order_by().values_list('city','city').distinct()),
+        choices=list(Clinic.objects.order_by('-city').values_list('city','city').distinct()),
         label='Город',
         widget=forms.Select()
     )
@@ -55,6 +55,7 @@ class InputFirstStepForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
+        self.user = None
         super(InputFirstStepForm, self).__init__(*args, **kwargs)
 
 
@@ -75,7 +76,8 @@ class InputFirstStepForm(forms.Form):
             raise forms.ValidationError('Неверный формат телефона')
         return phone.translate({ord('('):None,
                                ord(')'):None,
-                               ord('-'):None})
+                               ord('-'):None,
+                               ord(' '): None})
 
     def clean_birth_date(self):
         birth_date = self.cleaned_data['birth_date']
@@ -102,18 +104,20 @@ class InputFirstStepForm(forms.Form):
             raise forms.ValidationError(
                 config.PBSEARCH_ERROR,
             )
-        user = authenticate(username=settings.PATIENT_WRITER_USER)
-        print(user)
-        if user is None:
+        self.user = authenticate(username=settings.PATIENT_WRITER_USER)
+        if self.user is None:
             raise forms.ValidationError(
                 "Мед учреждение",
                 code='invalid_login',
                 params={'username': self.username_field.verbose_name},
             )
 
-        self.cleaned_data['user_id'] = user.id
+        self.cleaned_data['user_id'] = self.user.id
         self.cleaned_data['patient_id'] = patient.id
         return self.cleaned_data
+
+    def get_user(self):
+        return self.user
 
 class InputSecondStepForm(forms.Form):
     pass

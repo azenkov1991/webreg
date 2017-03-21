@@ -1,12 +1,19 @@
 from django.shortcuts import render
 from django.views.generic import FormView
-from main.models import Clinic
+from django.contrib.auth import login
 from patient_writer.forms import InputFirstStepForm, InputSecondStepForm
 
 class PatientWriteFirstStep(FormView):
     template_name = 'patient_writer/input_first_step.html'
     form_class = InputFirstStepForm
     success_url = '/pwriter/input_second_step'
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        user = form.get_user()
+        if form.is_valid():
+            login(request, form.get_user())
+        return super(PatientWriteFirstStep, self).post(request, *args, **kwargs)
 
 class PatientWriteSecondStep(FormView):
     template_name = 'patient_writer/input_second_step.html'
