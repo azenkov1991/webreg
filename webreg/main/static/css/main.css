@@ -12,6 +12,7 @@ html, body{
 #main-container {
    min-height: 100%;
    position: relative;
+   padding-bottom: 20px;
 }
 
 #footer {
@@ -25,8 +26,20 @@ html, body{
   font-size: 9pt;
 }
 
-.frame{
+.has-frame{
   border-style: double;
   border-color: #2d7b6b;
+  padding-bottom: 15px;
 }
+
+.form-btn{
+  position: absolute;
+  bottom: -37px;
+}
+
+.asteriskField{
+  color: red;
+  font-size: large;
+}
+
 

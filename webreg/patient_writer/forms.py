@@ -4,7 +4,7 @@ from django.conf import settings
 from datetime import date
 from constance import config
 from main.validators import oms_polis_number_validation
-from main.models import Clinic
+from main.models import Clinic, PatientError
 from main.logic import find_patient_by_polis_number
 
 
@@ -82,23 +82,27 @@ class InputFirstStepForm(forms.Form):
     def clean_birth_date(self):
         birth_date = self.cleaned_data['birth_date']
         if birth_date <= date(year=1900, month=12, day=31):
-            raise forms.ValidationError('Некорректная дата')
+            raise ValidationError('Некорректная дата')
         else:
             return birth_date
 
 
     def clean(self):
+        if self._errors:
+            return self.cleaned_data
         cleaned_data = self.cleaned_data
         request_param = map(lambda u: cleaned_data.get(u), ('city', 'polis_number', 'polis_seria', 'birth_date'))
         city, polis_number, polis_seria, birth_date = request_param
-
         clinic = Clinic.objects.filter(city=city).first()
 
         if not clinic:
             raise forms.ValidationError(
                 "Не найдено Мед. учреждение для этого города",
         )
-        patient = find_patient_by_polis_number(clinic, polis_number, birth_date, polis_seria)
+        try:
+            patient = find_patient_by_polis_number(clinic, polis_number, birth_date, polis_seria)
+        except PatientError as er:
+            raise forms.ValidationError(str(er))
 
         if not patient:
             raise forms.ValidationError(
