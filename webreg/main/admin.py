@@ -3,6 +3,7 @@ from django import forms
 from .models import *
 from catalogs.models import OKMUService
 from mixins.admin import safe_delete_mixin_admin
+from main.forms import UserProfileForm
 
 class DepartmentAdmin(admin.ModelAdmin):
     list_display = ('name', 'clinic')
@@ -90,7 +91,8 @@ class SiteServicePermissoionAdmin(admin.ModelAdmin):
     }
 
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user','site')
+    list_display = ('site','users_str')
+    form = UserProfileForm
 
 admin.site.register(Specialist, SpecialistAdmin)
 admin.site.register(Cell, CellAdmin)

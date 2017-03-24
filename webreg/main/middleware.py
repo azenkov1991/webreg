@@ -10,7 +10,7 @@ class AddUserProfileMiddleware(object):
     def __call__(self, request):
         try:
             site = get_current_site(request)
-            request.user_profile = UserProfile.objects.get(site_id=site.id, user_id=request.user.id)
+            request.user_profile = UserProfile.objects.get(site_id=site.id, user__id=request.user.id)
         except ObjectDoesNotExist:
             request.user_profile = None
         response = self.get_response(request)

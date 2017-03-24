@@ -20,7 +20,7 @@ class PatientError(Exception):
     pass
 
 class UserProfile(models.Model):
-    user = models.ForeignKey('auth.User')
+    user = models.ManyToManyField('auth.User')
     clinic = models.ForeignKey('Clinic', verbose_name="Мед. учреждение", null=True, blank=True)
     profile_settings = models.ForeignKey('main.ProfileSettings', verbose_name="Настройки профиля")
     site = models.ForeignKey('sites.Site', verbose_name="Сайт")
@@ -31,6 +31,19 @@ class UserProfile(models.Model):
         Возвращает query_set типов слотов
         """
         return self.profile_settings.slot_restrictions.all()
+
+    def users_str(self):
+        """
+        Возвращает строку пользователя или первых 5-ти пользователей
+        Используется для отображения в админке
+        """
+        if self.user.count() > 5:
+            return " ".join(map(lambda user: str(user),  self.user.all()[:5])) + "..."
+        else:
+            return " ".join(map(lambda user: str(user),  self.user.all()))
+
+    users_str.short_description="Пользователи"
+
 
     class Meta:
         verbose_name = "Профиль пользователя"
