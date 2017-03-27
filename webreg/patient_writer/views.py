@@ -10,7 +10,6 @@ class PatientWriteFirstStep(FormView):
 
     def post(self, request, *args, **kwargs):
         form = self.get_form()
-        user = form.get_user()
         if form.is_valid():
             login(request, form.get_user())
         return super(PatientWriteFirstStep, self).post(request, *args, **kwargs)

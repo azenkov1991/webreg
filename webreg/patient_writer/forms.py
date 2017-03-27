@@ -8,9 +8,14 @@ from main.models import Clinic, PatientError
 from main.logic import find_patient_by_polis_number
 
 
+
 class InputFirstStepForm(forms.Form):
+    try:
+        city_choices = list(Clinic.objects.order_by('-city').values_list('city', 'city').distinct())
+    except:
+        city_choices = []
     city = forms.ChoiceField(
-        choices=list(Clinic.objects.order_by('-city').values_list('city','city').distinct()),
+        choices=city_choices,
         label='Город',
         widget=forms.Select()
     )
