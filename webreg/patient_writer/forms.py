@@ -38,7 +38,6 @@ class InputFirstStepForm(forms.Form):
     birth_date = forms.DateField(
         label='Дата рождения',
         widget=forms.DateInput(attrs={
-            'class': 'form__unit-item-input form__unit-item-input-line',
             'autocomplete': 'off',
             'placeholder': 'дд.мм.гггг',
         }),
@@ -46,7 +45,7 @@ class InputFirstStepForm(forms.Form):
     phone = forms.CharField(
         max_length=20, label='Сотовый телефон',
         widget=forms.TextInput(attrs={
-            'class': 'form__unit-item-input form__unit-item-input-line',
+            'class': 'mobile-phone-input',
             'placeholder': 'сотовый/домашний в формате +7 (XXX) XXX-XX-XX',
             'autocomplete': 'off',
         }),
