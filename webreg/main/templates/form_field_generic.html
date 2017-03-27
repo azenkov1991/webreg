@@ -6,14 +6,6 @@
         <span>
             {{ field | as_crispy_field}}
         </span>
-        {% if field.errors %}
-            <script>
-                $(document).ready(function(){
-                    $("input[name^='{{ field.name }}']").addClass(".has-error");
-                });
-            </script>
-
-        {% endif %}
     </div>
 {% endfor %}
 {% if form.non_field_errors %}
