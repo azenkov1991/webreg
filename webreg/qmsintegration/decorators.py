@@ -120,7 +120,10 @@ def get_free_cells(fn):
 
 @check_enable
 def find_patient_by_birth_date(fn):
-    def find_patient_by_birth_date_in_qms(clinic, first_name,last_name, middle_name, birth_date):
+    def find_patient_by_birth_date_in_qms(clinic, first_name, last_name, middle_name, birth_date):
+        patient = fn(clinic, first_name, last_name, middle_name, birth_date)
+        if patient:
+            return patient
         try:
             qms = QMS(clinic.qmsdb.settings)
             patient_data = qms.get_patient_information(first_name=first_name,
@@ -144,6 +147,9 @@ def find_patient_by_birth_date(fn):
 @check_enable
 def find_patient_by_polis_number(fn):
     def find_patient_by_polis_number_in_qms(clinic, polis_number, birth_date, polis_seria=None):
+        patient = fn(clinic, polis_number, birth_date, polis_seria)
+        if patient:
+            return patient
         try:
             qms = QMS(clinic.qmsdb.settings)
             patient_data = qms.get_patient_information(polis_number=polis_number,
