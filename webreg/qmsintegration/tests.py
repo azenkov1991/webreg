@@ -8,7 +8,7 @@ TEST_BASE_SETTINGS = {
     'CONNECTION_PARAM': {
         'user': '_system',
         'password': 'SYS',
-        'host': '172.16.1.10',
+        'host': '172.16.1.12',
         'port': '1972',
         'wsdl_port': '57772',
         'namespace': 'SKCQMS'
@@ -85,13 +85,11 @@ class TestQmsIntegrationAppointment(TestCase):
         self.profile_settings.save()
         self.site = Site(name="test", domain="127.0.0.1")
         self.site.save()
-        self.user_profile = UserProfile(user=self.user,
-                                        profile_settings=self.profile_settings,
+        self.user_profile = UserProfile(profile_settings=self.profile_settings,
                                         site=self.site)
-        self.user_profile = UserProfile(user=self.user,
-                                        profile_settings=self.profile_settings,
-                                        site=self.site)
+
         self.user_profile.save()
+        self.user_profile.user.add(self.user)
         self.qms_user = QmsUser(name="Платежка", qqc244="vABdABЪABAA", user_profile=self.user_profile)
         self.qms_user.save()
         self.clinic = Clinic(name="СКЦ", city="Красноярск", address="Vbhdsfdsf")

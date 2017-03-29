@@ -7,7 +7,7 @@ TEST_BASE_SETTINGS = {
     'CONNECTION_PARAM': {
         'user': '_system',
         'password': 'SYS',
-        'host': '172.16.1.10',
+        'host': '172.16.1.12',
         'port': '1972',
         'wsdl_port': '57772',
         'namespace': 'SKCQMS'
@@ -33,16 +33,21 @@ GOOD_CACHE_SETTINGS2 = {
 class TestQmsFunctions(TestCase):
     def setUp(self):
         self.qms = QMS(TEST_BASE_SETTINGS)
+        self.first_sunday = datetime.date.today() + datetime.timedelta(6 - datetime.date.today().weekday())
+        self.date_qms_str = self.qms.query.execute_query('SetFakeRaspOnSunday', "vABdAAuAAAM", "09:00-09:30")
+
+    def tearDown(self):
+        self.qms.query.execute_query('DeleteFakeRasp', "vABdAAuAAAM", self.date_qms_str)
 
     def test_create_appointment_schedule(self):
         qqc244n = "vABdAAоABAD"
         Du = "B01.047.01"
         qqc244 = "vABdAAuAAAM"
-        date = datetime.date(2016, 7, 18)
-        time_start =  datetime.time(14, 30)
-        time_end = datetime.time(14, 45)
+        time_start =  datetime.time(9,0)
+        time_end = datetime.time(9, 30)
         qqc153 = "vABAJnb"
-        qqc1860 = self.qms.create_appointment(qqc244n, qqc153, qqc244, Du, date, time_start, time_end)
+        qqc1860 = self.qms.create_appointment(qqc244n, qqc153, qqc244, Du, self.first_sunday,
+                                              time_start, time_end)
         self.assertTrue(qqc1860, "qqc1860 не должно быть пусто")
         self.qms.query.execute_query('Cancel1860', qqc1860)
 
