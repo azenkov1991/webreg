@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.contrib.postgres.fields import JSONField
 from django.core.validators import MinValueValidator
+from django.db.models import F
 from mixins.models import TimeStampedModel, SafeDeleteMixin
 from django.contrib.sites.models import Site
 from catalogs.models import OKMUService
@@ -31,6 +32,66 @@ class UserProfile(models.Model):
         Возвращает query_set типов слотов
         """
         return self.profile_settings.slot_restrictions.all()
+
+    def get_allowed_specialists(self, initial_specialist_query_set=None):
+        """
+
+        :param initial_specialist_query_set:
+        Если передан specialist_query_set услуг, то выборка из него происходит
+        :return:
+        """
+        if not initial_specialist_query_set:
+            initial_specialist_query_set=Specialist.objects.all()
+
+        # проверка на ограничение разрешенных для назначений специалистов
+
+        specialist_restrictions = Specialist.objects.filter(
+            specialistrestriction__profile_settings_id=self.profile_settings.id
+        )
+        if specialist_restrictions.count()==0:
+            specialist_restrictions = initial_specialist_query_set
+
+        return initial_specialist_query_set & specialist_restrictions
+
+
+    def get_allowed_services(self, initial_service_query_set=None):
+        """
+        :param initial_service_query_set:
+         Если передан QuerySet услуг, то выборка из него происходит
+        :return:
+        Возвращает
+        """
+
+        if not initial_service_query_set:
+            initial_service_query_set = OKMUService.objects.all()
+
+
+        # проверка на ограничение услуг сайта
+        try:
+            site_allowed_services = self.site.siteservicepermission.services.all()
+            if site_allowed_services.count()==0:
+                site_allowed_services = initial_service_query_set
+        except models.RelatedObjectDoesNotExist:
+            site_allowed_services = initial_service_query_set
+
+
+        # проверка на ограничение разрешенных для назначений услуг
+        profile_allowed_services = self.profile_settings.service_restrictions.all()
+        if profile_allowed_services.count()==0:
+            profile_allowed_services = initial_service_query_set
+
+
+        # проверка на ограничение количества услуг
+        now_date = datetime.datetime.now()
+
+        service_id_list = self.NumberOfServiceRestriction_set.filter(
+            date_start__lte=now_date, date_end__gte=now_date,
+            number_of_used__gte=F('number')).values_list("service_id",flat=True
+        )
+
+        return (initial_service_query_set & site_allowed_services & profile_allowed_services).exclude(
+            id__in=service_id_list
+        )
 
     def users_str(self):
         """
@@ -339,6 +400,7 @@ class NumberOfServiceRestriction(models.Model):
 class SiteServicePermission(models.Model):
     services = models.ManyToManyField("catalogs.OKMUService", verbose_name="Услуга")
     site = models.OneToOneField("sites.Site", verbose_name="Сайт")
+
 
     class Meta:
         verbose_name = "Разрашеение на назначение услуг на сайте"

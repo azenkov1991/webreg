@@ -95,6 +95,7 @@ class NumberOfServiceRestrictionAdmin(admin.ModelAdmin):
 
 
 class SiteServicePermissoionAdmin(admin.ModelAdmin):
+    list_display = ('site',)
     raw_id_fields = ('services',)
     autocomplete_lookup_fields = {
         'm2m': ['services', ]
