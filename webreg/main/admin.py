@@ -71,13 +71,23 @@ class CellAdmin(admin.ModelAdmin):
     }
 
 
-class UserSlotRestrictionInline(admin.TabularInline):
+class SlotRestrictionInline(admin.TabularInline):
     model = SlotRestriction
     extra = 1
 
 
+class ServiceRestrictionInline(admin.TabularInline):
+    model = ServiceRestriction
+    extra = 1
+
+
+class SpecialistRestrictionInline(admin.TabularInline):
+    model = SpecialistRestriction
+    extra = 1
+
+
 class ProfileSettingsAdmin(admin.ModelAdmin):
-    inlines = [UserSlotRestrictionInline, ]
+    inlines = [SlotRestrictionInline, ServiceRestrictionInline, SpecialistRestrictionInline, ]
 
 
 class NumberOfServiceRestrictionAdmin(admin.ModelAdmin):

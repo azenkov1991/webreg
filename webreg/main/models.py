@@ -54,6 +54,10 @@ class ProfileSettings(models.Model):
     name = models.CharField(max_length=128, verbose_name="Наименование настроек")
     slot_restrictions = models.ManyToManyField('main.SlotType', through='main.SlotRestriction',
                                                verbose_name="Ограничения на тип ячейки")
+    service_restrictions = models.ManyToManyField('catalogs.OKMUService', through='main.ServiceRestriction',
+                                                  verbose_name="Доступные для назначения услуги")
+    specialist_restrictions = models.ManyToManyField('main.Specialist', through='main.SpecialistRestriction',
+                                                   verbose_name="Доступные для назначения специалисты")
 
     def __str__(self):
         return self.name
@@ -259,6 +263,24 @@ class SlotRestriction(models.Model):
         verbose_name_plural = "Разрешения на тип ячейки"
 
 
+class ServiceRestriction(models.Model):
+    profile_settings = models.ForeignKey(ProfileSettings, verbose_name="Настройки профиля пользователя")
+    service = models.ForeignKey('catalogs.OKMUService', verbose_name="Услуга")
+
+    class Meta:
+        verbose_name = "Разрешение назначить услугу"
+        verbose_name_plural = "Разрешения на назначения услуг"
+
+
+class SpecialistRestriction(models.Model):
+    profile_settings = models.ForeignKey('main.ProfileSettings', verbose_name="Настройки профиля пользователя")
+    specialist = models.ForeignKey('main.Specialist', verbose_name="Специалист")
+
+    class Meta:
+        verbose_name = "Разрешенный для назначения специалист"
+        verbose_name_plural = "Разрешенные для назначений специалисты"
+
+
 class NumberOfServiceRestriction(models.Model):
     service = models.ForeignKey("catalogs.OKMUService", verbose_name="Услуга")
     number = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Количество")
@@ -319,8 +341,8 @@ class SiteServicePermission(models.Model):
     site = models.OneToOneField("sites.Site", verbose_name="Сайт")
 
     class Meta:
-        verbose_name = "Разрашеение на назначение услуг"
-        verbose_name_plural = "Разрешения на назначения услуг"
+        verbose_name = "Разрашеение на назначение услуг на сайте"
+        verbose_name_plural = "Разрешения на назначения услуг на сайтах"
 
 
 
