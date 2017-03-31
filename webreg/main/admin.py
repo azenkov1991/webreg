@@ -117,5 +117,5 @@ admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(NumberOfServiceRestriction, NumberOfServiceRestrictionAdmin)
 admin.site.register(SlotType, admin.ModelAdmin)
 admin.site.register(ProfileSettings, ProfileSettingsAdmin)
-admin.site.register(SiteServicePermission, SiteServicePermissoionAdmin)
+admin.site.register(SiteServiceRestriction, SiteServicePermissoionAdmin)
 

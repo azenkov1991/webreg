@@ -32,9 +32,26 @@ def create_appointment(user_profile, patient, specialist, service, date, cell=No
                 raise AppointmentError("Нарушено ограничение на тип слота" + exception_details)
 
     # проверка допустимых услуг у сайта
-    if not SiteServicePermission.objects.get(site_id=user_profile.site.id). \
-            services.filter(id=service.id).exists():
-        raise AppointmentError("Попытка назначения услуги не разрешенной для сайта" + exception_details)
+    try:
+        site_service_restriction = SiteServiceRestriction.objects.get(site_id=user_profile.site.id)
+        allowed_services_for_site = site_service_restriction.services.all()
+        if allowed_services_for_site.exists():
+            if service not in allowed_services_for_site:
+                raise AppointmentError("Попытка назначения услуги не разрешенной для сайта" + exception_details)
+    except SiteServiceRestriction.DoesNotExist:
+            pass
+
+    # проверка доступных для назначения специалистов
+    specialist_restrictions = user_profile.profile_settings.specialist_restrictions.all()
+    if specialist_restrictions.exists():
+        if specialist not in specialist_restrictions:
+            raise AppointmentError("Специалист не разрешен для назначения" + exception_details)
+
+    # проверка доступных для назначения услуг
+    service_restrictions = user_profile.profile_settings.service_restrictions.all()
+    if service_restrictions.exists():
+        if service not in service_restrictions:
+            raise AppointmentError("Услуга не разрешена для назначения" + exception_details)
 
     try:
         appointment = Appointment(user_profile=user_profile, date=date,

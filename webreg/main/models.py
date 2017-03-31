@@ -39,16 +39,15 @@ class UserProfile(models.Model):
         :param initial_specialist_query_set:
         Если передан specialist_query_set услуг, то выборка из него происходит
         :return:
+        Возвращает доступных для назначения специалистов
         """
         if not initial_specialist_query_set:
             initial_specialist_query_set=Specialist.objects.all()
 
         # проверка на ограничение разрешенных для назначений специалистов
 
-        specialist_restrictions = Specialist.objects.filter(
-            specialistrestriction__profile_settings_id=self.profile_settings.id
-        )
-        if specialist_restrictions.count()==0:
+        specialist_restrictions = self.profile_settings.specialist_restrictions.all()
+        if not specialist_restrictions.exists():
             specialist_restrictions = initial_specialist_query_set
 
         return initial_specialist_query_set & specialist_restrictions
@@ -59,35 +58,32 @@ class UserProfile(models.Model):
         :param initial_service_query_set:
          Если передан QuerySet услуг, то выборка из него происходит
         :return:
-        Возвращает
+        Возвращает доступные для назначения услуги
         """
 
         if not initial_service_query_set:
             initial_service_query_set = OKMUService.objects.all()
 
-
         # проверка на ограничение услуг сайта
         try:
-            site_allowed_services = self.site.siteservicepermission.services.all()
-            if site_allowed_services.count()==0:
+            site_allowed_services = self.site.siteservicerestriction.services.all()
+            if not site_allowed_services.exists():
                 site_allowed_services = initial_service_query_set
         except models.RelatedObjectDoesNotExist:
             site_allowed_services = initial_service_query_set
 
-
         # проверка на ограничение разрешенных для назначений услуг
         profile_allowed_services = self.profile_settings.service_restrictions.all()
-        if profile_allowed_services.count()==0:
+        if not profile_allowed_services.exists():
             profile_allowed_services = initial_service_query_set
-
 
         # проверка на ограничение количества услуг
         now_date = datetime.datetime.now()
 
-        service_id_list = self.NumberOfServiceRestriction_set.filter(
+        service_id_list = self.numberofservicerestriction_set.filter(
             date_start__lte=now_date, date_end__gte=now_date,
-            number_of_used__gte=F('number')).values_list("service_id",flat=True
-        )
+            number_of_used__gte=F('number')
+        ).values_list("service_id",flat=True)
 
         return (initial_service_query_set & site_allowed_services & profile_allowed_services).exclude(
             id__in=service_id_list
@@ -397,7 +393,7 @@ class NumberOfServiceRestriction(models.Model):
         verbose_name_plural = "Ограничения на кол-во услуг"
 
 
-class SiteServicePermission(models.Model):
+class SiteServiceRestriction(models.Model):
     services = models.ManyToManyField("catalogs.OKMUService", verbose_name="Услуга")
     site = models.OneToOneField("sites.Site", verbose_name="Сайт")
 

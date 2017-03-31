@@ -21,10 +21,12 @@ class OKMUService(SafeDeleteMixin):
         'self', blank=True, null=True
     )
     is_finished = models.BooleanField(
-        verbose_name="Является услугой"
+        verbose_name="Является услугой",
+        default=1
     )
     level = models.IntegerField(
-        verbose_name="Уровень"
+        verbose_name="Уровень",
+        default=4
     )
 
     def __str__(self):
