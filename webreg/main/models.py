@@ -21,6 +21,7 @@ class PatientError(Exception):
     pass
 
 class UserProfile(models.Model):
+    name = models.CharField(max_length=256, verbose_name="Имя профиля")
     user = models.ManyToManyField('auth.User')
     clinic = models.ForeignKey('Clinic', verbose_name="Мед. учреждение", null=True, blank=True)
     profile_settings = models.ForeignKey('main.ProfileSettings', verbose_name="Настройки профиля")
@@ -101,6 +102,8 @@ class UserProfile(models.Model):
 
     users_str.short_description="Пользователи"
 
+    def __str__(self):
+        return self.name
 
     class Meta:
         verbose_name = "Профиль пользователя"
