@@ -102,7 +102,7 @@ class SiteServicePermissoionAdmin(admin.ModelAdmin):
     }
 
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('site','users_str')
+    list_display = ('name', 'site', 'users_str')
     form = UserProfileForm
 
 admin.site.register(Specialist, SpecialistAdmin)

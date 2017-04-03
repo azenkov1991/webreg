@@ -328,6 +328,7 @@ class ServiceRestriction(models.Model):
     service = models.ForeignKey('catalogs.OKMUService', verbose_name="Услуга")
 
     class Meta:
+        unique_together = ('profile_settings', 'service')
         verbose_name = "Разрешение назначить услугу"
         verbose_name_plural = "Разрешения на назначения услуг"
 
@@ -337,6 +338,7 @@ class SpecialistRestriction(models.Model):
     specialist = models.ForeignKey('main.Specialist', verbose_name="Специалист")
 
     class Meta:
+        unique_together = ('profile_settings', 'specialist')
         verbose_name = "Разрешенный для назначения специалист"
         verbose_name_plural = "Разрешенные для назначений специалисты"
 

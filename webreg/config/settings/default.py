@@ -43,6 +43,11 @@ LOGGING_CONF = {
             'propagate': False,
             'level': 'DEBUG',
         },
+        'command_manage': {
+            'handlers': ['dbhandler', 'console'],
+            'propagate': False,
+            'level': 'DEBUG',
+        },
         'default': {
             'handlers': ['console'],
             'level': 'ERROR',

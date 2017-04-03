@@ -65,6 +65,8 @@ django_project_root/media/
 
 staticfiles/
 
+webreg/config/settings/local.py
+
 webreg/main/static/library/*
 
 webreg/config/secrets.json

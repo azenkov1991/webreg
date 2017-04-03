@@ -11,7 +11,15 @@ QMS_QUERIES = {
                             'class': 'User.Query',
                             'query': 'CrePatientQuery'
                 },
+                'AvailUsl': {
+                    'class': 'User.Query',
+                    'query': 'AvailUsl'
+                },
                 'AvailSpec': {
+                    'class': 'User.Query',
+                    'query': 'AvailSpec'
+                },
+                'AvailSpecDetail': {
                             'class': 'User.QueryCatalog',
                             'query': 'AvailSpec'
                 },
