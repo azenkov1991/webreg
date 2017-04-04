@@ -1,50 +1,10 @@
-from .common import *
+from .default import *
 DEBUG = True
 
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-LOGGING_CONF = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'default': {
-            'format': '%(asctime)s %(levelname)s %(name)s %(message)s'
-        },
-        'simple': {
-            'format': '%(message)s'
-        }
-    },
-    'handlers': {
-        'console': {
-            'level': 'ERROR',
-            'class': 'logging.StreamHandler',
-            'formatter': 'default'
-        },
-        'dbhandler': {
-            'level': 'DEBUG',
-            'class': 'loghandle.loghandle.LogHandler',
-            'formatter': 'simple'
-        },
-    },
-    'loggers': {
-        'webreg': {
-            'handlers': ['dbhandler', 'console'],
-            'propagate': False,
-            'level': 'DEBUG',
-        },
-        'cachequery': {
-            'handlers': ['dbhandler', 'console'],
-            'propagate': False,
-            'level': 'DEBUG',
-        },
-        'default': {
-            'handlers': ['console'],
-            'level': 'ERROR',
-            'propagate': False,
-        },
-    }
-}
+
 
 GOOD_CACHE_SETTINGS = {
             'CONNECTION_PARAM': {

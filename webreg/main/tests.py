@@ -1,8 +1,10 @@
 import datetime
 from django.test import TestCase
+from django.contrib.sites.models import Site
 from constance.test import override_config
 from django.contrib.auth.models import User
 from main.models import *
+from catalogs.models import OKMUService
 
 
 @override_config(QMS_INTEGRATION_ENABLE=False)

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from .models import *
+from main.models import *
 from catalogs.models import OKMUService
 from mixins.admin import safe_delete_mixin_admin
 from main.forms import UserProfileForm
