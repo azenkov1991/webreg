@@ -20,10 +20,10 @@ class TestMainModule(TestCase):
         self.profile_settings.save()
         self.site = Site(name="test", domain="127.0.0.1")
         self.site.save()
-        self.user_profile = UserProfile(user=self.user,
-                                        profile_settings=self.profile_settings,
+        self.user_profile = UserProfile(profile_settings=self.profile_settings,
                                         site=self.site)
         self.user_profile.save()
+        self.user_profile.user.add(self.user)
         self.clinic = Clinic(name="СКЦ", city="Красноярск", address="Vbhdsfdsf")
         self.clinic.save()
         self.department = Department(name="Поликлиника1", clinic=self.clinic)
@@ -35,9 +35,9 @@ class TestMainModule(TestCase):
         self.service_not_allowed_for_site = OKMUService(code="A01.05.01", name="Прием невролога",
                                                         is_finished=1, level=4)
         self.service_not_allowed_for_site.save()
-        site_permissions = SiteServicePermission(site=self.site)
-        site_permissions.save()
-        site_permissions.services.add(self.service1, self.service2)
+        site_service_restriction = SiteServiceRestriction(site=self.site)
+        site_service_restriction.save()
+        site_service_restriction.services.add(self.service1, self.service2)
 
         self.specialist = Specialist(fio="Терапевт Петр Иванович",
                                      specialization=Specialization.objects.create(name="Терапевт"),
@@ -154,6 +154,101 @@ class TestMainModule(TestCase):
                                      self.service_not_allowed_for_site,
                                      datetime.date.today() + datetime.timedelta(1),
                                      self.cell1)
+
+    def test_get_allowed_services(self):
+        yesterday = datetime.date.today()-datetime.timedelta(1)
+        tomorrow = datetime.date.today() + datetime.timedelta(1)
+
+        # 10 тестовых услуг
+        for i in range(3,14):
+            service = OKMUService(code=("A01.01." + str(i)),
+                                  name="Тестовая услуга №" + str(i))
+            service.save()
+            #  11  12 13 не разрешены для назначения
+            if i not in [11,12,13]:
+                ServiceRestriction(profile_settings=self.profile_settings,
+                                   service=service).save()
+
+            # десятая услуга полностью использована
+            if i==10:
+                NumberOfServiceRestriction(
+                    user_profile_id=self.user_profile.id,
+                    service_id=service.id,
+                    number=4,
+                    number_of_used=4,
+                    date_start=yesterday,
+                    date_end=tomorrow
+                ).save()
+
+            # 8,9 услуга запрещена для сайта
+            if i not in [8,9]:
+                site_service_restrictions, created = SiteServiceRestriction.objects.get_or_create(
+                    site_id=self.user_profile.site.id
+                )
+                site_service_restrictions.services.add(service)
+
+            if i==7:
+                NumberOfServiceRestriction(
+                    user_profile_id=self.user_profile.id,
+                    service_id=service.id,
+                    number=4,
+                    number_of_used=3,
+                    date_start=yesterday,
+                    date_end=tomorrow
+                ).save()
+
+        # в итоге услуги 3-7 должны быть доступны для назначения
+        # из queryset услуг извлечение только последних цифр
+        lst = list(map(lambda x: int(x.split('.')[2]),
+                       self.user_profile.get_allowed_services().values_list('code',flat=True)))
+        self.assertEqual(lst, list(range(3,8)), "Определение доступных услуг1")
+
+        # с initial_query_set
+        initial_query_set = OKMUService.objects.filter(code__contains="A01.01").exclude(code__in=["A01.01.3",
+                                                                                                  "A01.01.4",
+                                                                                                  "A01.01.5"])
+        lst = list(map(lambda x: int(x.split('.')[2]),
+                       self.user_profile.get_allowed_services(initial_query_set).values_list('code', flat=True)))
+        self.assertEqual(lst, list(range(6, 8)),"Определение доступных услуг2")
+
+        #без ограничений на сайт
+        SiteServiceRestriction.objects.all().delete()
+        lst = list(map(lambda x: int(x.split('.')[2]),
+                       self.user_profile.get_allowed_services().values_list('code', flat=True)))
+        self.assertEqual(lst, list(range(3, 10)),"Определение доступных услуг3")
+
+    def test_allowed_specialists(self):
+        specialization, created = Specialization.objects.get_or_create(name="Терапевт")
+
+        for i in range(1,11):
+            specialist = Specialist(fio="Специалист №" + str(i),
+                                    specialization=specialization,
+                                    department=self.department)
+            specialist.save()
+            # каждый второй специалист разрешен для назначения
+            if i%2:
+                SpecialistRestriction(profile_settings=self.profile_settings,
+                                      specialist_id=specialist.id).save()
+
+        # список номеров специалистов доступных для назначения
+        lst = list(map(lambda x: int(x.split('№')[1]),
+                       self.user_profile.get_allowed_specialists().values_list('fio',flat=True)))
+
+        self.assertEqual(lst,[i for i in range(1,11,2)], "Определение доступных для назначений специалистов")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

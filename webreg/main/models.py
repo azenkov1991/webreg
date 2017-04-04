@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.contrib.postgres.fields import JSONField
 from django.core.validators import MinValueValidator
+from django.db.models import F
 from mixins.models import TimeStampedModel, SafeDeleteMixin
 from django.contrib.sites.models import Site
 from catalogs.models import OKMUService
@@ -20,6 +21,7 @@ class PatientError(Exception):
     pass
 
 class UserProfile(models.Model):
+    name = models.CharField(max_length=256, verbose_name="Имя профиля")
     user = models.ManyToManyField('auth.User')
     clinic = models.ForeignKey('Clinic', verbose_name="Мед. учреждение", null=True, blank=True)
     profile_settings = models.ForeignKey('main.ProfileSettings', verbose_name="Настройки профиля")
@@ -31,6 +33,62 @@ class UserProfile(models.Model):
         Возвращает query_set типов слотов
         """
         return self.profile_settings.slot_restrictions.all()
+
+    def get_allowed_specialists(self, initial_specialist_query_set=None):
+        """
+
+        :param initial_specialist_query_set:
+        Если передан specialist_query_set услуг, то выборка из него происходит
+        :return:
+        Возвращает доступных для назначения специалистов
+        """
+        if not initial_specialist_query_set:
+            initial_specialist_query_set=Specialist.objects.all()
+
+        # проверка на ограничение разрешенных для назначений специалистов
+
+        specialist_restrictions = self.profile_settings.specialist_restrictions.all()
+        if not specialist_restrictions.exists():
+            specialist_restrictions = initial_specialist_query_set
+
+        return initial_specialist_query_set & specialist_restrictions
+
+
+    def get_allowed_services(self, initial_service_query_set=None):
+        """
+        :param initial_service_query_set:
+         Если передан QuerySet услуг, то выборка из него происходит
+        :return:
+        Возвращает доступные для назначения услуги
+        """
+
+        if not initial_service_query_set:
+            initial_service_query_set = OKMUService.objects.all()
+
+        # проверка на ограничение услуг сайта
+        try:
+            site_allowed_services = self.site.siteservicerestriction.services.all()
+            if not site_allowed_services.exists():
+                site_allowed_services = initial_service_query_set
+        except models.RelatedObjectDoesNotExist:
+            site_allowed_services = initial_service_query_set
+
+        # проверка на ограничение разрешенных для назначений услуг
+        profile_allowed_services = self.profile_settings.service_restrictions.all()
+        if not profile_allowed_services.exists():
+            profile_allowed_services = initial_service_query_set
+
+        # проверка на ограничение количества услуг
+        now_date = datetime.datetime.now()
+
+        service_id_list = self.numberofservicerestriction_set.filter(
+            date_start__lte=now_date, date_end__gte=now_date,
+            number_of_used__gte=F('number')
+        ).values_list("service_id",flat=True)
+
+        return (initial_service_query_set & site_allowed_services & profile_allowed_services).exclude(
+            id__in=service_id_list
+        )
 
     def users_str(self):
         """
@@ -44,6 +102,8 @@ class UserProfile(models.Model):
 
     users_str.short_description="Пользователи"
 
+    def __str__(self):
+        return self.name
 
     class Meta:
         verbose_name = "Профиль пользователя"
@@ -54,6 +114,10 @@ class ProfileSettings(models.Model):
     name = models.CharField(max_length=128, verbose_name="Наименование настроек")
     slot_restrictions = models.ManyToManyField('main.SlotType', through='main.SlotRestriction',
                                                verbose_name="Ограничения на тип ячейки")
+    service_restrictions = models.ManyToManyField('catalogs.OKMUService', through='main.ServiceRestriction',
+                                                  verbose_name="Доступные для назначения услуги")
+    specialist_restrictions = models.ManyToManyField('main.Specialist', through='main.SpecialistRestriction',
+                                                   verbose_name="Доступные для назначения специалисты")
 
     def __str__(self):
         return self.name
@@ -259,6 +323,26 @@ class SlotRestriction(models.Model):
         verbose_name_plural = "Разрешения на тип ячейки"
 
 
+class ServiceRestriction(models.Model):
+    profile_settings = models.ForeignKey(ProfileSettings, verbose_name="Настройки профиля пользователя")
+    service = models.ForeignKey('catalogs.OKMUService', verbose_name="Услуга")
+
+    class Meta:
+        unique_together = ('profile_settings', 'service')
+        verbose_name = "Разрешение назначить услугу"
+        verbose_name_plural = "Разрешения на назначения услуг"
+
+
+class SpecialistRestriction(models.Model):
+    profile_settings = models.ForeignKey('main.ProfileSettings', verbose_name="Настройки профиля пользователя")
+    specialist = models.ForeignKey('main.Specialist', verbose_name="Специалист")
+
+    class Meta:
+        unique_together = ('profile_settings', 'specialist')
+        verbose_name = "Разрешенный для назначения специалист"
+        verbose_name_plural = "Разрешенные для назначений специалисты"
+
+
 class NumberOfServiceRestriction(models.Model):
     service = models.ForeignKey("catalogs.OKMUService", verbose_name="Услуга")
     number = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Количество")
@@ -314,13 +398,14 @@ class NumberOfServiceRestriction(models.Model):
         verbose_name_plural = "Ограничения на кол-во услуг"
 
 
-class SiteServicePermission(models.Model):
+class SiteServiceRestriction(models.Model):
     services = models.ManyToManyField("catalogs.OKMUService", verbose_name="Услуга")
     site = models.OneToOneField("sites.Site", verbose_name="Сайт")
 
+
     class Meta:
-        verbose_name = "Разрашеение на назначение услуг"
-        verbose_name_plural = "Разрешения на назначения услуг"
+        verbose_name = "Разрашеение на назначение услуг на сайте"
+        verbose_name_plural = "Разрешения на назначения услуг на сайтах"
 
 
 

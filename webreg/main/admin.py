@@ -71,13 +71,23 @@ class CellAdmin(admin.ModelAdmin):
     }
 
 
-class UserSlotRestrictionInline(admin.TabularInline):
+class SlotRestrictionInline(admin.TabularInline):
     model = SlotRestriction
     extra = 1
 
 
+class ServiceRestrictionInline(admin.TabularInline):
+    model = ServiceRestriction
+    extra = 1
+
+
+class SpecialistRestrictionInline(admin.TabularInline):
+    model = SpecialistRestriction
+    extra = 1
+
+
 class ProfileSettingsAdmin(admin.ModelAdmin):
-    inlines = [UserSlotRestrictionInline, ]
+    inlines = [SlotRestrictionInline, ServiceRestrictionInline, SpecialistRestrictionInline, ]
 
 
 class NumberOfServiceRestrictionAdmin(admin.ModelAdmin):
@@ -85,13 +95,14 @@ class NumberOfServiceRestrictionAdmin(admin.ModelAdmin):
 
 
 class SiteServicePermissoionAdmin(admin.ModelAdmin):
+    list_display = ('site',)
     raw_id_fields = ('services',)
     autocomplete_lookup_fields = {
         'm2m': ['services', ]
     }
 
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('site','users_str')
+    list_display = ('name', 'site', 'users_str')
     form = UserProfileForm
 
 admin.site.register(Specialist, SpecialistAdmin)
@@ -106,5 +117,5 @@ admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(NumberOfServiceRestriction, NumberOfServiceRestrictionAdmin)
 admin.site.register(SlotType, admin.ModelAdmin)
 admin.site.register(ProfileSettings, ProfileSettingsAdmin)
-admin.site.register(SiteServicePermission, SiteServicePermissoionAdmin)
+admin.site.register(SiteServiceRestriction, SiteServicePermissoionAdmin)
 

@@ -110,7 +110,7 @@ class TestQmsIntegrationAppointment(TestCase):
                                         type="Лаборатория", is_finished=1, level=4)
         self.lab_service2.save()
 
-        site_permissions = SiteServicePermission(site=self.site)
+        site_permissions = SiteServiceRestriction(site=self.site)
         site_permissions.save()
         site_permissions.services.add(self.service1, self.service2, self.lab_service, self.lab_service2)
         self.specialist = Specialist(fio="Садилова Надежда Дмитриевна",

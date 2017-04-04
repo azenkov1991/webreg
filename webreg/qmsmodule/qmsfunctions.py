@@ -124,9 +124,19 @@ class QMS:
                 return None
         return result[3]
 
-    def avail_spec(self, specialist_code):
-        self.query.execute_query('AvailSpec', self.DATABASE_CODE, specialist_code)
+    def get_avail_spec(self, specialist_code):
+        self.query.execute_query('AvailSpecDetail', self.DATABASE_CODE, specialist_code)
         return self.query.get_proxy_objects_list()
+
+    def get_avail_spec_qqc_list(self, specialist_code):
+        self.query.execute_query('AvailSpec', self.DATABASE_CODE, specialist_code)
+        lst = self.query.fetch_all()
+        return [item for sublist in lst for item in sublist]
+
+    def get_avail_services_code_list(self, specialist_code):
+        self.query.execute_query('AvailUsl', self.DATABASE_CODE, specialist_code)
+        lst = self.query.fetch_all()
+        return [sublist[0] for sublist in lst]
 
     def get_all_doctors(self, department_code=None):
         self.query.execute_query("GetAllDoctors", self.DATABASE_CODE, department_code)

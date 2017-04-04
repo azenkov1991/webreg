@@ -43,7 +43,7 @@ class QmsUser(models.Model):
     qqc244 = models.CharField(
         max_length=256, verbose_name="qqc пользователя"
     )
-    user_profile = models.OneToOneField('main.UserProfile')
+    user_profile = models.OneToOneField('main.UserProfile', verbose_name="Профиль пользователя")
 
     def __str__(self):
         return self.name
