@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block sidenavigation %}
+  <a class="list-group-item" href="{% url 'patient_writer:input_first_step'%}">Запись</a>
+  <a class="list-group-item" href="#link2">Вопросы и ответы</a>
+  <a class="list-group-item" href="{% url 'patient_writer:agreement' %}">Согласие на обработку ПД</a>
+{% endblock sidenavigation %}

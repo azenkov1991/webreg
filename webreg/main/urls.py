@@ -25,5 +25,5 @@ urlpatterns = [
                                       }, name="account_logout"),
     url(r'^accounts/password-reset', password_reset, {'template_name': "account/password_reset_.html"},
         name="account_reset_password"),
-    url(r'^pwriter/', include('patient_writer.urls'))
+    url(r'^pwriter/', include('patient_writer.urls', namespace="patient_writer"))
 ]

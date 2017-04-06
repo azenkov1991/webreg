@@ -10,6 +10,8 @@ body {
 
 .list-group-item{
   background-color: #9adacd;
+  font-weight: bold;
+  font-size: 110%;
 }
 a.list-group-item:hover,
 button.list-group-item:hover,

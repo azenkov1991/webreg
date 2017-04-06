@@ -4,6 +4,11 @@ html, body{
   min-height: 600px;
 }
 
+p {
+  text-indent: 20px; /* Отступ первой строки в пикселах */
+  font-family: "Palatino Linotype";
+}
+
 #body {
   padding-bottom: 125px;
   overflow: auto;

@@ -1,10 +1,10 @@
-{% extends 'base.html' %}
+{% extends 'patient_writer/base.html' %}
 {% block content %}
 <div class="col-sm-12 container has-frame">
   <div class="row">
     <div class="col-xs-8 col-xs-offset-2">
       <h3>ЗАПИСЬ НА ПРИЕМ</h3>
-      <form id="input_form_1" method="POST" action="{% url 'input_first_step' %}">
+      <form id="input_form_1" method="POST" action="{% url 'patient_writer:input_first_step' %}">
         {% include 'form_field_generic.html' %}
         <div class="col-xs-12  col-sm-6 col-sm-offset-3 form-btn">
           <input class="btn btn-primary btn-lg btn-block" type="submit" value="Далее"/>

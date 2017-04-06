@@ -1,0 +1,18 @@
+{% extends 'patient_writer/base.html' %}
+{% load flatblocks %}
+{% block content %}
+  <div id="agreement" class="container has-frame">
+    <div class="row">
+      <div class="col-xs-12 ">
+        <h2>Согласие на обработку персональных данных</h2>
+        {% flatblock "agreement"%}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12  col-sm-6 col-sm-offset-3">
+        <a class="btn btn-primary btn-lg btn-block form-btn" href="{{ request.META.HTTP_REFERER }}">Назад</a>
+      </div>
+    </div>
+  </div>
+
+{% endblock content%}
