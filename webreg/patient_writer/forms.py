@@ -22,7 +22,6 @@ class InputFirstStepForm(forms.Form):
     polis_number = forms.CharField(
         max_length=16, label='Номер полиса',
         widget=forms.TextInput(attrs={
-            'class': 'form__unit-item-input form__unit-item-input-line',
             'placeholder': '16 знаков для полиса нового образца',
             'autocomplete': 'off',
             'mask': '9999999999999999',
@@ -34,7 +33,6 @@ class InputFirstStepForm(forms.Form):
     polis_seria = forms.CharField(
         max_length=6, label='Серия полиса', required=False,
         widget=forms.TextInput(attrs={
-            'class': 'form__unit-item-input form__unit-item-input-line',
             'placeholder': 'оставьте пустым для полиса нового образца',
             'autocomplete': 'off',
         }),
@@ -86,7 +84,7 @@ class InputFirstStepForm(forms.Form):
     def clean_birth_date(self):
         birth_date = self.cleaned_data['birth_date']
         if birth_date <= date(year=1900, month=12, day=31):
-            raise ValidationError('Некорректная дата')
+            raise forms.ValidationError('Некорректная дата')
         else:
             return birth_date
 
@@ -103,6 +101,7 @@ class InputFirstStepForm(forms.Form):
             raise forms.ValidationError(
                 "Не найдено Мед. учреждение для этого города",
         )
+        self.cleaned_data['clinic_id'] = clinic.id
         try:
             patient = find_patient_by_polis_number(clinic, polis_number, birth_date, polis_seria)
         except PatientError as er:

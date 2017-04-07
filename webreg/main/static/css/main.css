@@ -9,6 +9,10 @@ p {
   font-family: "Palatino Linotype";
 }
 
+label{
+  color: #145d43;
+}
+
 #body {
   padding-bottom: 125px;
   overflow: auto;
@@ -43,8 +47,18 @@ p {
 }
 
 .asteriskField{
-  color: red;
+  color: #d9534f;
   font-size: large;
+}
+
+.question-mark{
+  font-size: 25px;
+  font-weight: bold;
+  padding: 2px;
+  line-height: 1;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
 }
 
 

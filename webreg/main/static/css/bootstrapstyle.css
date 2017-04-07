@@ -1,6 +1,7 @@
 /*#9adacd
 #4fbfa8
-#2d7b6b*/
+#2d7b6b
+#145d43*/
 
 
 
@@ -30,7 +31,7 @@ button.list-group-item:focus {
 }
 
 .btn:focus{
-  background-color: #9adacd;
+  background-color: #4fbfa8;
 }
 
 .btn-primary {
@@ -48,3 +49,5 @@ button.list-group-item:focus {
 .btn-info:hover{
   background-color: #3c7c7c;
 }
+
+

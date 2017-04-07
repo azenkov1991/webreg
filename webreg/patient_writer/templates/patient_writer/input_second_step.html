@@ -1,3 +1,34 @@
-{% extends 'base.html' %}
-
-<h1>TODO</h1>>
+{% extends 'patient_writer/base.html' %}
+{% block content %}
+<div class="container-fluid has-frame">
+  <div class="col-xs-10 col-xs-offset-1">
+    <h3>ВЫБЕРИТЕ ДАТУ И ВРЕМЯ</h3>
+    <form id="input_form_2" method="POST" action="{% url 'patient_writer:input_second_step' %}">
+      <label for="id_department" class="control-label requiredField">
+        Подразделение <span class="asteriskField">*</span>
+      </label>
+      <div class="row form-group">
+        <div class="col-xs-10">
+          <select class="select form-control" label="id_department" name="department" required>
+            {% for department in departments%}
+              <option value="{{department.name}}">{{department.name}}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <label for="speciality" class="control-label requiredField">
+        Специальность <span class="asteriskField">*</span>
+      </label>
+      <div class="row form-group">
+        <div class=" col-xs-10">
+          <select type="text" class="form-control" label="speciality" name="speciality" required></select>
+        </div>
+        <button class="btn btn-primary question-mark" type="button">?</button>
+      </div>
+      <div class="col-xs-12 col-sm-6 col-sm-offset-3 form-btn">
+        <button class="btn btn-primary btn-lg btn-block" type="submit" href="{% url 'patient_writer:input_first_step' %}"><span class="glyphicon glyphicon-chevron-left"></span> Назад</button>
+      </div>
+     </form>
+    </div>
+  </div>
+{% endblock content %}
