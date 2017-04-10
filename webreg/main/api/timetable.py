@@ -25,7 +25,6 @@ class PatientSerializer(serializers.ModelSerializer):
         model = Patient
         fields = ('id', 'fio', 'birth_date')
 
-
 class CellSerializer(serializers.ModelSerializer):
     cabinet = CabinetTimeTableSerializer()
     slot_type = SlotTypeSerializer()

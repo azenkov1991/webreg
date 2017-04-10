@@ -1,29 +1,32 @@
 {% extends 'patient_writer/base.html' %}
-{% block content %}
+
 {% load flatblocks %}
+{% load static %}
+
+{% block content %}
 <div class="container-fluid has-frame">
   <div class="col-xs-10 col-xs-offset-1">
     <h3>ВЫБЕРИТЕ ДАТУ И ВРЕМЯ</h3>
     <form id="input_form_2" method="POST" action="{% url 'patient_writer:input_second_step' %}">
-      <label for="id_department" class="control-label requiredField">
-        Подразделение <span class="asteriskField">*</span>
-      </label>
-      <div class="form-group">
+      <div id="department-form" class="form-group">
+        <label for="id_department" class="control-label requiredField">
+          Подразделение <span class="asteriskField">*</span>
+        </label>
         <div>
           <select class="select form-control" id="id_department" name="department" required>
-            <option disabled selected value> -- Выберете подразделение -- </option>
-            {% for department in departments%}
-              <option value="{{department.name}}">{{department.name}}</option>
+            <option disabled selected value=0> -- Выберете подразделение -- </option>
+            {% for department in departments %}
+              <option value="{{department.id}}">{{department.name}}</option>
             {% endfor %}
           </select>
         </div>
       </div>
-      <label for="speciality" class="control-label requiredField">
-        Специальность <span class="asteriskField">*</span>
-      </label>
-      <div class="form-group">
+      <div id="speciality-form" class="form-group" style="display: none">
+        <label for="speciality" class="control-label requiredField">
+          Специальность <span class="asteriskField">*</span>
+        </label>
         <select id="id_speciality" type="text" class="form-control" name="speciality" required></select>
-        <button id="speciality_question" class="btn btn-primary question-mark " type="button" data-toggle="modal" data-target="#speciality_help_modal">?</button>
+        <button id="speciality_question" class="btn btn-primary question-mark" type="button" data-toggle="modal" data-target="#speciality_help_modal">?</button>
         <div id="speciality_help_modal" class="modal fade">
           <div class="modal-dialog">
             <div class="modal-content">
@@ -49,13 +52,5 @@
 
 {% block javascript %}
 {{ block.super}}
-    <script>
-      new Tether({
-        element: '#speciality_question',
-        target: '#id_speciality',
-        attachment: 'bottom left',
-        targetAttachment: 'bottom right',
-        offset: '0 -5px',
-      })
-    </script>
+    <script src="{% static '/js/input_second_form_control.js' %}"></script>
 {% endblock javascript%}
