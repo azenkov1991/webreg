@@ -1,5 +1,6 @@
 {% extends 'patient_writer/base.html' %}
 {% block content %}
+{% load flatblocks %}
 <div class="container-fluid has-frame">
   <div class="col-xs-10 col-xs-offset-1">
     <h3>ВЫБЕРИТЕ ДАТУ И ВРЕМЯ</h3>
@@ -7,9 +8,10 @@
       <label for="id_department" class="control-label requiredField">
         Подразделение <span class="asteriskField">*</span>
       </label>
-      <div class="row form-group">
-        <div class="col-xs-10">
-          <select class="select form-control" label="id_department" name="department" required>
+      <div class="form-group">
+        <div>
+          <select class="select form-control" id="id_department" name="department" required>
+            <option disabled selected value> -- Выберете подразделение -- </option>
             {% for department in departments%}
               <option value="{{department.name}}">{{department.name}}</option>
             {% endfor %}
@@ -19,16 +21,41 @@
       <label for="speciality" class="control-label requiredField">
         Специальность <span class="asteriskField">*</span>
       </label>
-      <div class="row form-group">
-        <div class=" col-xs-10">
-          <select type="text" class="form-control" label="speciality" name="speciality" required></select>
+      <div class="form-group">
+        <select id="id_speciality" type="text" class="form-control" name="speciality" required></select>
+        <button id="speciality_question" class="btn btn-primary question-mark " type="button" data-toggle="modal" data-target="#speciality_help_modal">?</button>
+        <div id="speciality_help_modal" class="modal fade">
+          <div class="modal-dialog">
+            <div class="modal-content">
+             <div class="modal-body">
+                {% flatblock "speciality_help" %}
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+              </div>
+            </div>
+          </div>
         </div>
-        <button class="btn btn-primary question-mark" type="button">?</button>
       </div>
-      <div class="col-xs-12 col-sm-6 col-sm-offset-3 form-btn">
-        <button class="btn btn-primary btn-lg btn-block" type="submit" href="{% url 'patient_writer:input_first_step' %}"><span class="glyphicon glyphicon-chevron-left"></span> Назад</button>
-      </div>
+      <div>
+     </div>
      </form>
+     <div class="row col-xs-12 col-sm-6 col-sm-offset-3 form-btn">
+      <a class="btn btn-primary btn-lg btn-block" href="{% url 'patient_writer:input_first_step' %}"><span class="glyphicon glyphicon-chevron-left"></span> Назад</a>
+     </div>
     </div>
   </div>
 {% endblock content %}
+
+{% block javascript %}
+{{ block.super}}
+    <script>
+      new Tether({
+        element: '#speciality_question',
+        target: '#id_speciality',
+        attachment: 'bottom left',
+        targetAttachment: 'bottom right',
+        offset: '0 -5px',
+      })
+    </script>
+{% endblock javascript%}

@@ -4,9 +4,14 @@ html, body{
   min-height: 600px;
 }
 
-p {
+p{
   text-indent: 20px; /* Отступ первой строки в пикселах */
-  font-family: "Palatino Linotype";
+  font-family: "Verdana";
+}
+
+li{
+  text-indent: 10px; /* Отступ первой строки в пикселах */
+  font-family: "Verdana";
 }
 
 label{
@@ -59,6 +64,10 @@ label{
   width: 30px;
   height: 30px;
   border-radius: 50%;
+}
+
+.question-mark:hover{
+  border-color: #d9534f;
 }
 
 

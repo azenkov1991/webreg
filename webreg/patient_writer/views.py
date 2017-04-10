@@ -13,9 +13,9 @@ class PatientWriteFirstStep(FormView):
         form = self.get_form()
         if form.is_valid():
             login(request, form.get_user())
-        # сохранение id пациента в сессии для последующих шагов
-        request.session['patient_id'] = form.cleaned_data['patient_id']
-        request.session['clinic_id'] = form.cleaned_data['clinic_id']
+            # сохранение id пациента в сессии для последующих шагов
+            request.session['patient_id'] = form.cleaned_data['patient_id']
+            request.session['clinic_id'] = form.cleaned_data['clinic_id']
         return super(PatientWriteFirstStep, self).post(request, *args, **kwargs)
 
 class Confirm(TemplateView):

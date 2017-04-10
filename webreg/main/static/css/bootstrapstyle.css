@@ -26,11 +26,11 @@ button.list-group-item:focus {
   padding: 8px 12px;
 }
 
-.btn:active{
+.btn-primary:active{
   background-color: #4fbfa8 !important;
 }
 
-.btn:focus{
+.btn-primary:focus{
   background-color: #4fbfa8;
 }
 
