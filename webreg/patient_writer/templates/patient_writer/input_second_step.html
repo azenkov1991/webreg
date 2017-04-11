@@ -25,7 +25,9 @@
         <label for="speciality" class="control-label requiredField">
           Специальность <span class="asteriskField">*</span>
         </label>
-        <select id="id_speciality" type="text" class="form-control" name="speciality" required></select>
+        <select id="id_speciality" type="text" class="form-control" name="speciality" required>
+          <option disabled selected value=0> -- Выберете специальность -- </option>
+        </select>
         <button id="speciality_question" class="btn btn-primary question-mark" type="button" data-toggle="modal" data-target="#speciality_help_modal">?</button>
         <div id="speciality_help_modal" class="modal fade">
           <div class="modal-dialog">
