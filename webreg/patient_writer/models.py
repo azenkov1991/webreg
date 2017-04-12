@@ -27,6 +27,9 @@ class SpecializationConfig(models.Model):
     slot_types = models.ManyToManyField(
         "main.SlotType", verbose_name="Разрешенные типы слотов"
     )
+    enable = models.BooleanField(
+        default=True, verbose_name="Вкл"
+    )
 
     class Meta:
         verbose_name = "Настройки для специализации"
@@ -69,7 +72,6 @@ class DepartmentConfig(models.Model):
     def save(self, *args, **kwargs):
         self.phone = self.city.phone if not self.phone else self.phone
         self.phone2 = self.city.phone2 if not self.phone2 else self.phone2
-        self.mobile_name = self.name if not self.mobile_name else self.mobile_name
         if self.day_start_offset > self.day_range:
             self.day_start_offset = self.day_range
         super(DepartmentConfig, self).save(*args, **kwargs)
@@ -81,8 +83,8 @@ class DepartmentConfig(models.Model):
 
 
     class Meta:
-        verbose_name = 'Департамент'
-        verbose_name_plural = 'Департаменты'
+        verbose_name = 'Настройки подразделения'
+        verbose_name_plural = 'Настройки подразделений'
 
 
 

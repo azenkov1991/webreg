@@ -4,6 +4,7 @@ from .models import SpecializationConfig, SlotTypeConfig, DepartmentConfig
 
 class SpecializationConfigInline(admin.TabularInline):
     model = SpecializationConfig
+    filter_horizontal = ('slot_types',)
     extra = 0
 
 
