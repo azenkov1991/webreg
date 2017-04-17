@@ -64,11 +64,16 @@ label{
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  position: relative;
+   position: relative;
   top: -31px;
   right: -35px;
   float: right;
 }
+
+.round{
+  border-radius: 100%;
+}
+
 
 .question-mark:hover{
   border-color: #d9534f;

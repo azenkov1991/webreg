@@ -17,7 +17,7 @@ $(document).ready(function () {
                 success: function (specializationMas) {
                     var options = specialitySelect.children() ;
                     options.slice(1,options.length).remove();
-                    if (!specializationMas.length){
+                    if (!specializationMas.length || !(specializationMas instanceof Object)){
                         setError('Для этого подразделения нет доступных специальностей');
                     }
                     else{
@@ -28,7 +28,6 @@ $(document).ready(function () {
                         }
                         specialitySelect.val(-1)
                     }
-
                 },
                 error: function (request, errorType, errorMessage) {
                     setError('Ошибка: ' + errorType + ' ' + errorMessage);

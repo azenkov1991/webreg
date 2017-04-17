@@ -1,0 +1,26 @@
+td.time-cell{
+  width: 80px;
+  text-align: center;
+  border: 2px solid #f0fffa;
+}
+tr.time-row {
+  height: 45px;
+  margin: 20px;
+  padding: 20px;
+}
+th.time-header{
+  background-color: #4fbfa8;
+  text-align: center;
+  border: 1px solid #2d7b6b ;
+  #border-radius: 10% 10% 0 0;
+  border-bottom: 4px solid #145d43;
+  height: 40px;
+  color: white;
+  font-weight: bold;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+}
+table.day-table{
+  border-collapse: collapse;
+  border: 2px solid #f0fffa;
+  border-spacing: 2px 2px;
+}
