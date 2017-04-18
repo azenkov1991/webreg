@@ -1,49 +1,37 @@
 (function($) {
     $(function() {
         var jcarousel = $('.jcarousel');
-
+        var controlPrev = $('.jcarousel-control-prev');
+        var controlNext = $('.jcarousel-control-next');
         jcarousel
-            .on('jcarousel:reload jcarousel:create', function () {
+            .on('jcarousel:reload jcarousel:create', function (event) {
                 var carousel = $(this),
                     width = carousel.innerWidth();
-
-                if (width >= 600) {
-                    width = width / 3;
-                } else if (width >= 350) {
-                    width = width / 2;
+                // подгонка ширины карусели под количесвто столбцов
+                var cellWidth = carousel.find('li').innerWidth();
+                var numberOfColumns = carousel.find('ul li').length;
+                var numberColumnsFits = Math.floor(carousel.parent().innerWidth() / (cellWidth));
+                var numberOfVisibleColumns = numberColumnsFits;
+                if (numberOfColumns <= numberColumnsFits){
+                    numberOfVisibleColumns = numberOfColumns;
+                    controlPrev.hide();
+                    controlNext.hide();
                 }
+                else{
+                    controlPrev.show();
+                    controlNext.show();
+                }
+                var calcWidth = Math.floor(numberOfVisibleColumns * (cellWidth));
+                jcarousel.css('width',  calcWidth + 'px');
 
-                carousel.jcarousel('items').css('width', Math.ceil(width) + 'px');
             })
-            .jcarousel({
-                wrap: 'circular'
-            });
+            .jcarousel();
 
-        $('.jcarousel-control-prev')
-            .jcarouselControl({
+        controlPrev.jcarouselControl({
                 target: '-=1'
-            });
-
-        $('.jcarousel-control-next')
-            .jcarouselControl({
+        });
+        controlNext.jcarouselControl({
                 target: '+=1'
-            });
-
-        $('.jcarousel-pagination')
-            .on('jcarouselpagination:active', 'a', function() {
-                $(this).addClass('active');
-            })
-            .on('jcarouselpagination:inactive', 'a', function() {
-                $(this).removeClass('active');
-            })
-            .on('click', function(e) {
-                e.preventDefault();
-            })
-            .jcarouselPagination({
-                perPage: 1,
-                item: function(page) {
-                    return '<a href="#' + page + '">' + page + '</a>';
-                }
             });
     });
 })(jQuery);

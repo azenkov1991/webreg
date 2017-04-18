@@ -180,7 +180,7 @@ class QMS:
                 cell.okmu_list = (cell_item.Du if cell_item.Du else "").split(" ")
                 if cell.okmu_list==['']:
                     cell.okmu_list=[]
-                cell.free = bool(cell_item.status)
+                cell.free = bool(int(cell_item.status))
                 cell_list.append(cell)
         return cell_list
 

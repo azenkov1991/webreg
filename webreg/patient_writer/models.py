@@ -32,6 +32,7 @@ class SpecializationConfig(models.Model):
     )
 
     class Meta:
+        unique_together = ('specialization', 'department_config')
         verbose_name = "Настройки для специализации"
         verbose_name_plural = "Настройки для специализаций"
 
@@ -77,8 +78,8 @@ class DepartmentConfig(models.Model):
         super(DepartmentConfig, self).save(*args, **kwargs)
 
     def get_date_range(self):
-        start_date = datetime.now() + datetime.timedelta(self.day_start_offset)
-        end_date = datetime.now() + datetime.timedelta(self.day_range)
+        start_date = datetime.date.today() + datetime.timedelta(self.day_start_offset)
+        end_date = datetime.date.today() + datetime.timedelta(self.day_range)
         return start_date, end_date
 
 

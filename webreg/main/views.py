@@ -45,6 +45,7 @@ class SpecialistRowView(TemplateView):
                 'times': times
             })
         context['dates'] = dates
+        context['timetable_header']="Выберите время"
 
         return self.render_to_response(context)
 
