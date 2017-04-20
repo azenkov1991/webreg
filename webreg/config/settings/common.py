@@ -114,7 +114,11 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend',
                           'main.authentication.PolisNumberBackend']
 
+# общий пользователь для записи на прием пациентов
 PATIENT_WRITER_USER = 'patient_writer'
+
+# имя настроек профиля по умолчанию
+DEFAULT_PROFILE_SETTINGS_NAME = "default"
 
 
 # Internationalization

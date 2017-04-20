@@ -70,7 +70,6 @@ class SpecialistTimeTable(ProfileRequiredMixin, TemplateView):
             allowed_slot_types = specialization_config.slot_types.values_list('id', flat=True)
         except SpecializationConfig.DoesNotExist:
             allowed_slot_types = []
-
         # Получение всех ячеек специалиста за этот период
         cells = Cell.get_free_cells(specialist, date_from, date_to).filter(slot_type__in=allowed_slot_types)
         # Формирование массива всех времен
@@ -85,7 +84,7 @@ class SpecialistTimeTable(ProfileRequiredMixin, TemplateView):
         for date in dates_list:
             times = []
             for time in times_list:
-                if cells.filter(date=date,time_start=time).exists():
+                if cells.filter(date=date, time_start=time).exists():
                     color = "#9adacd"
                     text = time.strftime("%H:%M")
                 else:
@@ -99,38 +98,6 @@ class SpecialistTimeTable(ProfileRequiredMixin, TemplateView):
                 'date': date,
                 'times': times
             })
-
-        # today = datetime.datetime.today()
-        # dates = []
-        # times = [
-        #     {
-        #         "text": specialist_id,
-        #         "end": "13:00",
-        #         "color": "gray"
-        #     },
-        #     {
-        #         "text": "12:45",
-        #         "end": "13:00",
-        #         "color": "gray"
-        #     },
-        #     {
-        #         "text": "12:45",
-        #         "end": "13:00",
-        #         "color": "#9adacd"
-        #     },
-        #     {
-        #         "text": "12:45",
-        #         "end": "13:00",
-        #         "color": "gray"
-        #     },
-        # ]
-        #
-        # for i in range(0,14):
-        #     date = today + datetime.timedelta(i)
-        #     dates.append({
-        #         'date': date,
-        #         'times': times
-        #     })
         context['dates'] = dates
         context['timetable_header']="Выберите время"
 

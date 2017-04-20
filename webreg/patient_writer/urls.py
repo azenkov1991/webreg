@@ -5,7 +5,7 @@ from patient_writer.api.api import AvailableSpecialist, AvailableSpecializaionFo
 
 
 apiurlpatterns = [
-    url(r'^specialists/(\d+)', AvailableSpecialist.as_view()),
+    url(r'^avail_specialists/(?P<department_id>\d+)/(?P<specialization_id>\d+)', AvailableSpecialist.as_view()),
     url(r'^specializations_for_dep/(\d+)', AvailableSpecializaionForDepartment.as_view()),
 ]
 urlpatterns = [

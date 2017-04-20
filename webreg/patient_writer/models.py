@@ -30,6 +30,12 @@ class SpecializationConfig(models.Model):
     enable = models.BooleanField(
         default=True, verbose_name="Вкл"
     )
+    is_show_comment = models.BooleanField(
+        default=False, verbose_name='Вывод комментария'
+    )
+    comment = models.CharField(
+        max_length=127, verbose_name='Комментарий', blank=True, null=True
+    )
 
     class Meta:
         unique_together = ('specialization', 'department_config')

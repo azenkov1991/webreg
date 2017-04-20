@@ -1,4 +1,4 @@
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.db import models
 
 
@@ -13,7 +13,8 @@ class Cell(models.Model):
         verbose_name="Окончание приема"
     )
     specialist = models.ForeignKey(
-        'main.Specialist', verbose_name="Специалист"
+        'main.Specialist', verbose_name="Специалист",
+        db_index=True, null=True, on_delete=models.SET_NULL
     )
     cabinet = models.ForeignKey(
         'main.Cabinet', verbose_name="Кабинет", null=True, blank=True
@@ -22,7 +23,8 @@ class Cell(models.Model):
         "catalogs.OKMUService", verbose_name="Выполняемые услуги", blank=True
     )
     slot_type = models.ForeignKey(
-        'main.SlotType', verbose_name="Тип слота", null=True, blank=True
+        'main.SlotType', verbose_name="Тип слота",
+        null=True, blank=True, on_delete=models.SET_NULL
     )
     free  = models.BooleanField(
         verbose_name="Свободна", default=True

@@ -1,7 +1,19 @@
 import datetime
 from django.db import models
 from catalogs.models import OKMUService
+from django.conf import settings, ImproperlyConfigured
 from .specialist import Specialist
+from .profile_settings import ProfileSettings
+
+
+def get_default_profile_settings():
+    try:
+        name = settings.DEFAULT_PROFILE_SETTINGS_NAME
+        default_profile_settinngs = ProfileSettings.objects.get(name=name).id
+    except ProfileSettings.DoesNotExist:
+        raise ImproperlyConfigured("Не выбраны настройки профиля по умолчанию")
+    return default_profile_settinngs
+
 
 class UserProfile(models.Model):
     name = models.CharField(
@@ -13,7 +25,9 @@ class UserProfile(models.Model):
         null=True, blank=True
     )
     profile_settings = models.ForeignKey(
-        'main.ProfileSettings', verbose_name="Настройки профиля"
+        'main.ProfileSettings', verbose_name="Настройки профиля",
+        on_delete=models.SET(get_default_profile_settings),
+        default=get_default_profile_settings
     )
     site = models.ForeignKey('sites.Site', verbose_name="Сайт")
 

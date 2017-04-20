@@ -7,7 +7,8 @@ class Specialist(SafeDeleteMixin):
         max_length=128, verbose_name="Полное имя"
     )
     specialization = models.ForeignKey(
-        'main.Specialization', verbose_name="Специализация"
+        'main.Specialization', verbose_name="Специализация",
+        null=True, on_delete=models.SET_NULL
     )
     performing_services = models.ManyToManyField(
         "catalogs.OKMUService", verbose_name="Выполняемые услуги"
