@@ -12,6 +12,7 @@ class SlotTypeConfig(models.Model):
     max_age = models.PositiveIntegerField(
         default=200, verbose_name="Максимальный возраст"
     )
+
     class Meta:
         verbose_name = "Настройки типа слота"
         verbose_name_plural = "Настройки типов слотов"
@@ -77,8 +78,6 @@ class DepartmentConfig(models.Model):
         return '{0}, {1}'.format(self.department.name, self.department.address)
 
     def save(self, *args, **kwargs):
-        self.phone = self.city.phone if not self.phone else self.phone
-        self.phone2 = self.city.phone2 if not self.phone2 else self.phone2
         if self.day_start_offset > self.day_range:
             self.day_start_offset = self.day_range
         super(DepartmentConfig, self).save(*args, **kwargs)
@@ -87,7 +86,6 @@ class DepartmentConfig(models.Model):
         start_date = datetime.date.today() + datetime.timedelta(self.day_start_offset)
         end_date = datetime.date.today() + datetime.timedelta(self.day_range)
         return start_date, end_date
-
 
     class Meta:
         verbose_name = 'Настройки подразделения'

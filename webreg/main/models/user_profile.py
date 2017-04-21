@@ -4,6 +4,7 @@ from catalogs.models import OKMUService
 from django.conf import settings, ImproperlyConfigured
 from .specialist import Specialist
 from .profile_settings import ProfileSettings
+from .slot_type import SlotType
 
 
 def get_default_profile_settings():
@@ -37,6 +38,17 @@ class UserProfile(models.Model):
         Возвращает query_set типов слотов
         """
         return self.profile_settings.slot_restrictions.all()
+
+    def get_allowed_slots(self):
+        """
+        :return:
+        Возвращает query_set разрешенных типов слотов
+        """
+        slot_restrictions = self.profile_settings.slot_restrictions.all()
+        if slot_restrictions.exists():
+            return slot_restrictions
+        else:
+            return SlotType.objects.all()
 
     def get_allowed_specialists(self, initial_specialist_query_set=None):
         """

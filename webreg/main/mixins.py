@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import AccessMixin
 from django.http import HttpResponse
 
+
 class ProfileRequiredMixin(AccessMixin):
     """
     CBV mixin which verifies that the current user is authenticated and have profile.
@@ -10,6 +11,7 @@ class ProfileRequiredMixin(AccessMixin):
            not request.user_profile:
             return self.handle_no_permission()
         return super(ProfileRequiredMixin, self).dispatch(request, *args, **kwargs)
+
 
 class ProfileRequiredMixinForApi(AccessMixin):
     """

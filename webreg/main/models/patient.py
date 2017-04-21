@@ -1,3 +1,4 @@
+from datetime import date
 from django.db import models
 from main.validators import oms_polis_number_validation, birth_date_validation
 
@@ -28,6 +29,12 @@ class Patient(models.Model):
     clinic = models.ManyToManyField(
         'main.Clinic', verbose_name="Мед. учреждение"
     )
+
+    @property
+    def age(self):
+        today = date.today()
+        return today.year - self.birth_date.year - \
+            ((today.month, today.day) < (self.birth_date.month, self.birth_date.day))
 
     @property
     def fio(self):

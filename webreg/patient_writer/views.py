@@ -1,4 +1,5 @@
 import datetime
+from django.db.models import Q
 from django.shortcuts import redirect
 from django.views.generic import FormView, TemplateView
 from django.contrib.auth import login
@@ -22,6 +23,7 @@ class PatientWriteFirstStep(FormView):
             request.session['clinic_id'] = form.cleaned_data['clinic_id']
         return super(PatientWriteFirstStep, self).post(request, *args, **kwargs)
 
+
 class Confirm(TemplateView):
     template_name = 'patient_writer/confirm.html'
     def get(self, request, *args, **kwargs):
@@ -40,19 +42,33 @@ class Confirm(TemplateView):
 
 class PatientWriteSecondStep(TemplateView):
     template_name = 'patient_writer/input_second_step.html'
+
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         clinic_id = request.session.get('clinic_id', None)
-        if not clinic_id:
+        patient_id = request.session.get('patient_id' , None)
+        if not clinic_id or not patient_id:
             return redirect("patient_writer:input_first_step")
-        departments = Department.objects.filter(clinic_id=clinic_id)
+        years_old = Patient.objects.get(id=patient_id).age
+        departments = Department.objects.filter(
+            clinic_id=clinic_id,
+            departmentconfig__min_age__lte=years_old,
+            departmentconfig__max_age__gte=years_old)
         context['departments'] = departments
         return self.render_to_response(context)
 
 
 class SpecialistTimeTable(ProfileRequiredMixin, TemplateView):
     template_name = "timetable/specialist_row.html"
+
     def get(self, request, specialist_id, **kwargs):
+        try:
+            patient_id = request.session['patient_id']
+            years_old = Patient.objects.get(id=patient_id).age
+        except Exception as e:
+            return redirect("patient_writer:input_first_step")
+
+        user_profile = request.user_profile
         context = self.get_context_data(**kwargs)
         try:
             specialist = Specialist.objects.get(pk=specialist_id)
@@ -67,7 +83,10 @@ class SpecialistTimeTable(ProfileRequiredMixin, TemplateView):
                 specialization=specialist.specialization,
                 department_config=department.departmentconfig
             )
-            allowed_slot_types = specialization_config.slot_types.values_list('id', flat=True)
+            allowed_slot_types = (user_profile.get_allowed_slots() & specialization_config.slot_types.all()). \
+                exclude(Q(slottypeconfig__min_age__gt=years_old) |
+                        Q(slottypeconfig__max_age__lt=years_old)). \
+                values_list('id', flat=True)
         except SpecializationConfig.DoesNotExist:
             allowed_slot_types = []
         # Получение всех ячеек специалиста за этот период
@@ -84,12 +103,18 @@ class SpecialistTimeTable(ProfileRequiredMixin, TemplateView):
         for date in dates_list:
             times = []
             for time in times_list:
-                if cells.filter(date=date, time_start=time).exists():
-                    color = "#9adacd"
+                try:
+                    color = cells.get(date=date, time_start=time).slot_type.color
                     text = time.strftime("%H:%M")
-                else:
+                except Cell.DoesNotExist:
                     color = "gray"
                     text = ""
+                # if cells.filter(date=date, time_start=time).exists():
+                #     color = "#9adacd"
+                #     text = time.strftime("%H:%M")
+                # else:
+                #     color = "gray"
+                #     text = ""
                 times.append({
                     "text": text,
                     "color": color
@@ -99,6 +124,6 @@ class SpecialistTimeTable(ProfileRequiredMixin, TemplateView):
                 'times': times
             })
         context['dates'] = dates
-        context['timetable_header']="Выберите время"
+        context['timetable_header'] = "Выберите время"
 
         return self.render_to_response(context)
