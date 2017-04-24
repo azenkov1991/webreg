@@ -12,7 +12,7 @@ th.time-header{
   background-color: #4fbfa8;
   text-align: center;
   border: 1px solid #2d7b6b ;
-  #border-radius: 10% 10% 0 0;
+  border-radius: 10% 10% 0 0;
   border-bottom: 4px solid #145d43;
   height: 40px;
   color: white;
