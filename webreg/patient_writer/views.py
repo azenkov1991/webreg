@@ -6,7 +6,7 @@ from django.contrib.auth import login
 from patient_writer.forms import InputFirstStepForm, InputSecondStepForm
 from main.mixins import ProfileRequiredMixin
 from main.logic import *
-from .models import SpecializationConfig
+from .logic import get_allowed_slot_types
 
 
 class PatientWriteFirstStep(FormView):
@@ -64,7 +64,7 @@ class SpecialistTimeTable(ProfileRequiredMixin, TemplateView):
     def get(self, request, specialist_id, **kwargs):
         try:
             patient_id = request.session['patient_id']
-            years_old = Patient.objects.get(id=patient_id).age
+            patient = Patient.objects.get(id=patient_id)
         except Exception as e:
             return redirect("patient_writer:input_first_step")
 
@@ -78,17 +78,7 @@ class SpecialistTimeTable(ProfileRequiredMixin, TemplateView):
         # Определение периода за который берем расписание из настроек отделения
         date_from, date_to = department.departmentconfig.get_date_range()
         # Доступные слоты для отделения
-        try:
-            specialization_config = SpecializationConfig.objects.get(
-                specialization=specialist.specialization,
-                department_config=department.departmentconfig
-            )
-            allowed_slot_types = (user_profile.get_allowed_slots() & specialization_config.slot_types.all()). \
-                exclude(Q(slottypeconfig__min_age__gt=years_old) |
-                        Q(slottypeconfig__max_age__lt=years_old)). \
-                values_list('id', flat=True)
-        except SpecializationConfig.DoesNotExist:
-            allowed_slot_types = []
+        allowed_slot_types = get_allowed_slot_types(user_profile, patient, department, specialist.specialization)
         # Получение всех ячеек специалиста за этот период
         cells = Cell.get_free_cells(specialist, date_from, date_to).filter(slot_type__in=allowed_slot_types)
         # Формирование массива всех времен

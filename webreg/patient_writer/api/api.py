@@ -4,8 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from main.mixins import ProfileRequiredMixinForApi
 from main.logic import *
-from patient_writer.models import DepartmentConfig, SpecializationConfig
-
+from patient_writer.models import SpecializationConfig
+from patient_writer.logic import get_allowed_slot_types
 
 class SpecializationConfigSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
@@ -28,21 +28,30 @@ class SpecialistSerializer(serializers.ModelSerializer):
         fields = ('id', 'fio',)
 
 
-class AvailableSpecializaionForDepartment(ProfileRequiredMixinForApi, APIView):
+class AvailableSpecializaionsForDepartment(ProfileRequiredMixinForApi, APIView):
     def get(self, request, department_id):
         try:
-            department_config = DepartmentConfig.objects.get(department_id=department_id)
-        except DepartmentConfig.DoesNotExist:
-            return Response({})
-        specialization_configs = SpecializationConfig.objects.filter(department_config=department_config)
+            department = Department.objects.get(id=department_id)
+        except Department.DoesNotExist as e:
+            return Response({"Error": str(e)})
+        try:
+            patient_id = request.session.get('patient_id', None)
+            patient = Patient.objects.get(id=patient_id)
+        except Patient.DoesNotExist as e:
+            return Response({"Error": str(e)})
 
-        date_from, date_to = department_config.get_date_range()
+        user_profile = request.user_profile
+        specialization_configs = SpecializationConfig.objects.filter(department_config=department.departmentconfig)
+        date_from, date_to = department.departmentconfig.get_date_range()
         for specialization_config in specialization_configs:
+            allowed_slot_types = get_allowed_slot_types(user_profile, patient,
+                                                        department, specialization_config.specialization)
             # проверка наличия свобоных ячеек
             cell_exists = Cell.objects.filter(
                 date__range=(date_from, date_to),
                 specialist__department_id=department_id,
                 specialist__specialization=specialization_config.specialization,
+                slot_type__in=allowed_slot_types,
                 free=True
             ).exists()
             # настройка показывать комментарий заставляет показывать специальность
@@ -55,44 +64,32 @@ class AvailableSpecializaionForDepartment(ProfileRequiredMixinForApi, APIView):
         return Response(SpecializationConfigSerializer(specialization_configs, many=True).data)
 
 
-class AvailableSpecialist(ProfileRequiredMixinForApi, APIView):
+class AvailableSpecialists(ProfileRequiredMixinForApi, APIView):
     def get(self, request, **kwargs):
         try:
-            patient_id = request.session['patient_id']
-            years_old = Patient.objects.get(id=patient_id).age
+            patient = Patient.objects.get(id=request.session['patient_id'])
         except Exception as e:
             return Response({"Error": str(e)})
         user_profile = request.user_profile
         department_id = kwargs.get('department_id', None)
         specilization_id = kwargs.get('specialization_id', None)
-        if department_id:
-            specialists = Specialist.objects.filter(department_id=department_id)
-        else:
-            specialists = Specialist.objects.all()
-        if specilization_id:
-            specialists = specialists.filter(specialization_id=specilization_id)
+
         try:
-            department_config = DepartmentConfig.objects.get(department_id=department_id)
-        except DepartmentConfig.DoesNotExist as e:
+            specialization = Specialization.objects.get(id=specilization_id)
+        except Specialization.DoesNotExist as e:
             return Response({"Error": str(e)})
 
-        # Доступные слоты для отделения
         try:
-            specialization_config = SpecializationConfig.objects.get(
-                specialization_id=specilization_id,
-                department_config=department_config.id
-            )
-            allowed_slot_types = (user_profile.get_allowed_slots() & specialization_config.slot_types.all()). \
-                exclude(Q(slottypeconfig__min_age__gt=years_old) |
-                        Q(slottypeconfig__max_age__lt=years_old)). \
-                values_list('id', flat=True)
-        except SpecializationConfig.DoesNotExist:
-            allowed_slot_types = []
-        print(allowed_slot_types)
-        user_profile = request.user_profile
-        specialists = user_profile.get_allowed_specialists(specialists)
-        date_from, date_to = department_config.get_date_range()
+            department = Department.objects.get(id=department_id)
+        except Department.DoesNotExist as e:
+            return Response({"Error": str(e)})
 
+        allowed_slot_types = get_allowed_slot_types(user_profile, patient, department, specialization)
+        specialists = user_profile.get_allowed_specialists(Specialist.objects.filter(
+            department=department,
+            specialization=specialization
+        ))
+        date_from, date_to = department.departmentconfig.get_date_range()
         # проверка на доступные для записи ячейки
         for specialist in specialists:
             cell_exists = Cell.objects.filter(
@@ -103,5 +100,4 @@ class AvailableSpecialist(ProfileRequiredMixinForApi, APIView):
             ).exists()
             if not cell_exists:
                 specialists = specialists.exclude(id=specialist.id)
-
         return Response(SpecialistSerializer(specialists, many=True).data)

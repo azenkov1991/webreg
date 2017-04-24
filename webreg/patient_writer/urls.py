@@ -1,12 +1,11 @@
 from django.conf.urls import url
 from django.views.generic.base import TemplateView
 from patient_writer.views import PatientWriteFirstStep, PatientWriteSecondStep, Confirm, SpecialistTimeTable
-from patient_writer.api.api import AvailableSpecialist, AvailableSpecializaionForDepartment
-
+from patient_writer.api.api import AvailableSpecialists, AvailableSpecializaionsForDepartment
 
 apiurlpatterns = [
-    url(r'^avail_specialists/(?P<department_id>\d+)/(?P<specialization_id>\d+)', AvailableSpecialist.as_view()),
-    url(r'^specializations_for_dep/(\d+)', AvailableSpecializaionForDepartment.as_view()),
+    url(r'^avail_specialists/(?P<department_id>\d+)/(?P<specialization_id>\d+)', AvailableSpecialists.as_view()),
+    url(r'^specializations_for_dep/(\d+)', AvailableSpecializaionsForDepartment.as_view()),
 ]
 urlpatterns = [
     url(r'^input_first_step/$', PatientWriteFirstStep.as_view(), name="input_first_step"),

@@ -5,6 +5,7 @@ from catalogs.models import OKMUService
 from mixins.admin import safe_delete_mixin_admin
 from main.forms import UserProfileForm
 
+
 class DepartmentAdmin(admin.ModelAdmin):
     list_display = ('name', 'clinic')
 
@@ -64,7 +65,6 @@ class AppointmentAdmin(admin.ModelAdmin):
 class CellAdmin(admin.ModelAdmin):
     list_display = ('date', 'time_start', 'time_end', 'cabinet', 'specialist')
     list_filter = ('date', 'specialist')
-    search_fields = ('specialist', 'date')
     ordering = ('-date', 'specialist')
     raw_id_fields = ('performing_services',)
     autocomplete_lookup_fields = {
