@@ -12,6 +12,7 @@
                 var numberOfColumns = carousel.find('ul li').length;
                 var numberColumnsFits = Math.floor(carousel.parent().innerWidth() / (cellWidth));
                 var numberOfVisibleColumns = numberColumnsFits;
+
                 if (numberOfColumns <= numberColumnsFits){
                     numberOfVisibleColumns = numberOfColumns;
                     controlPrev.hide();
@@ -32,6 +33,14 @@
         });
         controlNext.jcarouselControl({
                 target: '+=1'
-            });
+        });
+        $('.jcarousel-wrapper').on('swipeleft', function (event) {
+           event.stopPropagation();
+           jcarousel.jcarousel('scroll', '+=1')
+        });
+        $('.jcarousel-wrapper').on('swiperight', function (event) {
+           event.stopPropagation();
+           jcarousel.jcarousel('scroll', '-=1')
+        });
     });
 })(jQuery);

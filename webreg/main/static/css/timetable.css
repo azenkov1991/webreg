@@ -23,4 +23,7 @@ table.day-table{
   border-collapse: collapse;
   border: 2px solid #f0fffa;
   border-spacing: 2px 2px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
