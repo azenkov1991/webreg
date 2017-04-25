@@ -6,6 +6,7 @@ $(document).ready(function () {
     var specialistSelect = $('#id_specialist');
     var specialityForm = $('#speciality-form');
     var specialistForm = $('#specialist-form');
+    var timeTableWidget = $('#id_timetable');
 
     // Для хранения полученных специализаций
     var specializations = {};
@@ -26,6 +27,7 @@ $(document).ready(function () {
     var clearComment = function(){
         commentContainer.slideUp();
     };
+
     // Функция получения доступных специальностей для подразделения
     // Вставка в селект специализаций
     var getSpecializations = function (departmentId) {
@@ -52,7 +54,7 @@ $(document).ready(function () {
                     setError('Ошибка: ' + errorType + ' ' + errorMessage);
                 }
             }
-        )
+        );
     };
 
     // Функция получения доступных специалистов
@@ -79,14 +81,40 @@ $(document).ready(function () {
             error: function(request, errorType, errorMessage){
                 setError('Ошибка: ' + errorType + ' ' + errorMessage);
             }
-        })
+        });
+    };
+
+    // Функция вставки расписания
+    var getTimeTable = function(specialistId){
+        $.ajax('/pwriter/timetable/specialist/' + specialistId, {
+           success: function (html) {
+               timeTableWidget.html(html);
+                $('#timetable-form').slideDown();
+                // Действие по выбору ячейки
+                $('.time-cell').on('click', function () {
+                    if($(this).attr('id')){
+                        $('.time-cell').removeClass('time-select');
+                        $(this).addClass('time-select');
+                        console.log($(this).attr('date'));
+                        console.log($(this).attr('time'));
+                        console.log($(this).attr('id'));
+                    }
+                })
+           },
+            error: function (request, errorType, errorMessage) {
+               setError('Ошибка: ' + errorType + ' ' + errorMessage);
+            }
+        });
     };
 
     specialitySelect.on('change', function (event) {
         var specialityId = $(this).val();
         var departmentId = departmentSelect.val();
+        specialistForm.slideUp();
         getSpecialists(departmentId, specialityId);
         clearComment();
+
+        // Показать коментарий специализации если есть
         if (specializations[specialityId].is_show_comment &&
             specializations[specialityId].comment
         ){
@@ -104,4 +132,12 @@ $(document).ready(function () {
         clearError();
     });
     departmentSelect.val(-1);
+
+    specialistSelect.on('change', function (event) {
+       var specialistId = $(this).val();
+       getTimeTable(specialistId);
+    });
+
+
+
 });

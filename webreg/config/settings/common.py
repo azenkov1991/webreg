@@ -126,7 +126,7 @@ DEFAULT_PROFILE_SETTINGS_NAME = "default"
 
 LANGUAGE_CODE = 'ru'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Krasnoyarsk'
 
 USE_I18N = True
 

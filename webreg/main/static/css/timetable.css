@@ -1,7 +1,14 @@
 td.time-cell{
   width: 75px;
   text-align: center;
-  border: 2px solid #f0fffa;
+  border: 1px solid #f0fffa;
+}
+td.time-cell:hover{
+  cursor: pointer;
+}
+
+.time-select{
+  border: 2px solid !important;
 }
 tr.time-row {
   height: 25px;
@@ -22,7 +29,6 @@ th.time-header{
 table.day-table{
   border-collapse: collapse;
   border: 2px solid #f0fffa;
-  border-spacing: 2px 2px;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;

@@ -1,13 +1,9 @@
-{% extends 'base.html' %}
 {% load static %}
-
-{% block content %}
-
 <link rel="stylesheet" href = "{% static 'css/timetable.css' %}"/>
-<link rel="stylesheet" href = "{% static 'css/timetablecarousel.css' %}">
+<link rel="stylesheet" href = "{% static 'css/timetablecarousel.css' %}"/>
 <script type="text/javascript" src="{% static 'library/jcarousel/vendor/jquery/jquery.js' %}"></script>
+<script type="text/javascript" src="{% static 'library/jquery-touchswipe/jquery.touchSwipe.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'library/jcarousel/dist/jquery.jcarousel.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'library/jquery-mobile-bower/js/jquery.mobile-1.4.5.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/timetablecarousel.js' %}"></script>
 
 
@@ -50,7 +46,6 @@
 
 </div>
 
-{% endblock %}
 
 
 

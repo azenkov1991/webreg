@@ -14,7 +14,7 @@
   {% endif%}
   {% for time in times %}
   <tr class="time-row">
-    <td class="time-cell" style="background-color: {{time.color}}">
+    <td class="time-cell" id="{{time.id}}" date="{{time.date}} {{time.date | day_week | title}}." time="{{time.time}}" style="background-color: {{time.color}}">
       {{ time.text }}
     </td>
   </tr>

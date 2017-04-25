@@ -24,23 +24,23 @@
                 }
                 var calcWidth = Math.floor(numberOfVisibleColumns * (cellWidth));
                 jcarousel.css('width',  calcWidth + 'px');
-
             })
             .jcarousel();
-
         controlPrev.jcarouselControl({
                 target: '-=1'
         });
         controlNext.jcarouselControl({
                 target: '+=1'
         });
-        $('.jcarousel-wrapper').on('swipeleft', function (event) {
-           event.stopPropagation();
-           jcarousel.jcarousel('scroll', '+=1')
+
+        $('.jcarousel-wrapper').swipe( {
+            swipeRight:function(event) {
+                jcarousel.jcarousel('scroll', '-=1')
+            },
+            swipeLeft:function(event) {
+                jcarousel.jcarousel('scroll', '+=1')
+            }
         });
-        $('.jcarousel-wrapper').on('swiperight', function (event) {
-           event.stopPropagation();
-           jcarousel.jcarousel('scroll', '-=1')
-        });
+
     });
 })(jQuery);

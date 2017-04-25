@@ -79,8 +79,15 @@ class SpecialistTimeTable(ProfileRequiredMixin, TemplateView):
         date_from, date_to = department.departmentconfig.get_date_range()
         # Доступные слоты для отделения
         allowed_slot_types = get_allowed_slot_types(user_profile, patient, department, specialist.specialization)
+
+        # для исключения ячеек котрые попадают в защитный интервал дня
+        today = datetime.datetime.today()
+        time_before = (today + datetime.timedelta(minutes=department.departmentconfig.today_time_interval)).time()
+
         # Получение всех ячеек специалиста за этот период
-        cells = Cell.get_free_cells(specialist, date_from, date_to).filter(slot_type__in=allowed_slot_types)
+        cells = Cell.get_free_cells(specialist, date_from, date_to).filter(slot_type__in=allowed_slot_types).\
+            exclude(date=today.date(), time_start__lte=time_before)
+
         # Формирование массива всех времен
         times_set = set()
         dates_set = set()
@@ -94,11 +101,14 @@ class SpecialistTimeTable(ProfileRequiredMixin, TemplateView):
             times = []
             for time in times_list:
                 try:
-                    color = cells.get(date=date, time_start=time).slot_type.color
+                    cell = cells.get(date=date, time_start=time)
+                    color = cell.slot_type.color
                     text = time.strftime("%H:%M")
+                    id = cell.id
                 except Cell.DoesNotExist:
                     color = "gray"
                     text = ""
+                    id = ""
                 # if cells.filter(date=date, time_start=time).exists():
                 #     color = "#9adacd"
                 #     text = time.strftime("%H:%M")
@@ -107,7 +117,10 @@ class SpecialistTimeTable(ProfileRequiredMixin, TemplateView):
                 #     text = ""
                 times.append({
                     "text": text,
-                    "color": color
+                    "color": color,
+                    "id": id,
+                    "time": time,
+                    "date": date
                 })
             dates.append({
                 'date': date,
