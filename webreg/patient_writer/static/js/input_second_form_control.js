@@ -1,12 +1,17 @@
 $(document).ready(function () {
     var errorContainer = $('#error-message');
-    var commentContainer = $('#comment-message');
+    var commentContainer = $('#speciality-comment-message');
     var departmentSelect = $('#id_department');
     var specialitySelect = $('#id_speciality');
     var specialistSelect = $('#id_specialist');
     var specialityForm = $('#speciality-form');
     var specialistForm = $('#specialist-form');
+    var timetableForm = $('#timetable-form');
     var timeTableWidget = $('#id_timetable');
+    var loadingMessage = $('#id_loading_message');
+    var showTimeTableButton = $('#show-timetable-button');
+    var selectedDateTime = $('#id_selected_datetime');
+    var timeTableModalWindow = $('#timetable-modal-window');
 
     // Для хранения полученных специализаций
     var specializations = {};
@@ -89,15 +94,19 @@ $(document).ready(function () {
         $.ajax('/pwriter/timetable/specialist/' + specialistId, {
            success: function (html) {
                timeTableWidget.html(html);
-                $('#timetable-form').slideDown();
+               loadingMessage.hide();
                 // Действие по выбору ячейки
                 $('.time-cell').on('click', function () {
                     if($(this).attr('id')){
                         $('.time-cell').removeClass('time-select');
                         $(this).addClass('time-select');
-                        console.log($(this).attr('date'));
-                        console.log($(this).attr('time'));
-                        console.log($(this).attr('id'));
+                        var result = '<p><b>' + $(this).attr("date") + '</b></p>' +
+                            '<p><b>' + $(this).attr("dayWeek") + '</b></p>' +
+                            '<p><b>' + $(this).attr('time') + '</b></p>';
+                        selectedDateTime.html(result);
+                        selectedDateTime.show();
+                        showTimeTableButton.html('Выбрать заново');
+                        timeTableModalWindow.modal('hide');
                     }
                 })
            },
@@ -107,10 +116,20 @@ $(document).ready(function () {
         });
     };
 
+    // Показать виджет выбора расписания при нажатии на кнопку
+    showTimeTableButton.on('click', function (event) {
+        timeTableWidget.empty();
+        timeTableModalWindow.modal('show');
+        loadingMessage.show();
+        var specialistId = specialistSelect.val();
+        getTimeTable(specialistId);
+    });
+
     specialitySelect.on('change', function (event) {
         var specialityId = $(this).val();
         var departmentId = departmentSelect.val();
-        specialistForm.slideUp();
+        timetableForm.hide();
+        specialistForm.hide();
         getSpecialists(departmentId, specialityId);
         clearComment();
 
@@ -124,20 +143,22 @@ $(document).ready(function () {
 
     departmentSelect.on('change', function (event) {
         var departmentId = $(this).val();
+        timetableForm.hide();
+        specialistForm.hide();
+        specialityForm.hide();
         getSpecializations(departmentId);
+    });
+
+    specialistSelect.on('change', function (event) {
+        timetableForm.slideDown();
+        showTimeTableButton.trigger('click');
     });
 
     // При изменении формы убирается окно с ошибками
     $('#input_form_2').on('change',function () {
         clearError();
     });
+
     departmentSelect.val(-1);
-
-    specialistSelect.on('change', function (event) {
-       var specialistId = $(this).val();
-       getTimeTable(specialistId);
-    });
-
-
 
 });

@@ -42,6 +42,8 @@
           </div>
         </div>
       </div>
+      <div id="speciality-comment-message" class="alert" style="display: none">
+      </div>
       <div id="specialist-form" class="form-group" style="display:none">
         <label for="id_specialist" class="control-label requiredField">
           Специалист <span class="asteriskField">*</span>
@@ -63,20 +65,44 @@
           </div>
         </div>
       </div>
+
       <div id="timetable-form" class="form-group" style="display: none">
         <label>
           Выберите дату и время <span class="asteriskField">*</span>
         </label>
-        <div id="id_timetable">
+        <div class="has-border">
+          <div id="id_selected_datetime" style="display: none">
+          </div>
+          <button id="show-timetable-button" type="button" class="btn btn-primary btn-block">
+            ВЫБРАТЬ
+          </button>
         </div>
-      </div>
-      <div id="comment-message" class="alert" style="display: none">
+        <input id="id_cell" type="hidden">
+        <div  class="modal fade" id="timetable-modal-window">
+          <div>
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="btn btn-primary btn-block" data-dismiss="modal">
+                  <span class="glyphicon glyphicon-chevron-left"></span>Назад
+                </button>
+              </div>
+              <div id="id_loading_message" style="display: none">
+                <h4>Загрузка расписания...</h4>
+                <div class="loader">
+                </div>
+              </div>
+              <div class="modal-body" id="id_timetable">
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-block" data-dismiss="modal">Закрыть</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div id="error-message" class="alert alert-danger" style="display:none;">
       </div>
-      <div>
-     </div>
-     </form>
+    </form>
      <div class="row col-xs-12 col-sm-6 col-sm-offset-3 form-btn">
       <a class="btn btn-primary btn-lg btn-block" href="{% url 'patient_writer:input_first_step' %}"><span class="glyphicon glyphicon-chevron-left"></span> Назад</a>
      </div>
@@ -86,5 +112,8 @@
 
 {% block javascript %}
 {{ block.super}}
+    <script type="text/javascript" src="{% static 'js/timetablecarousel.js' %}"></script>
+<script type="text/javascript" src="{% static 'library/jquery-touchswipe/jquery.touchSwipe.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'library/jcarousel/dist/jquery.jcarousel.min.js' %}"></script>
     <script src="{% static '/js/input_second_form_control.js' %}"></script>
 {% endblock javascript%}

@@ -8,6 +8,9 @@
 body {
   background-color: #f0fffa;
 }
+.modal-content{
+  background-color: #f0fffa;
+}
 
 .list-group-item{
   background-color: #9adacd;

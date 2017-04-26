@@ -11,9 +11,7 @@ td.time-cell:hover{
   border: 2px solid !important;
 }
 tr.time-row {
-  height: 25px;
-  margin: 20px;
-  padding: 20px;
+  height: 23px;
 }
 th.time-header{
   background-color: #4fbfa8;
