@@ -46,7 +46,7 @@ class PatientWriteSecondStep(TemplateView):
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         clinic_id = request.session.get('clinic_id', None)
-        patient_id = request.session.get('patient_id' , None)
+        patient_id = request.session.get('patient_id', None)
         if not clinic_id or not patient_id:
             return redirect("patient_writer:input_first_step")
         years_old = Patient.objects.get(id=patient_id).age
@@ -55,6 +55,29 @@ class PatientWriteSecondStep(TemplateView):
             departmentconfig__min_age__lte=years_old,
             departmentconfig__max_age__gte=years_old)
         context['departments'] = departments
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        speciality_id = request.POST['speciality']
+        specialist_id = request.POST['specialist']
+        department_id = request.POST['department']
+        user_profile = request.user_profile
+        # TODO: Проверка разрешения на запись в ячейку
+        cell_id = request.POST['cell']
+        request.session['cell_id'] = cell_id
+        return redirect("patient_writer:talon")
+
+
+class TalonView(TemplateView):
+    template_name = 'patient_writer/talon.html'
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        try:
+            cell = Cell.objects.get(id=request.session['cell_id'])
+        except Exception as e:
+            context['error'] = str(e)
+        context['cell'] = cell
         return self.render_to_response(context)
 
 

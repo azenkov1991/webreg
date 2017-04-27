@@ -13,6 +13,9 @@ $(document).ready(function () {
     var selectedDateTime = $('#id_selected_datetime');
     var timeTableModalWindow = $('#timetable-modal-window');
 
+    var backButton = $('#back-button');
+    var writeButton = $('#write-button');
+
     // Для хранения полученных специализаций
     var specializations = {};
 
@@ -100,12 +103,15 @@ $(document).ready(function () {
                     if($(this).attr('id')){
                         $('.time-cell').removeClass('time-select');
                         $(this).addClass('time-select');
-                        var result = '<p><b>' + $(this).attr("date") + '</b></p>' +
-                            '<p><b>' + $(this).attr("dayWeek") + '</b></p>' +
-                            '<p><b>' + $(this).attr('time') + '</b></p>';
-                        selectedDateTime.html(result);
+                        $('#id_selected_date').html($(this).attr("date"));
+                        $('#id_selected_time').html($(this).attr('time'));
+                        $('#id_selected_dayweek').html($(this).attr("dayWeek"));
+                        $('#id_cell').val($(this).attr("id"));
                         selectedDateTime.show();
                         showTimeTableButton.html('Выбрать заново');
+                        backButton.hide();
+                        writeButton.show();
+
                         timeTableModalWindow.modal('hide');
                     }
                 })
@@ -128,6 +134,8 @@ $(document).ready(function () {
     specialitySelect.on('change', function (event) {
         var specialityId = $(this).val();
         var departmentId = departmentSelect.val();
+        writeButton.hide();
+        backButton.show();
         timetableForm.hide();
         specialistForm.hide();
         getSpecialists(departmentId, specialityId);
@@ -143,6 +151,8 @@ $(document).ready(function () {
 
     departmentSelect.on('change', function (event) {
         var departmentId = $(this).val();
+        writeButton.hide();
+        backButton.show();
         timetableForm.hide();
         specialistForm.hide();
         specialityForm.hide();
@@ -150,6 +160,8 @@ $(document).ready(function () {
     });
 
     specialistSelect.on('change', function (event) {
+        writeButton.hide();
+        backButton.show();
         timetableForm.slideDown();
         showTimeTableButton.trigger('click');
     });

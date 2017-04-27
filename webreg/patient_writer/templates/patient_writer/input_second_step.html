@@ -8,6 +8,7 @@
   <div class="col-xs-10 col-xs-offset-1">
     <h3>ВЫБЕРИТЕ ДАТУ И ВРЕМЯ</h3>
     <form id="input_form_2" method="POST" action="{% url 'patient_writer:input_second_step' %}">
+      {% csrf_token %}
       <div id="department-form" class="form-group">
         <label for="id_department" class="control-label requiredField">
           Подразделение <span class="asteriskField">*</span>
@@ -66,18 +67,36 @@
         </div>
       </div>
 
-      <div id="timetable-form" class="form-group" style="display: none">
+      <div id="timetable-form" class="row container-fluid form-group" style="display: none">
         <label>
           Выберите дату и время <span class="asteriskField">*</span>
         </label>
         <div class="has-border">
-          <div id="id_selected_datetime" style="display: none">
+          <div id="id_selected_datetime" style="display: none;">
+            <div class="row">
+	            <label class="col-sm-5">
+		            Дата приема:
+              </label>
+              <div class="col-sm-5 form-value">
+                <div  id="id_selected_date">
+                </div>
+                <div  id="id_selected_dayweek">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+	            <label class="col-sm-5">
+		            Время приема:
+              </label>
+              <div class = "col-xs-12 col-sm-5 form-value" id="id_selected_time">
+              </div>
+            </div>
           </div>
           <button id="show-timetable-button" type="button" class="btn btn-primary btn-block">
             ВЫБРАТЬ
           </button>
         </div>
-        <input id="id_cell" type="hidden">
+        <input id="id_cell" type="hidden" name="cell">
         <div  class="modal fade" id="timetable-modal-window">
           <div>
             <div class="modal-content">
@@ -102,10 +121,11 @@
       </div>
       <div id="error-message" class="alert alert-danger" style="display:none;">
       </div>
-    </form>
      <div class="row col-xs-12 col-sm-6 col-sm-offset-3 form-btn">
-      <a class="btn btn-primary btn-lg btn-block" href="{% url 'patient_writer:input_first_step' %}"><span class="glyphicon glyphicon-chevron-left"></span> Назад</a>
+      <a id="back-button" class="btn btn-primary btn-lg btn-block" href="{% url 'patient_writer:input_first_step' %}"><span class="glyphicon glyphicon-chevron-left"></span> Назад</a>
+      <button type="submit" id="write-button" class="btn btn-primary btn-lg btn-block" style="display: none">Записаться</button>
      </div>
+      </form>
     </div>
   </div>
 {% endblock content %}
