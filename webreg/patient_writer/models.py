@@ -28,6 +28,10 @@ class SpecializationConfig(models.Model):
     slot_types = models.ManyToManyField(
         "main.SlotType", verbose_name="Разрешенные типы слотов"
     )
+    service = models.ForeignKey(
+        "catalogs.OKMUService",
+        verbose_name="Назначаемая услуга",
+    )
     enable = models.BooleanField(
         default=True, verbose_name="Вкл"
     )
@@ -42,6 +46,18 @@ class SpecializationConfig(models.Model):
         unique_together = ('specialization', 'department_config')
         verbose_name = "Настройки для специализации"
         verbose_name_plural = "Настройки для специализаций"
+
+
+class SpecialistConfig(models.Model):
+    specialist = models.OneToOneField(
+        "main.Specialist",
+        verbose_name="Specialist"
+    )
+    service = models.ForeignKey(
+        "catalogs.OKMUService",
+        verbose_name="Услуга для назначения",
+        null=True, blank=True
+    )
 
 
 class DepartmentConfig(models.Model):

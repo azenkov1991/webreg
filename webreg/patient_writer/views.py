@@ -58,12 +58,18 @@ class PatientWriteSecondStep(ProfileRequiredMixin, TemplateView):
         return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):
-        speciality_id = request.POST['speciality']
-        specialist_id = request.POST['specialist']
-        department_id = request.POST['department']
+        try:
+            speciality_id = request.POST['speciality']
+            specialist_id = request.POST['specialist']
+            department_id = request.POST['department']
+            cell_id = request.POST['cell']
+            patient_id = request.session['patient_id']
+        except KeyError:
+            redirect('patient_writer:input_second_step')
         user_profile = request.user_profile
         # TODO: Проверка разрешения на запись в ячейку
-        cell_id = request.POST['cell']
+        cell = Cell.objects.get(id=cell_id)
+        specialist = Specialist.objects.get(id=specialist_id)
         request.session['cell_id'] = cell_id
         return redirect("patient_writer:talon")
 

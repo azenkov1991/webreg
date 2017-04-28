@@ -39,12 +39,13 @@ class UserProfile(models.Model):
         """
         return self.profile_settings.slot_restrictions.all()
 
-    def get_allowed_slots(self):
+    def get_allowed_slots(self, initial_slot_query_set=None):
         """
         :return:
         Возвращает query_set разрешенных типов слотов
         """
-        slot_restrictions = self.profile_settings.slot_restrictions.all()
+        if initial_slot_query_set is None:
+            slot_restrictions = self.profile_settings.slot_restrictions.all()
         if slot_restrictions.exists():
             return slot_restrictions
         else:
@@ -57,8 +58,8 @@ class UserProfile(models.Model):
         :return:
         Возвращает доступных для назначения специалистов
         """
-        if not initial_specialist_query_set:
-            initial_specialist_query_set=Specialist.objects.all()
+        if initial_specialist_query_set is None:
+            initial_specialist_query_set = Specialist.objects.all()
 
         # проверка на ограничение разрешенных для назначений специалистов
         specialist_restrictions = self.profile_settings.specialist_restrictions.all()
@@ -66,7 +67,6 @@ class UserProfile(models.Model):
             specialist_restrictions = initial_specialist_query_set
 
         return initial_specialist_query_set & specialist_restrictions
-
 
     def get_allowed_services(self, initial_service_query_set=None):
         """
@@ -76,7 +76,7 @@ class UserProfile(models.Model):
         Возвращает доступные для назначения услуги
         """
 
-        if not initial_service_query_set:
+        if initial_service_query_set is None:
             initial_service_query_set = OKMUService.objects.all()
 
         # проверка на ограничение услуг сайта
