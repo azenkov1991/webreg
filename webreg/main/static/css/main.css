@@ -65,8 +65,13 @@ label{
 }
 
 .form-value{
-  text-align: center;
+  text-align: left;
   font-weight: bold;
+}
+
+.zero-side-padding{
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .question-mark{
