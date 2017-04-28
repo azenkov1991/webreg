@@ -40,7 +40,7 @@ class Confirm(TemplateView):
         return self.render_to_response(context)
 
 
-class PatientWriteSecondStep(TemplateView):
+class PatientWriteSecondStep(ProfileRequiredMixin, TemplateView):
     template_name = 'patient_writer/input_second_step.html'
 
     def get(self, request, *args, **kwargs):
@@ -68,7 +68,7 @@ class PatientWriteSecondStep(TemplateView):
         return redirect("patient_writer:talon")
 
 
-class TalonView(TemplateView):
+class TalonView(ProfileRequiredMixin, TemplateView):
     template_name = 'patient_writer/talon.html'
 
     def get(self, request, *args, **kwargs):

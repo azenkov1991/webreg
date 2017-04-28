@@ -102,6 +102,9 @@ class SiteServicePermissoionAdmin(admin.ModelAdmin):
         'm2m': ['services', ]
     }
 
+class SiteConfigAdmin(admin.ModelAdmin):
+    list_display = ('site',)
+
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('name', 'site', 'users_str')
     form = UserProfileForm
@@ -119,4 +122,5 @@ admin.site.register(NumberOfServiceRestriction, NumberOfServiceRestrictionAdmin)
 admin.site.register(SlotType, admin.ModelAdmin)
 admin.site.register(ProfileSettings, ProfileSettingsAdmin)
 admin.site.register(SiteServiceRestriction, SiteServicePermissoionAdmin)
+admin.site.register(SiteConfig, SiteConfigAdmin)
 
