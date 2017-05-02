@@ -7,6 +7,7 @@ from main.logic import *
 from patient_writer.models import SpecializationConfig
 from patient_writer.logic import get_allowed_slot_types
 
+
 class SpecializationConfigSerializer(serializers.ModelSerializer):
     id = serializers.SerializerMethodField()
     name = serializers.SerializerMethodField()
@@ -74,6 +75,17 @@ class AvailableSpecialists(ProfileRequiredMixinForApi, APIView):
         department_id = kwargs.get('department_id', None)
         specilization_id = kwargs.get('specialization_id', None)
 
+        # Если есть уже назначения специалистов не выдавать, а просто сообщение
+
+        existing_appointment = Appointment.objects.filter(
+            patient=patient,
+            date__gte=datetime.datetime.today().date(),
+            specialist__specialization_id=specilization_id
+        ).first()
+        if existing_appointment:
+            return Response({"Message": "Вы уже записаны на " + existing_appointment.date.strftime('%d.%m.%Y') +
+                             " " + existing_appointment.cell.time_start.strftime("%H:%M") +
+                             ". Врач: " + existing_appointment.specialist.fio})
         try:
             specialization = Specialization.objects.get(id=specilization_id)
         except Specialization.DoesNotExist as e:

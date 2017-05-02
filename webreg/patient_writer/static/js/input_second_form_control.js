@@ -72,6 +72,9 @@ $(document).ready(function () {
             success: function (specialistMas){
                 var options = specialistSelect.children();
                 options.slice(1,options.length).remove();
+                if ('Message' in specialistMas){
+                    showComment(specialistMas['Message']);
+                }
                 if (!specialistMas.length || !(specialistMas instanceof Object)){
                     setError('Для этой специальности нет доступных специалистов');
                 }
@@ -111,6 +114,7 @@ $(document).ready(function () {
                         showTimeTableButton.html('Выбрать заново');
                         backButton.hide();
                         writeButton.show();
+                        clearError();
 
                         timeTableModalWindow.modal('hide');
                     }
@@ -151,6 +155,7 @@ $(document).ready(function () {
 
     departmentSelect.on('change', function (event) {
         var departmentId = $(this).val();
+        clearComment();
         writeButton.hide();
         backButton.show();
         timetableForm.hide();

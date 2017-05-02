@@ -1,5 +1,6 @@
 {% extends 'patient_writer/base.html' %}
 {% block content %}
+{% if not error %}
 <div class="container-fluid has-frame">
   <h3>ТАЛОН</h3>
   <div id="talon" method="GET" action="">
@@ -27,4 +28,9 @@
     <a class="btn btn-primary btn-lg btn-block zero-side-padding" type="submit" href="{% url 'patient_writer:input_second_step' %}" style="white-space: normal"> <span class="glyphicon glyphicon-pencil"></span> Запись к другому врачу</a>
   </div>
 </div>
+{% else %}
+ <div id="error-message" class="alert alert-danger">
+  {{ error }}
+ </div>
+{% endif %}
 {% endblock content %}

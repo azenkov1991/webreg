@@ -3,10 +3,11 @@ from django.db.models import Q
 from django.shortcuts import redirect
 from django.views.generic import FormView, TemplateView
 from django.contrib.auth import login
-from patient_writer.forms import InputFirstStepForm, InputSecondStepForm
+from django.core.exceptions import PermissionDenied
+from patient_writer.forms import InputFirstStepForm
 from main.mixins import ProfileRequiredMixin
 from main.logic import *
-from .logic import get_allowed_slot_types
+from .logic import get_allowed_slot_types, get_specialist_service
 
 
 class PatientWriteFirstStep(FormView):
@@ -67,10 +68,28 @@ class PatientWriteSecondStep(ProfileRequiredMixin, TemplateView):
         except KeyError:
             redirect('patient_writer:input_second_step')
         user_profile = request.user_profile
-        # TODO: Проверка разрешения на запись в ячейку
         cell = Cell.objects.get(id=cell_id)
         specialist = Specialist.objects.get(id=specialist_id)
+        patient = Patient.objects.get(id=patient_id)
+        department = Department.objects.get(id=department_id)
+        allowed_slot_types = get_allowed_slot_types(user_profile, patient, department, specialist.specialization)
+        if cell.slot_type.id not in allowed_slot_types:
+            raise PermissionDenied
+        service = get_specialist_service(specialist)
+        # Для специализации и специалиста обязательно должна быть настроена услуга
+        if not service:
+            raise PermissionDenied
         request.session['cell_id'] = cell_id
+        if request.session.get('error', None):
+            del request.session['error']
+        try:
+            appointment = create_appointment(
+                user_profile, patient, specialist, service, cell.date, cell
+            )
+            request.session['appointment_id'] = appointment.id
+        except AppointmentError as e:
+            request.session['error'] = str(e)
+            log.error(str(e))
         return redirect("patient_writer:talon")
 
 
@@ -78,11 +97,16 @@ class TalonView(ProfileRequiredMixin, TemplateView):
     template_name = 'patient_writer/talon.html'
 
     def get(self, request, *args, **kwargs):
+        try:
+            appointment_id = request.session['appointment_id']
+        except KeyError:
+            redirect("patient_writer:input_second_step")
         context = self.get_context_data(**kwargs)
         try:
             cell = Cell.objects.get(id=request.session['cell_id'])
         except Exception as e:
             context['error'] = str(e)
+        context['error'] = request.session.get('error', None)
         context['cell'] = cell
         return self.render_to_response(context)
 

@@ -28,7 +28,14 @@ def get_specialist_service(specialist):
     try:
         service = specialist.specialistconfig.service
     # иначе из настроек специализации
-    except SpecialistConfig.DoesNonExist:
-        service = specialist.specialization.specializationconfig.service
+    except SpecialistConfig.DoesNotExist:
+        try:
+            specialization_config = SpecializationConfig.objects.get(
+                specialization=specialist.specialization,
+                department_config=specialist.department.departmentconfig
+            )
+            service = specialization_config.service
+        except SpecializationConfig.DoesNotExist:
+            return None
     return service
 
