@@ -17,6 +17,8 @@
     "tether": "^1.4.0",
     "bootstrap": "^3.3.7",
     "html5shiv": "^3.7.3",
-    "jquery.maskedinput": "jquery-maskedinput#^1.4.1"
+    "jquery.maskedinput": "jquery-maskedinput#^1.4.1",
+    "jcarousel": "^0.3.5",
+    "jquery-touchswipe": "^1.6.18"
   }
 }

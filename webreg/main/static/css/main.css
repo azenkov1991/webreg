@@ -4,9 +4,18 @@ html, body{
   min-height: 600px;
 }
 
-p {
+p{
   text-indent: 20px; /* Отступ первой строки в пикселах */
-  font-family: "Palatino Linotype";
+  font-family: "Verdana";
+}
+
+li{
+  text-indent: 10px; /* Отступ первой строки в пикселах */
+  font-family: "Verdana";
+}
+
+label{
+  color: #145d43;
 }
 
 #body {
@@ -37,14 +46,69 @@ p {
   padding-bottom: 15px;
 }
 
+.has-border{
+  border: 1px solid #2d7b6b;
+  padding: 5px 5px 15px;
+}
+
+.has-bottom-border{
+  border-bottom: 1px solid #2d7b6b;
+}
 .form-btn{
   position: absolute;
   bottom: -37px;
 }
 
 .asteriskField{
-  color: red;
+  color: #d9534f;
   font-size: large;
 }
+
+.form-value{
+  text-align: left;
+  font-weight: bold;
+}
+
+.zero-side-padding{
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.question-mark{
+  font-size: 25px;
+  font-weight: bold;
+  padding: 2px;
+  line-height: 1;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+   position: relative;
+  top: -31px;
+  right: -35px;
+  float: right;
+}
+
+.round{
+  border-radius: 100%;
+}
+
+.question-mark:hover{
+  border-color: #d9534f;
+}
+
+.loader {
+    border: 10px solid #f3f3f3;
+    border-top: 10px solid #2d7b6b;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 
 

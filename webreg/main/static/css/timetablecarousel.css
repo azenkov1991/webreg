@@ -1,0 +1,33 @@
+
+/** Carousel **/
+
+.jcarousel {
+    position: relative;
+    overflow: hidden;
+    width: 750px;
+    margin: auto;
+}
+
+.jcarousel ul {
+    width: 200000em;
+    position: relative;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.jcarousel li {
+    float: left;
+    border: none;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.jcarousel-wrapper{
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+}
+
+

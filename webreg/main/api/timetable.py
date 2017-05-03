@@ -2,7 +2,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from rest_framework import serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from main.mixins import ProfileRequiredMixin
+from main.mixins import ProfileRequiredMixinForApi
 
 
 from main.logic import *
@@ -25,7 +25,6 @@ class PatientSerializer(serializers.ModelSerializer):
         model = Patient
         fields = ('id', 'fio', 'birth_date')
 
-
 class CellSerializer(serializers.ModelSerializer):
     cabinet = CabinetTimeTableSerializer()
     slot_type = SlotTypeSerializer()
@@ -35,7 +34,7 @@ class CellSerializer(serializers.ModelSerializer):
         fields = ('id', 'date', 'time_start', 'time_end', 'cabinet', 'slot_type')
 
 
-class SpecialistsFreeCells(ProfileRequiredMixin, APIView):
+class SpecialistsFreeCells(ProfileRequiredMixinForApi, APIView):
     """
     Возвращает свободные ячейки специалиста
     """

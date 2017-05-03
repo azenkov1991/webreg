@@ -1,7 +1,20 @@
 import datetime
 from django.db import models
 from catalogs.models import OKMUService
+from django.conf import settings, ImproperlyConfigured
 from .specialist import Specialist
+from .profile_settings import ProfileSettings
+from .slot_type import SlotType
+
+
+def get_default_profile_settings():
+    try:
+        name = settings.DEFAULT_PROFILE_SETTINGS_NAME
+        default_profile_settinngs = ProfileSettings.objects.get(name=name).id
+    except ProfileSettings.DoesNotExist:
+        raise ImproperlyConfigured("Не выбраны настройки профиля по умолчанию")
+    return default_profile_settinngs
+
 
 class UserProfile(models.Model):
     name = models.CharField(
@@ -13,7 +26,9 @@ class UserProfile(models.Model):
         null=True, blank=True
     )
     profile_settings = models.ForeignKey(
-        'main.ProfileSettings', verbose_name="Настройки профиля"
+        'main.ProfileSettings', verbose_name="Настройки профиля",
+        on_delete=models.SET(get_default_profile_settings),
+        default=get_default_profile_settings
     )
     site = models.ForeignKey('sites.Site', verbose_name="Сайт")
 
@@ -24,6 +39,18 @@ class UserProfile(models.Model):
         """
         return self.profile_settings.slot_restrictions.all()
 
+    def get_allowed_slots(self, initial_slot_query_set=None):
+        """
+        :return:
+        Возвращает query_set разрешенных типов слотов
+        """
+        if initial_slot_query_set is None:
+            slot_restrictions = self.profile_settings.slot_restrictions.all()
+        if slot_restrictions.exists():
+            return slot_restrictions
+        else:
+            return SlotType.objects.all()
+
     def get_allowed_specialists(self, initial_specialist_query_set=None):
         """
         :param initial_specialist_query_set:
@@ -31,8 +58,8 @@ class UserProfile(models.Model):
         :return:
         Возвращает доступных для назначения специалистов
         """
-        if not initial_specialist_query_set:
-            initial_specialist_query_set=Specialist.objects.all()
+        if initial_specialist_query_set is None:
+            initial_specialist_query_set = Specialist.objects.all()
 
         # проверка на ограничение разрешенных для назначений специалистов
         specialist_restrictions = self.profile_settings.specialist_restrictions.all()
@@ -40,7 +67,6 @@ class UserProfile(models.Model):
             specialist_restrictions = initial_specialist_query_set
 
         return initial_specialist_query_set & specialist_restrictions
-
 
     def get_allowed_services(self, initial_service_query_set=None):
         """
@@ -50,7 +76,7 @@ class UserProfile(models.Model):
         Возвращает доступные для назначения услуги
         """
 
-        if not initial_service_query_set:
+        if initial_service_query_set is None:
             initial_service_query_set = OKMUService.objects.all()
 
         # проверка на ограничение услуг сайта

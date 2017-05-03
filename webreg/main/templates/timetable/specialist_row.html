@@ -1,0 +1,50 @@
+{% load static %}
+<link rel="stylesheet" href = "{% static 'css/timetable.css' %}"/>
+<link rel="stylesheet" href = "{% static 'css/timetablecarousel.css' %}"/>
+
+<div class="container-fluid speicialist-timetable-row">
+  <div class="row">
+    <div class="col-xs-3 control-prev-wrap">
+      <button  class="btn btn-primary round jcarousel-control-prev" style="float:right;" type="button" ><span class="glyphicon glyphicon-chevron-left"></span></button>
+    </div>
+    <div class="col-xs-6" style="margin:auto;text-align: center" >
+      <label> {{ timetable_header }}</label>
+    </div>
+    <div class="col-xs-3 control-next-wrap">
+      <button class="btn btn-primary round jcarousel-control-next" style="float:left;" type="button"><span class="glyphicon glyphicon-chevron-right"></span></button>
+    </div>
+
+  </div>
+  <div class="row">
+    {% comment %}
+    <div class="hidden-xs col-sm-2 control-prev-wrap">
+      <button class="btn btn-primary round jcarousel-control-prev" type="button" style="float:right"><span class="glyphicon glyphicon-chevron-left"></span></button>
+    </div>
+    {% endcomment %}
+      <div class="jcarousel-wrapper">
+        <div class="jcarousel">
+        <ul>
+          {% for date in dates %}
+          <li>
+            {% include 'timetable/specialist_day_column.html' with date=date.date times=date.times show_header=True %}
+          </li>
+          {% endfor %}
+         </ul>
+        </div>
+      </div>
+    {% comment %}
+    <div class="hidden-xs col-sm-2 control-next-wrap">
+      <button class="btn btn-primary round jcarousel-control-next" type="button" style="float:left"><span class="glyphicon glyphicon-chevron-right"></span></button>
+    </div>
+    {% endcomment %}
+  </div>
+
+</div>
+
+<script type="text/javascript" src="{% static 'library/jquery-touchswipe/jquery.touchSwipe.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'library/jcarousel/dist/jquery.jcarousel.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/timetablecarousel.js' %}"></script>
+
+
+
+

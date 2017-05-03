@@ -1,3 +1,139 @@
-{% extends 'base.html' %}
+{% extends 'patient_writer/base.html' %}
 
-<h1>TODO</h1>>
+{% load flatblocks %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid has-frame">
+  <div class="col-xs-10 col-xs-offset-1">
+    <h3>ВЫБЕРИТЕ ДАТУ И ВРЕМЯ</h3>
+    <form id="input_form_2" method="POST" action="{% url 'patient_writer:input_second_step' %}">
+      {% csrf_token %}
+      <div id="department-form" class="form-group">
+        <label for="id_department" class="control-label requiredField">
+          Подразделение <span class="asteriskField">*</span>
+        </label>
+        <div>
+          <select class="select form-control" id="id_department" name="department" required>
+            <option disabled selected value=-1> -- Выберете подразделение -- </option>
+            {% for department in departments %}
+              <option value="{{department.id}}">{{department.name}}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div id="speciality-form" class="form-group" style="display: none">
+        <label for="id_speciality" class="control-label requiredField">
+          Специальность <span class="asteriskField">*</span>
+        </label>
+        <select id="id_speciality" type="text" class="form-control" name="speciality" required>
+          <option disabled selected value=-1> -- Выберете специальность -- </option>
+        </select>
+        <button id="speciality_question" class="btn btn-primary question-mark" type="button" data-toggle="modal" data-target="#speciality_help_modal">?</button>
+        <div id="speciality_help_modal" class="modal fade">
+          <div class="modal-dialog">
+            <div class="modal-content">
+             <div class="modal-body">
+                {% flatblock "speciality_help" %}
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="speciality-comment-message" class="alert" style="display: none">
+      </div>
+      <div id="specialist-form" class="form-group" style="display:none">
+        <label for="id_specialist" class="control-label requiredField">
+          Специалист <span class="asteriskField">*</span>
+        </label>
+        <select id="id_specialist" class="form-control" name="specialist" required>
+          <option disabled selected value=-1> -- Выберите специалиста -- </option>
+        </select>
+        <button id="specialist_question" class="btn btn-primary question-mark" type="button" data-toggle="modal" data-target="#specialist_help_modal">?</button>
+         <div id="specialist_help_modal" class="modal fade">
+          <div class="modal-dialog">
+            <div class="modal-content">
+             <div class="modal-body">
+                {% flatblock "specialist_help" %}
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="timetable-form" class="row container-fluid form-group" style="display: none">
+        <label>
+          Выберите дату и время <span class="asteriskField">*</span>
+        </label>
+        <div class="has-border">
+          <div id="id_selected_datetime" style="display: none;">
+            <div class="row">
+	            <label class="col-sm-5">
+		            Дата приема:
+              </label>
+              <div class="col-sm-5 form-value">
+                <div  id="id_selected_date">
+                </div>
+                <div  id="id_selected_dayweek">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+	            <label class="col-sm-5">
+		            Время приема:
+              </label>
+              <div class = "col-xs-12 col-sm-5 form-value" id="id_selected_time">
+              </div>
+            </div>
+          </div>
+          <button id="show-timetable-button" type="button" class="btn btn-primary btn-block">
+            ВЫБРАТЬ
+          </button>
+        </div>
+        <input id="id_cell" type="hidden" name="cell">
+        <div  class="modal fade" id="timetable-modal-window">
+          <div>
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="btn btn-primary btn-block" data-dismiss="modal">
+                  <span class="glyphicon glyphicon-chevron-left"></span>Назад
+                </button>
+              </div>
+              <div id="id_loading_message" style="display: none">
+                <h4>Загрузка расписания...</h4>
+                <div class="loader">
+                </div>
+              </div>
+              <div class="modal-body" id="id_timetable">
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-block" data-dismiss="modal">Закрыть</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="error-message" class="alert alert-danger" style="display:none;">
+      </div>
+     <div class="row col-xs-12 col-sm-6 col-sm-offset-3 form-btn">
+      <a id="back-button" class="btn btn-primary btn-lg btn-block" href="{% url 'patient_writer:input_first_step' %}"><span class="glyphicon glyphicon-chevron-left"></span> Назад</a>
+      <button type="submit" id="write-button" class="btn btn-primary btn-lg btn-block" style="display: none">Записаться</button>
+     </div>
+      </form>
+    </div>
+  </div>
+{% endblock content %}
+
+{% block javascript %}
+{{ block.super}}
+    <script type="text/javascript" src="{% static 'js/timetablecarousel.js' %}"></script>
+<script type="text/javascript" src="{% static 'library/jquery-touchswipe/jquery.touchSwipe.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'library/jcarousel/dist/jquery.jcarousel.min.js' %}"></script>
+    <script src="{% static '/js/input_second_form_control.js' %}"></script>
+{% endblock javascript%}

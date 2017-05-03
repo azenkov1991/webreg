@@ -6,7 +6,7 @@ class QmsDBAdmin(admin.ModelAdmin):
     pass
 
 class IdMatchingTableAdmin(admin.ModelAdmin):
-    list_display = ('id','external_id')
+    list_display = ('internal_id','external_id')
 
 class QmsUserAdmin(admin.ModelAdmin):
     list_display = ('name', 'qqc244')

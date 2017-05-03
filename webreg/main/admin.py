@@ -5,6 +5,7 @@ from catalogs.models import OKMUService
 from mixins.admin import safe_delete_mixin_admin
 from main.forms import UserProfileForm
 
+
 class DepartmentAdmin(admin.ModelAdmin):
     list_display = ('name', 'clinic')
 
@@ -25,6 +26,7 @@ class SpecialistAdmin(admin.ModelAdmin):
         'fio', 'specialization', 'department',
     )
     list_display_links = ('fio', 'specialization')
+    list_filter = ('specialization',)
     search_fields = ('fio',)
     raw_id_fields = ('performing_services',)
     autocomplete_lookup_fields = {
@@ -63,7 +65,6 @@ class AppointmentAdmin(admin.ModelAdmin):
 class CellAdmin(admin.ModelAdmin):
     list_display = ('date', 'time_start', 'time_end', 'cabinet', 'specialist')
     list_filter = ('date', 'specialist')
-    search_fields = ('specialist', 'date')
     ordering = ('-date', 'specialist')
     raw_id_fields = ('performing_services',)
     autocomplete_lookup_fields = {
@@ -101,6 +102,9 @@ class SiteServicePermissoionAdmin(admin.ModelAdmin):
         'm2m': ['services', ]
     }
 
+class SiteConfigAdmin(admin.ModelAdmin):
+    list_display = ('site',)
+
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('name', 'site', 'users_str')
     form = UserProfileForm
@@ -118,4 +122,5 @@ admin.site.register(NumberOfServiceRestriction, NumberOfServiceRestrictionAdmin)
 admin.site.register(SlotType, admin.ModelAdmin)
 admin.site.register(ProfileSettings, ProfileSettingsAdmin)
 admin.site.register(SiteServiceRestriction, SiteServicePermissoionAdmin)
+admin.site.register(SiteConfig, SiteConfigAdmin)
 

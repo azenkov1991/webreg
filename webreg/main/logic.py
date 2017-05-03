@@ -1,7 +1,9 @@
 import datetime
+import logging
 from main.models import *
 from qmsintegration import decorators as qms
 
+log = logging.getLogger("webreg")
 
 @qms.create_appointment
 def create_appointment(user_profile, patient, specialist, service, date, cell=None, **additional_data):
@@ -60,6 +62,8 @@ def create_appointment(user_profile, patient, specialist, service, date, cell=No
                                   patient=patient)
         if cell:
             appointment.cell = cell
+            cell.free = False
+            cell.save()
         if additional_data:
             appointment.additional_data = additional_data
         appointment.save()

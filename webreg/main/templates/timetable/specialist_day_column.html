@@ -1,0 +1,25 @@
+{% load filters %}
+
+
+
+<table class="day-table">
+  {% if show_header %}
+<tr>
+  <th class="time-header">
+    {{ date | date:"d.m.y" }}
+    <br/>
+    {{ date | short_day_week | upper }}
+  </th>
+</tr>
+  {% endif%}
+  {% for time in times %}
+  <tr class="time-row">
+    <td class="time-cell" id="{{time.id}}" date="{{time.date}}" dayWeek="{{time.date | day_week | title}}" time="{{time.time}}" style="background-color: {{time.color}}">
+      {{ time.text }}
+    </td>
+  </tr>
+{% endfor %}
+</table>
+
+
+

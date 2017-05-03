@@ -2,7 +2,7 @@ __all__= [
     'AppointmentError', 'PatientError', 'Appointment',
     'Cabinet', 'Cell', 'Clinic', 'Department', 'NumberOfServiceRestriction','Patient',
     'ProfileSettings', 'SiteServiceRestriction', 'SlotType', 'Specialist', 'Specialization', 'UserProfile',
-    'SlotRestriction','ServiceRestriction','SpecialistRestriction'
+    'SlotRestriction', 'ServiceRestriction', 'SpecialistRestriction', 'SiteConfig'
 ]
 
 from .appointment import *
@@ -18,6 +18,7 @@ from .slot_type import *
 from .specialist import *
 from .specialization import *
 from .user_profile import *
+from .site_config import *
 
 class AppointmentError(Exception):
     pass
