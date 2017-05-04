@@ -185,7 +185,7 @@ class QMS:
         return cell_list
 
     def create_appointment(self, user, patient, specialist, service, date, time_start=None, time_end=None,
-                           **additional_data):
+                           episode_type=1, create_if=True, **additional_data):
         """
         Функция создания назначения в qms
         :param user: qqc244 специалиста от которого назначаем
@@ -195,6 +195,8 @@ class QMS:
         :param date: дата назначения
         :param time_start: время назначения. Если время назначения None, то назначение в очередь
         :param time_end:
+        :param episode_type: Тип эпизода 1 - АМБУЛАТОРНО, 2 - СТАЦИОНАРНО
+        :param create_if: True - создавать источник финансирования
         :additional_data: - дополнительные параметры создания назначений
             diagnos_code - код диагноза направлений
             diagnos_description - описание диагноза
@@ -215,7 +217,7 @@ class QMS:
             qqc174 = self.query.result
             if not qqc174:
                 self.query.execute_query("Create174", user, patient,
-                                         today_date_qms, diagnos_code, diagnos_descripion, 1, None, None)
+                                         today_date_qms, diagnos_code, diagnos_descripion, episode_type, None, None)
                 qqc174 = self.query.result
             if not qqc174:
                 log.error("Не создан эпизод в qms. " + str(locals()))

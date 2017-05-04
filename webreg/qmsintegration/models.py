@@ -14,11 +14,25 @@ class QmsIntegrationError(Exception):
 
 
 class QmsDB(models.Model):
-    name = models.CharField(max_length=128, verbose_name="Название")
-    connection_param = JSONField(verbose_name="Настройки соединения")
-    db_code = models.CharField(max_length=128, verbose_name="Код основной базы данных")
-    coding = models.CharField(max_length=16, verbose_name="Кодировка базы данных")
-    clinic = models.OneToOneField('main.Clinic', verbose_name="Мед. учреждение")
+    clinic = models.OneToOneField(
+        'main.Clinic', verbose_name="Мед. учреждение"
+    )
+    name = models.CharField(
+        max_length=128, verbose_name="Название"
+    )
+    connection_param = JSONField(
+        verbose_name="Настройки соединения"
+    )
+    db_code = models.CharField(
+        max_length=128, verbose_name="Код основной базы данных"
+    )
+    coding = models.CharField(
+        max_length=16, verbose_name="Кодировка базы данных"
+    )
+
+    cre293 = models.BooleanField(
+        default=True, verbose_name="Создавать источник финансирования?"
+    )
 
     @property
     def settings(self):
@@ -51,6 +65,41 @@ class QmsUser(models.Model):
     class Meta:
         verbose_name = "Пользователь qms"
         verbose_name_plural = "Пользователи qms"
+
+
+class QmsDepartment(models.Model):
+    department = models.OneToOneField('main.Department')
+    EPISODE_TYPE_CHOICES = (
+        (1, "АМБУЛАТОРНО"),
+        (2, "СТОМАТОЛОГИЯ")
+    )
+    episode_type = models.IntegerField(
+        verbose_name="Тип эпизода", default=1, choices=EPISODE_TYPE_CHOICES
+    )
+
+    def __str__(self):
+        return self.department.name
+
+    class Meta:
+        verbose_name = "Подразделение в qms"
+        verbose_name_plural = "Подразделения в qms"
+
+
+class QmsDepartmentCode(models.Model):
+    qmsdepartament = models.ForeignKey(
+        QmsDepartment, verbose_name='Департамент', related_name='codes'
+    )
+    code = models.CharField(
+        max_length=31, verbose_name='Код'
+    )
+
+    def __str__(self):
+        return self.code
+
+    class Meta:
+        verbose_name = 'Код: '
+        verbose_name_plural = 'Коды департаментов'
+        unique_together = ('qmsdepartament', 'code')
 
 
 class ObjectMatchingTable(models.Model):

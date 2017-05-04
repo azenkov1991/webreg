@@ -73,10 +73,18 @@ def create_appointment(fn):
                                             cell.time_end.strftime("%H:%M"))
                     if not qms.query.result:
                         raise AppointmentError("Ячейка уже занята")
+                try:
+                    episode_type = specialist.department.qmsdepartment.episode_type
+                except QmsDepartment.DoesNotExist:
+                    episode_type = 1
+
+                is_create_if = clinic.qmsdb.cre293
 
                 qqc1860 = qms.create_appointment(qqc244n, qqc153, qqc244, service.code, date,
                                                  cell.time_start if cell else None,
                                                  cell.time_end if cell else None,
+                                                 episode_type,
+                                                 is_create_if,
                                                  **additional_data)
             if not qqc1860:
                 raise AppointmentError("Ошибка интегации с qms")
@@ -123,6 +131,7 @@ def get_free_cells(fn):
         return fn(specialist, date_from, date_to)
     return get_free_cells_in_qms
 
+
 @check_enable
 def find_patient_by_birth_date(fn):
     def find_patient_by_birth_date_in_qms(clinic, first_name, last_name, middle_name, birth_date):
@@ -149,6 +158,7 @@ def find_patient_by_birth_date(fn):
             raise QmsIntegrationError("Ошибка интеграции с Qms")
     return find_patient_by_birth_date_in_qms
 
+
 @check_enable
 def find_patient_by_polis_number(fn):
     def find_patient_by_polis_number_in_qms(clinic, polis_number, birth_date, polis_seria=None):
@@ -173,6 +183,7 @@ def find_patient_by_polis_number(fn):
         except CacheQueryError:
             raise PatientError("Ошибка при поиске пациента в Qms")
     return find_patient_by_polis_number_in_qms
+
 
 @check_enable
 def create_patient(fn):
