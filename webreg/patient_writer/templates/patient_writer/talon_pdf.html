@@ -1,0 +1,145 @@
+{% load static %}
+
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+</head>
+<style>
+    @font-face {
+        font-family: "liberserif";
+        src: url("file:///usr/share/fonts/liberation/LiberationSerif-Regular.ttf");
+        font-weight: normal;
+    }
+
+    @font-face {
+        font-family: "liberserifbold";
+        src: url("file:///usr/share/fonts/liberation/LiberationSerif-Bold.ttf");
+        font-weight: normal;
+    }
+
+    body {
+        font-family: liberserif;
+        font-size: 15px;
+        line-height: 24px;
+    }
+
+    div.heading {
+        text-align: center;
+        font-weight: bold;
+        font-size: 16px;
+        margin-bottom: 25px;
+    }
+
+    div.bold {
+        font-family: "liberserifbold";
+    }
+
+    span.bold {
+        font-family: "liberserifbold";
+    }
+
+    p {
+        margin: 0;
+        padding: 0;
+        text-indent: 10px;
+    }
+
+    .container {
+        width: 600px;
+        margin: 0 auto;
+    }
+
+    .logotype {
+        height: 306px;
+        width: 262px;
+    }
+
+    .logotype img {
+        height: 306px;
+        width: 262px;
+    }
+
+    .reminder {
+        font-size: 18px;
+        font-weight: bold;
+        padding-bottom: 97px;
+        padding-left: 60px;
+        padding-top: 185px;
+        text-align: center;
+    }
+
+    .td1 {
+        width: 120px;
+        font-weight: bold;
+    }
+
+    .td2 {
+        width: 300px;
+        font-family: "liberserifbold";
+    }
+
+    .clear {
+        clear: both;
+    }
+</style>
+<body>
+    <div>
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <img src={{ logo }}>
+                    </td>
+                    <td>
+                        <div class="reminder">
+                            ТАЛОН
+                            </br>
+                            (интернет-запись)
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table>
+            <tbody>
+                <tr>
+                    <td class="td1">Подразделение:</td><td class="td2">{{ departament_name }}</td>
+                    <td class="td1">Дата приема:</td><td class="td2">{{ date_episode }}</td>
+                </tr>
+                <tr>
+                    <td class="td1">Адрес:</td><td class="td2">{{ departament_address }}</td>
+                    <td class="td1">Время приема:</td><td class="td2">{{ time_episode }}</td>
+                </tr>
+                <tr>
+                    <td class="td1">Ф.И.О.:</td><td class="td2">{{ fio }}</td>
+                    <td class="td1">Кабинет:</td><td class="td2">{{ cabinet }}</td>
+                </tr>
+                <tr>
+                    <td class="td1"></td><td class="td2"></td>
+                    <td class="td1">Врач:</td><td class="td2">{{ doctor }}</td>
+                </tr>
+                {% if speciality_comment %}
+                    <tr>
+                        <td colspan="4"><span class="bold">Комментарий: </span>{{ speciality_comment }}</td>
+                    </tr>
+                {% endif %}
+                <tr>
+                    <td colspan="4">Для отмены записи позвоните по телефону {{ phone }}.</td>
+                </tr>
+                <tr>
+                    <td colspan="4">Для получения дополнительной информации позвоните по телефону {{ phone_cancel }}.</td>
+                </tr>
+                <tr>
+                    <td colspan="4">Время создания записи: {{ create_episode_date }}</td>
+                </tr>
+            </tbody>
+        </table>
+        </br>
+        {% if faq %}
+            <div align="center" class="bold">{{ faq.question }}</div>
+            {{ faq.answer|safe }}
+        {% endif %}
+    </div>
+</body>
+</html>

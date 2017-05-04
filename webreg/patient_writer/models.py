@@ -60,6 +60,23 @@ class SpecialistConfig(models.Model):
     )
 
 
+class ClinicConfig(models.Model):
+    clinic = models.OneToOneField('main.Clinic', verbose_name="Мед. учреждение")
+    sms = models.BooleanField(default=True, verbose_name='SMS-уведомления')
+    phone = models.CharField(max_length=127, verbose_name='Телефон для отказов')
+    phone2 = models.CharField(max_length=127, verbose_name='Телефон для информирования')
+    logo = models.ImageField(
+        verbose_name='Логотип', blank=True, null=True, upload_to='logos'
+    )
+
+    def __str__(self):
+        return self.clinic.name
+
+    class Meta:
+        verbose_name = "Настройки мед. учреждения"
+        verbose_name_plural = "Настройки мед. учреждений"
+
+
 class DepartmentConfig(models.Model):
     department = models.OneToOneField(
         'main.Department', verbose_name="Подразделение"

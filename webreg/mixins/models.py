@@ -23,6 +23,7 @@ class SafeDeleteQuerySet(models.query.QuerySet):
         self.update(deleted_time=None,
                     deleted=False)
 
+
 class ActiveManager(models.manager.BaseManager.from_queryset(SafeDeleteQuerySet)):
     def get_queryset(self):
         return super(ActiveManager, self).get_queryset().filter(deleted=False)
@@ -70,7 +71,7 @@ class SafeDeleteMixin(models.Model):
         return not self.deleted
 
     active.boolean = True
-    active.short_description="Активен"
+    active.short_description = "Активен"
 
     class Meta:
         abstract = True

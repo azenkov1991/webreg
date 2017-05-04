@@ -141,6 +141,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+ADMIN_MEDIA_PREFIX = STATIC_URL
+MEDIA_URL = '/media/'
 
 for item in LOCAL_APPS:
     INSTALLED_APPS += (item, )

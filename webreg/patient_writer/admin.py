@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import SpecializationConfig, SlotTypeConfig, DepartmentConfig
+from .models import SpecializationConfig, SlotTypeConfig, DepartmentConfig, ClinicConfig
 
 
 class SpecializationConfigInline(admin.TabularInline):
@@ -41,3 +41,4 @@ class SlotTypeConfigAdmin(admin.ModelAdmin):
 
 admin.site.register(DepartmentConfig, DepartamentConfigAdmin)
 admin.site.register(SlotTypeConfig, SlotTypeConfigAdmin)
+admin.site.register(ClinicConfig, admin.ModelAdmin)

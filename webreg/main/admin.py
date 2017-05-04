@@ -102,8 +102,10 @@ class SiteServicePermissoionAdmin(admin.ModelAdmin):
         'm2m': ['services', ]
     }
 
+
 class SiteConfigAdmin(admin.ModelAdmin):
     list_display = ('site',)
+
 
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('name', 'site', 'users_str')

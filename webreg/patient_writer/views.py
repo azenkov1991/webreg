@@ -1,10 +1,17 @@
 import datetime
+from xhtml2pdf import pisa
+import io
+from wsgiref.util import FileWrapper
+
 from django.db.models import Q
+from django.http import StreamingHttpResponse
 from django.shortcuts import redirect
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView, TemplateView, View
 from django.contrib.auth import login
 from django.core.exceptions import PermissionDenied
+from django.template.loader import render_to_string
 from patient_writer.forms import InputFirstStepForm
+from patient_writer.models import DepartmentConfig, ClinicConfig, SpecializationConfig
 from main.mixins import ProfileRequiredMixin
 from main.logic import *
 from .logic import get_allowed_slot_types, get_specialist_service
@@ -108,7 +115,74 @@ class TalonView(ProfileRequiredMixin, TemplateView):
             context['error'] = str(e)
         context['error'] = request.session.get('error', None)
         context['cell'] = cell
+        context['appointment_id'] = appointment_id
         return self.render_to_response(context)
+
+
+class TalonPdf(ProfileRequiredMixin, View):
+    def get(self, request, appointment_id):
+        try:
+            appointment = Appointment.objects.get(id=appointment_id)
+            if request.session['patient_id'] != appointment.patient.id:
+                raise PermissionDenied
+        except Appointment.DoesNotExist:
+            raise PermissionDenied
+        cell = appointment.cell
+        department = cell.specialist.department
+
+        try:
+            clinic_conf = department.clinic.clinicconfig
+            phone = clinic_conf.phone
+            phone2 = clinic_conf.phone2
+            logo = clinic_conf.logo.path if clinic_conf.logo else ''
+        except ClinicConfig.DoesNotExist:
+            phone = None
+            phone2 = None
+            logo = ''
+
+        try:
+            dep_conf = department.departmentconfig
+            phone = dep_conf.phone if dep_conf.phone else phone
+            phone2 = dep_conf.phone2 if dep_conf.phone2 else phone2
+            try:
+                spec_conf = SpecializationConfig.objects.get(
+                    department_config=dep_conf,
+                    specialization=cell.specialist.specialization
+                )
+                comment = spec_conf.comment if spec_conf.is_show_comment else None
+            except SpecializationConfig.DoesNotExist:
+                comment = None
+        except DepartmentConfig.DoesNotExist:
+            comment = None
+
+        context = {
+            'departament_name': department.name,
+            'departament_address': department.address,
+            'date_episode': cell.date.strftime('%d-%m-%Y'),
+            'time_episode': cell.time_start.strftime('%H:%M'),
+            'cabinet': cell.cabinet.name if appointment.cell.cabinet else '',
+            'doctor': cell.specialist.fio,
+            'phone_cancel': phone,
+            'phone': phone2,
+            'create_episode_date': appointment.created_time.astimezone(tz=None).strftime('%d-%m-%Y   %H:%M'),
+            'speciality_comment': comment,
+
+            'logo': logo,
+            'fio': appointment.patient.fio,
+            'faq': '',
+        }
+        result = io.BytesIO()
+        html = render_to_string('patient_writer/talon_pdf.html', context)
+        pdf = pisa.pisaDocument(html, result, encoding='UTF-8')
+        if not pdf.err:
+            wrapper = FileWrapper(result)
+            response = StreamingHttpResponse(wrapper, content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename=talon_{0}.pdf'.format(
+                    appointment.id
+            )
+            response['Content-Length'] = result.tell()
+            result.seek(0)
+        return response
 
 
 class SpecialistTimeTable(ProfileRequiredMixin, TemplateView):

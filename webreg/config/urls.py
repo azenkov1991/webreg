@@ -17,6 +17,7 @@ from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
 from django.views import defaults as default_views
+from django.conf.urls.static import static
 from main.urls import apiurlpatterns as mainapiurlpatterns
 from main.urls import urlpatterns as main_urlpatterns
 from patient_writer.urls import apiurlpatterns as patient_writer_apiurlpatterns
@@ -28,8 +29,9 @@ urlpatterns = [
     url(r'^pwriter/', include('patient_writer.urls', namespace="patient_writer")),
     url(r'api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'api/', include(apiurlpatterns)),
-    url(r'api/pwriter/',include(patient_writer_apiurlpatterns))
-] + main_urlpatterns
+    url(r'api/pwriter/', include(patient_writer_apiurlpatterns))
+] + main_urlpatterns + \
+    static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
     urlpatterns += [

@@ -3,7 +3,6 @@ from main.api.timetable import SpecialistsFreeCells, SpecialistAllCells
 from main.forms import AuthenticationForm
 from django.views.generic import TemplateView
 from django.contrib.auth.views import login, logout, password_reset
-from .views import TimeTableView, SpecialistRowView
 
 
 apiurlpatterns = [
@@ -25,7 +24,5 @@ urlpatterns = [
                                                         'redirect_field_name': 'next'}
                                       }, name="account_logout"),
     url(r'^accounts/password-reset', password_reset, {'template_name': "account/password_reset_.html"},
-        name="account_reset_password"),
-    url(r'timetable/test', TimeTableView.as_view()),
-    url(r'timetable/daycolumntest', SpecialistRowView.as_view())
+        name="account_reset_password")
 ]
