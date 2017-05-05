@@ -257,3 +257,7 @@ class SpecialistTimeTable(ProfileRequiredMixin, TemplateView):
         context['timetable_header'] = "Выберите время"
 
         return self.render_to_response(context)
+
+
+class HelpView(TemplateView):
+    template_name = 'patient_writer/help.html'

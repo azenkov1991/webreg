@@ -1,6 +1,39 @@
 {% extends 'base.html' %}
+
+{% block navigation-panel %}
+        <nav class="navbar navbar-inverse">
+          <div class="container">
+            <div class="navbar-header">
+              <a class="navbar-brand" href="{% url 'patient_writer:input_first_step' %}"> <span class="glyphicon glyphicon-pencil"></span>Запись</a>
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+            </div>
+            <div class="collapse navbar-collapse" id="main-navbar-collapse">
+              <ul class="nav navbar-nav">
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'patient_writer:help' %}">Помощь</a>
+                </li>
+              </ul>
+              <ul class="nav navbar-nav navbar-right">
+                {% if request.user.is_authenticated %}
+                <li class="nav-item navbar-right">
+                  <a id="log-out-link" class="nav-link navbar-right"  href="{% url 'account_logout' %}"><span class="glyphicon glyphicon-log-out"></span> Выйти</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                  <a id="log-in-link" class="nav-link" href="{% url 'account_login' %}"><span class="glyphicon glyphicon-log-in"></span> Войти в личный кабинет</a>
+                </li>
+                {% endif %}
+              </ul>
+            </div>
+          </div>
+        </nav>
+{% endblock navigation-panel %}
+
 {% block sidenavigation %}
-<a class="list-group-item" href="{% url 'patient_writer:input_first_step'%}"> <span class="glyphicon glyphicon-pencil"></span> Запись</a>
 <a class="list-group-item" href="#link2"><span class="glyphicon glyphicon-question-sign"></span> Вопросы и ответы</a>
 <a class="list-group-item" href="{% url 'patient_writer:agreement' %}"><span class="glyphicon glyphicon-list-alt"></span> Согласие на обработку ПД</a>
 {% endblock sidenavigation %}
