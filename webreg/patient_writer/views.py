@@ -6,7 +6,7 @@ from wsgiref.util import FileWrapper
 from django.db.models import Q
 from django.http import StreamingHttpResponse
 from django.shortcuts import redirect
-from django.views.generic import FormView, TemplateView, View
+from django.views.generic import FormView, TemplateView, View, ListView
 from django.contrib.auth import login
 from django.core.exceptions import PermissionDenied
 from django.template.loader import render_to_string
@@ -261,3 +261,14 @@ class SpecialistTimeTable(ProfileRequiredMixin, TemplateView):
 
 class HelpView(TemplateView):
     template_name = 'patient_writer/help.html'
+
+
+class AppointmentListView(ListView):
+    template_name = 'patient_writer/appointment_list.html'
+    paginate_by = 5
+    model = Appointment
+
+    def get_queryset(self):
+        patient_id = self.request.session.get('patient_id', None)
+        return super(AppointmentListView, self).get_queryset().\
+            filter(patient_id=patient_id).order_by('-created_time')
