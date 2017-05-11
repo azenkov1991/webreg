@@ -17,7 +17,7 @@
           <select class="select form-control" id="id_department" name="department" required>
             <option disabled selected value=-1> -- Выберете подразделение -- </option>
             {% for department in departments %}
-              <option value="{{department.id}}">{{department.name}}</option>
+              <option value="{{department.id}}">{{department.name}}, {{department.address}}</option>
             {% endfor %}
           </select>
         </div>

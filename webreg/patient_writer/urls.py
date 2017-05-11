@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from django.views.generic.base import TemplateView
 from patient_writer.views import PatientWriteFirstStep, PatientWriteSecondStep, Confirm,\
-    SpecialistTimeTable, TalonView, TalonPdf, AppointmentListView, HelpView
+    SpecialistTimeTable, TalonView, TalonPdf, AppointmentListView, HelpView, AppointmentDetailView
 from patient_writer.api.api import AvailableSpecialists, AvailableSpecializaionsForDepartment
 
 apiurlpatterns = [
@@ -17,5 +17,7 @@ urlpatterns = [
     url(r'^talon/$', TalonView.as_view(), name="talon"),
     url(r'^talon_pdf/(\d+)$', TalonPdf.as_view(), name="talon_pdf"),
     url(r'^appointment_list/', AppointmentListView.as_view(), name="appointment_list"),
-    url(r'^help/$', HelpView.as_view(), name="help")
+    url(r'^help/$', HelpView.as_view(), name="help"),
+    url(r'^cancel_appointment/(?P<id>\d+)', HelpView.as_view(), name="cancel_appointment"),
+    url(r'^appointment_detail/(?P<pk>\d+)', AppointmentDetailView.as_view(), name="appointment_detail")
 ]

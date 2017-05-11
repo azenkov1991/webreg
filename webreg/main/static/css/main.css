@@ -108,9 +108,32 @@ label{
     animation: spin 1s linear infinite;
 }
 
+.text-center{
+  text-align: center;
+}
+
+.margin-auto{
+  margin: auto;
+}
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+table th{
+  background-color: #eeeeee;
+  text-align: center;
+  border-bottom: 4px solid #145d43 !important;
+  font-weight: bold;
+}
+table td{
+  text-align: center;
+}
+
+table tr.table-separator>td{
+  background-color: #145d43;
+  padding: 1px;
 }
 
 

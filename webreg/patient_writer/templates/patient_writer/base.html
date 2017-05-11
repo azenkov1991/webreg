@@ -34,6 +34,10 @@
 {% endblock navigation-panel %}
 
 {% block sidenavigation %}
+{% if patient %}
+<a class="list-group-item" href="{% url 'patient_writer:appointment_list' %}"><span class="glyphicon glyphicon-th-list"></span> История записи</a>
+{% endif%}
 <a class="list-group-item" href="#link2"><span class="glyphicon glyphicon-question-sign"></span> Вопросы и ответы</a>
 <a class="list-group-item" href="{% url 'patient_writer:agreement' %}"><span class="glyphicon glyphicon-list-alt"></span> Согласие на обработку ПД</a>
+
 {% endblock sidenavigation %}

@@ -49,8 +49,37 @@ button.list-group-item:focus {
   border-color: #3c7c7c;
   background-color: #4baaaa;
 }
+
 .btn-info:hover{
   background-color: #3c7c7c;
 }
 
+.pagination>li.active>a{
+  color: #ffffff;
+  border-color: gray;
+  background-color: #4fbfa8;
+  font-weight: bold;
+}
 
+.pagination>li.active>a:hover {
+  color: #ffffff;
+  background-color: #2d7b6b;
+}
+
+.pagination > li > a{
+  color: black;
+}
+
+a.next{
+  color: #145d43;
+  font-size: larger;
+}
+
+a.previous{
+  color: #145d43;
+  font-size: larger;
+}
+
+.glyphicon-remove{
+  color: #d9534f;
+}

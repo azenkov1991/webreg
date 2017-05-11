@@ -2,30 +2,39 @@
 {% load static %}
 {% load filters %}
 
-{% block content %}
+{% block css %}
+  {{block.super}}
+  <link rel="stylesheet" href="{% static 'css/appointment_list.css' %}"/>
+{% endblock %}
 
-<table class="table">
+{% block content %}
+<table class="table" id="appointment-list-table">
     <thead>
         <tr>
-            <th>дата приема</th>
+            <th >дата приема</th>
             <th>время приема</th>
-            <th>подразделение</th>
-            <th>специалист</th>
-            <th>специальность</th>
-            <th>дата записи</th>
-            <th></th>
+            <th class="hidden-xs">подразделение</th>
+            <th class="hidden-xs">специалист</th>
+            <th class="hidden-xs">специальность</th>
+            <th class="hidden-xs">дата записи</th>
+            <th> отменить</th>
         </tr>
     </thead>
     <tbody>
         {% for appointment in object_list %}
           <tr class="{% if not appointment.date|date_gt %}inactive{% endif %} {% if appointment.deleted %}danger{% endif %}">
               <td>{{ appointment.date }}</td>
-              <td>{{ appointment.cell.time }}</td>
-              <td>{{ appointment.specialist.departament.name }}<br>{{ appointment.specialist.department.address }}</td>
-              <td>{{ appointment.specialist }}</td>
-              <td>{{ appointment.specialist.specialization }}</td>
-              <td>{{ appointment.created_time.astimezone }}</td>
+              <td>{{ appointment.cell.time_start }}</td>
+              <td class="hidden-xs">{{ appointment.specialist.department.name }}<br>{{ appointment.specialist.department.address }}</td>
+              <td class="hidden-xs">{{ appointment.specialist }}</td>
+              <td class="hidden-xs">{{ appointment.specialist.specialization }}</td>
+              <td class="hidden-xs">{{ appointment.created_time.astimezone }}</td>
+              <td class="margin-auto"><a href="{% url 'patient_writer:cancel_appointment' id=appointment.id %}"><span class="glyphicon glyphicon-remove"></span></a></td>
           </tr>
+          <tr class="visible-xs"><td colspan="3">{{ appointment.specialist }}</td></tr>
+          <tr class="visible-xs"><td colspan="3"> {{ appointment.specialist.specialization }}</td></tr>
+          <tr class="visible-xs"><td colspan="3"> <a href="{% url 'patient_writer:appointment_detail' pk=appointment.id %}" class="btn btn-primary">Подробности</a></td></tr>
+          <tr class="visible-xs table-separator"><td colspan="3"></td></tr>
         {% endfor %}
     </tbody>
 </table>

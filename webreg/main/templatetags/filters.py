@@ -15,13 +15,21 @@ def day_week(date):
 
 
 @register.filter
-def get_range(value, number):
-    if value < 7:
+def get_range(total_pages, page_number):
+    if total_pages < 7:
         return [{'points': False,
-                 'page': index + 1} for index in range(value)]
+                 'page': index + 1} for index in range(total_pages)]
     else:
+        left_edge = page_number - 3
+        right_edge = page_number + 3
+        if (page_number + 3) > total_pages:
+            right_edge = total_pages
+            left_edge = total_pages - 6
+        if (page_number - 3) < 1:
+            left_edge = 1
+            right_edge = 7
         result = [{'points': False,
-                   'page': index} for index in filter(lambda item: 1 <= item <= value, range(number-3, number+3))]
+                   'page': index} for index in range(left_edge, right_edge +1)]
         return result
 
 
