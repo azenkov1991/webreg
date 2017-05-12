@@ -1,8 +1,7 @@
 {% extends 'patient_writer/base.html' %}
 {% block content %}
-{% load filters%}
 <div class="container-fluid has-frame">
-  <h3>Подробности назначения</h3>
+  <h3>Вы действительно хотите отменить прием к врачу?</h3>
   <div id="talon" method="GET" action="">
     {% include 'patient_writer/talon_row.html' with label="Подразделение:" value=object.cell.specialist.department.name %}
     {% include 'patient_writer/talon_row.html' with label="Адрес:" value=object.cell.specialist.department.address %}
@@ -14,20 +13,21 @@
     {% endif %}
     {% include 'patient_writer/talon_row.html' with label="Врач:" value=object.cell.specialist.fio %}
   </div>
+   <div class="span12"><br/></div>
    <div class="row">
+     <div class="col-sm-6">
 
-    <div class="col-sm-6 col-sm-offset-3 text-center">
-      {% if object.date|date_gt and not object.deleted %}
-        <a href="{% url 'patient_writer:cancel_appointment' pk=appointment.id %}" class="btn btn-primary btn-lg btn-block" type="submit"> Отменить</a>
-      {% endif %}
-      {% if object.deleted %}
-        <b>ОТМЕНЕНО</b>
-      {% endif %}
-    </div>
-
+      <form action="" method="post">{% csrf_token %}
+        <input class="btn btn-lg btn-block btn-danger" type="submit" value="Да" />
+      </form>
+     </div>
+     <div class="visible-xs span12"><br/></div>
+     <div class="col-sm-6">
+       <a  class="btn btn-primary btn-block btn-lg" href = "{% url 'patient_writer:appointment_list'%}">Нет</a>
+     </div>
   </div>
 </div>
-<div class="span12"><br/></div>
+
 
 
 {% endblock content %}

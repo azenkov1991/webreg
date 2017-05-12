@@ -79,11 +79,14 @@ Appointment.create_appointment = create_appointment
 
 @qms.cancel_appointment
 def cancel_appointment(appointment):
-    cell = appointment.cell
-    if cell:
-        cell.free = True
-        cell.save()
-    appointment.safe_delete()
+    try:
+        cell = appointment.cell
+        if cell:
+            cell.free = True
+            cell.save()
+        appointment.safe_delete()
+    except Exception as e:
+        raise AppointmentError(str(e))
 
 Appointment.cancel_appointment = cancel_appointment
 

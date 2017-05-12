@@ -22,18 +22,25 @@
     </thead>
     <tbody>
         {% for appointment in object_list %}
-          <tr class="{% if not appointment.date|date_gt %}inactive{% endif %} {% if appointment.deleted %}danger{% endif %}">
-              <td>{{ appointment.date }}</td>
+          <tr  href="{% url 'patient_writer:appointment_detail' pk=appointment.id %}" class="clickable-row {% if not appointment.date|date_gt %}active{% endif %} {% if appointment.deleted %}danger{% endif %}">
+             <td>{{ appointment.date }}</td>
               <td>{{ appointment.cell.time_start }}</td>
               <td class="hidden-xs">{{ appointment.specialist.department.name }}<br>{{ appointment.specialist.department.address }}</td>
               <td class="hidden-xs">{{ appointment.specialist }}</td>
               <td class="hidden-xs">{{ appointment.specialist.specialization }}</td>
               <td class="hidden-xs">{{ appointment.created_time.astimezone }}</td>
-              <td class="margin-auto"><a href="{% url 'patient_writer:cancel_appointment' id=appointment.id %}"><span class="glyphicon glyphicon-remove"></span></a></td>
+              <td class="margin-auto">
+                {% if appointment.date|date_gt and not appointment.deleted %}
+                  <a href="{% url 'patient_writer:cancel_appointment' pk=appointment.id %}"><span class="glyphicon glyphicon-remove"></span></a>
+                {% endif %}
+                {% if appointment.deleted %}
+                  <b>отменено</b>
+                {% endif%}
+              </td>
           </tr>
-          <tr class="visible-xs"><td colspan="3">{{ appointment.specialist }}</td></tr>
-          <tr class="visible-xs"><td colspan="3"> {{ appointment.specialist.specialization }}</td></tr>
-          <tr class="visible-xs"><td colspan="3"> <a href="{% url 'patient_writer:appointment_detail' pk=appointment.id %}" class="btn btn-primary">Подробности</a></td></tr>
+          <tr class="visible-xs {% if not appointment.date|date_gt %}active{% endif %} {% if appointment.deleted %}danger{% endif %}"><td colspan="3">{{ appointment.specialist }}</td></tr>
+          <tr class="visible-xs {% if not appointment.date|date_gt %}active{% endif %} {% if appointment.deleted %}danger{% endif %}"><td colspan="3"> {{ appointment.specialist.specialization }}</td></tr>
+          <tr class="visible-xs {% if not appointment.date|date_gt %}active{% endif %} {% if appointment.deleted %}danger{% endif %}"><td colspan="3"> <a href="{% url 'patient_writer:appointment_detail' pk=appointment.id %}" class="btn btn-primary">Подробности</a></td></tr>
           <tr class="visible-xs table-separator"><td colspan="3"></td></tr>
         {% endfor %}
     </tbody>
@@ -42,3 +49,8 @@
 {% include "pagination.html" %}
 
 {% endblock %}
+
+{% block javascript %}
+{{ block.super}}
+  <script src="{% static '/js/appointment_list.js' %}"></script>
+{% endblock javascript%}

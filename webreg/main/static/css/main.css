@@ -122,7 +122,7 @@ label{
 }
 
 table th{
-  background-color: #eeeeee;
+  background-color: lightgray;
   text-align: center;
   border-bottom: 4px solid #145d43 !important;
   font-weight: bold;
