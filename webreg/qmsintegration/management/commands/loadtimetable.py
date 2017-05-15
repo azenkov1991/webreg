@@ -18,6 +18,7 @@ class Command(BaseCommand):
         parser.add_argument("dateTo", help="Дата до в формате yyyy-mm-dd")
         parser.add_argument("--department", dest="department", help="Id подразделения", type=int)
         parser.add_argument("--specialist", dest="specialist", help="Id специалиста", type=int)
+        parser.add_argument("--slottype", dest="slottype", help="Загружать только выбранный тип слота")
 
     def handle(self, *args, **options):
         dbname = options["dbname"]
@@ -34,6 +35,7 @@ class Command(BaseCommand):
 
         specialists = None
         department = None
+        slot_type = options['slottype']
         qms = QMS(qmsdb.settings)
 
         if options["specialist"]:
@@ -52,7 +54,7 @@ class Command(BaseCommand):
 
         date_now = datetime.datetime.now().date()
         for specialist in specialists:
-            update_specialist_timetable(specialist, date_from, date_to, qms)
+            update_specialist_timetable(specialist, date_from, date_to, qms, slot_type)
 
 
 

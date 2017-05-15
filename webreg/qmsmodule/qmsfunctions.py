@@ -146,7 +146,7 @@ class QMS:
         self.query.execute_query("SpecialistPerformingServices", spec_qqc244)
         return self.query.get_proxy_objects_list()
 
-    def get_timetable(self, specialist, date_from, date_to):
+    def get_timetable(self, specialist, date_from, date_to, slot_type=None):
         """
 
         :param specialist: qqc244 специалиста
@@ -158,7 +158,8 @@ class QMS:
         """
         cell_list = []
         for date in daterange(date_from, date_to):
-            self.query.execute_query("RaspFreeDetail", specialist, date.strftime("%Y%m%d"), None, None, None, 1)
+            self.query.execute_query("RaspFreeDetail", specialist, date.strftime("%Y%m%d"),
+                                     slot_type, None, None, 1)
             for cell_item in self.query.get_proxy_objects_list():
                 cell = ProxyObject()
                 cell.date = date
