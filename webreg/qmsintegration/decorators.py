@@ -191,7 +191,7 @@ def create_patient(fn):
                               birth_date, polis_number=None, polis_seria=None):
         try:
             qms = QMS(clinic.qmsdb.settings)
-            qqc153 = qms.create_patient(first_name,last_name,middle_name, birth_date, polis_number, polis_seria)
+            qqc153 = qms.create_patient(first_name, last_name, middle_name, birth_date, polis_number, polis_seria)
             if not qqc153:
                 raise QmsIntegrationError("Ошибка при создании пациента в Qms")
             patient = fn(clinic, first_name, last_name, middle_name, birth_date, polis_number, polis_seria)
@@ -200,3 +200,19 @@ def create_patient(fn):
             raise PatientError("Ошибка при создании пациента в Qms")
         return patient
     return create_patient_in_qms
+
+
+@check_enable
+def update_patient_phone_number(fn):
+    def update_patient_phone_number_in_qms(patient, phone_number):
+        fn(patient, phone_number)
+        # для всех клиник пациента обновить телефон
+        for clinic in patient.clinic.all():
+            qms = QMS(clinic.qmsdb.settings)
+            qqc153 = get_external_id(patient)
+            if clinic.qmsdb.update_phone:
+                try:
+                    qms.query.execute_query('UpdatePatientPhoneNumber', qqc153, phone_number)
+                except CacheQueryError:
+                    raise PatientError("Ошибка обновления телефона в Qms")
+    return update_patient_phone_number_in_qms

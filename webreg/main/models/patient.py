@@ -17,6 +17,10 @@ class Patient(models.Model):
         verbose_name="Дата рождения",
         validators=[birth_date_validation,]
     )
+    phone = models.CharField(
+        max_length=31, verbose_name="Телефон",
+        blank=True, null=True
+    )
     polis_number = models.CharField(
         max_length=16,
         verbose_name="Номер полиса",

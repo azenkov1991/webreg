@@ -34,6 +34,10 @@ class QmsDB(models.Model):
         default=True, verbose_name="Создавать источник финансирования?"
     )
 
+    update_phone = models.BooleanField(
+        default=True, verbose_name="Обновлять номер телефона пациента?"
+    )
+
     @property
     def settings(self):
         return {

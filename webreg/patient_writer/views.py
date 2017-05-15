@@ -30,11 +30,14 @@ class PatientWriteFirstStep(FormView):
             # сохранение id пациента в сессии для последующих шагов
             request.session['patient_id'] = form.cleaned_data['patient_id']
             request.session['clinic_id'] = form.cleaned_data['clinic_id']
+            patient = Patient.objects.get(pk=form.cleaned_data['patient_id'])
+            update_patient_phone_number(patient, form.cleaned_data['phone'])
         return super(PatientWriteFirstStep, self).post(request, *args, **kwargs)
 
 
 class Confirm(TemplateView):
     template_name = 'patient_writer/confirm.html'
+
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         patient_id = request.session.get('patient_id', None)

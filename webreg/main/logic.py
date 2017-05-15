@@ -5,6 +5,7 @@ from qmsintegration import decorators as qms
 
 log = logging.getLogger("webreg")
 
+
 @qms.create_appointment
 def create_appointment(user_profile, patient, specialist, service, date, cell=None, **additional_data):
     exception_details = "Пациент: " + patient.fio + " Специалист: " + specialist.fio + \
@@ -110,6 +111,7 @@ def find_patient_by_polis_number(clinic, polis_number, birth_date, polis_seria=N
     except Patient.DoesNotExist:
         return None
 
+
 @qms.find_patient_by_birth_date
 def find_patient_by_birth_date(clinic, first_name, last_name, middle_name, birth_date):
     try:
@@ -120,6 +122,7 @@ def find_patient_by_birth_date(clinic, first_name, last_name, middle_name, birth
                                    clinic=clinic)
     except Patient.DoesNotExist:
         return None
+
 
 @qms.create_patient
 def create_patient(clinic, first_name, last_name, middle_name, birth_date, polis_nmber=None, polis_seria=None):
@@ -132,3 +135,9 @@ def create_patient(clinic, first_name, last_name, middle_name, birth_date, polis
     patient.save()
     patient.clinic.add(clinic)
     return patient
+
+
+@qms.update_patient_phone_number
+def update_patient_phone_number(patient, phone_number):
+    patient.phone = phone_number
+    patient.save()
