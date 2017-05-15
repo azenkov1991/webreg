@@ -122,9 +122,9 @@ label{
 }
 
 table th{
-  background-color: lightgray;
+  background-color: #e2e6e9;
   text-align: center;
-  border-bottom: 4px solid #145d43 !important;
+  border-bottom: 3px solid black !important;
   font-weight: bold;
 }
 table td{

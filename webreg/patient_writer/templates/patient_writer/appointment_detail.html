@@ -3,7 +3,7 @@
 {% load filters%}
 <div class="container-fluid has-frame">
   <h3>Подробности назначения</h3>
-  <div id="talon" method="GET" action="">
+  <div>
     {% include 'patient_writer/talon_row.html' with label="Подразделение:" value=object.cell.specialist.department.name %}
     {% include 'patient_writer/talon_row.html' with label="Адрес:" value=object.cell.specialist.department.address %}
     {% include 'patient_writer/talon_row.html' with label="Дата приема:" value=object.cell.date %}
@@ -18,16 +18,19 @@
 
     <div class="col-sm-6 col-sm-offset-3 text-center">
       {% if object.date|date_gt and not object.deleted %}
-        <a href="{% url 'patient_writer:cancel_appointment' pk=appointment.id %}" class="btn btn-primary btn-lg btn-block" type="submit"> Отменить</a>
+        <a href="{% url 'patient_writer:cancel_appointment' pk=appointment.id %}" class="btn btn-danger btn-lg btn-block" type="submit"> Отменить прием</a>
       {% endif %}
       {% if object.deleted %}
         <b>ОТМЕНЕНО</b>
       {% endif %}
     </div>
-
   </div>
 </div>
 <div class="span12"><br/></div>
+<div class="row col-sm-4 col-sm-offset-4">
+  <a class="btn btn-primary btn-lg btn-block" href="{{ request.META.HTTP_REFERER }}"><span class="glyphicon glyphicon-chevron-left"></span>Назад</a>
+</div>
+
 
 
 {% endblock content %}
