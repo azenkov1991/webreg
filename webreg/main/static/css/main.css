@@ -96,6 +96,9 @@ label{
   border-color: #d9534f;
 }
 
+.inactive{
+  background-color: rgba(87, 174, 135, 0.41);
+}
 .loader {
     border: 10px solid #f3f3f3;
     border-top: 10px solid #2d7b6b;
@@ -105,9 +108,32 @@ label{
     animation: spin 1s linear infinite;
 }
 
+.text-center{
+  text-align: center;
+}
+
+.margin-auto{
+  margin: auto;
+}
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+table th{
+  background-color: #e2e6e9;
+  text-align: center;
+  border-bottom: 3px solid black !important;
+  font-weight: bold;
+}
+table td{
+  text-align: center;
+}
+
+table tr.table-separator>td{
+  background-color: #145d43;
+  padding: 1px;
 }
 
 

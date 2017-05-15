@@ -1,0 +1,35 @@
+{% if is_paginated %}
+{% load filters %}
+
+<nav class="paginator row">
+  <div class="col-sm-2 text-center">
+  {% if page_obj.has_previous %}
+    <a class="previous"  href="?{{ query_dict }}&page={{ page_obj.previous_page_number }}">
+      <span class="glyphicon glyphicon-chevron-left"></span><span class="prev">Назад</span>
+    </a>
+  {% endif %}
+  </div>
+  <div class="col-sm-8" style="text-align: center">
+    <ul class="pagination">
+        {% for item in page_obj.paginator.num_pages|get_range:page_obj.number %}
+            {% if item.points %}
+                <span class="points">...</span>
+            {% else %}
+                <li class="{% if page_obj.number == item.page %} active{% endif %}">
+                  <a href="?{{ query_dict }}&page={{ item.page }}">
+                    <span>{{ item.page }}</span>
+                  </a>
+                </li>
+            {% endif %}
+        {% endfor %}
+     </ul>
+  </div>
+  {% if page_obj.has_next %}
+   <div class="col-sm-2 text-center">
+    <a class="next" href="?{{ query_dict }}&page={{ page_obj.next_page_number }}">
+      </span><span class="next">Вперед</span><span class="glyphicon glyphicon-chevron-right"></span>
+    </a>
+   </div>
+  {% endif %}
+</nav>
+{% endif %}

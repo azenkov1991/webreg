@@ -6,10 +6,11 @@ from wsgiref.util import FileWrapper
 from django.db.models import Q
 from django.http import StreamingHttpResponse
 from django.shortcuts import redirect
-from django.views.generic import FormView, TemplateView, View
+from django.views.generic import FormView, TemplateView, View, ListView, DetailView, DeleteView
 from django.contrib.auth import login
 from django.core.exceptions import PermissionDenied
 from django.template.loader import render_to_string
+from django.urls import reverse_lazy
 from patient_writer.forms import InputFirstStepForm
 from patient_writer.models import DepartmentConfig, ClinicConfig, SpecializationConfig
 from main.mixins import ProfileRequiredMixin
@@ -20,7 +21,7 @@ from .logic import get_allowed_slot_types, get_specialist_service
 class PatientWriteFirstStep(FormView):
     template_name = 'patient_writer/input_first_step.html'
     form_class = InputFirstStepForm
-    success_url = '/pwriter/confirm'
+    success_url = reverse_lazy('patient_writer:confirm')
 
     def post(self, request, *args, **kwargs):
         form = self.get_form()
@@ -104,10 +105,7 @@ class TalonView(ProfileRequiredMixin, TemplateView):
     template_name = 'patient_writer/talon.html'
 
     def get(self, request, *args, **kwargs):
-        try:
-            appointment_id = request.session['appointment_id']
-        except KeyError:
-            redirect("patient_writer:input_second_step")
+        appointment_id = request.session.get('appointment_id', None)
         context = self.get_context_data(**kwargs)
         try:
             cell = Cell.objects.get(id=request.session['cell_id'])
@@ -257,6 +255,44 @@ class SpecialistTimeTable(ProfileRequiredMixin, TemplateView):
         context['timetable_header'] = "Выберите время"
 
         return self.render_to_response(context)
+
+
+class AppointmentDetailView(DetailView):
+    model = Appointment
+    template_name = 'patient_writer/appointment_detail.html'
+
+    def get(self, request, *args, **kwargs):
+        pk = self.kwargs.get(self.pk_url_kwarg)
+        self.object = self.model.objects.get(pk=pk)
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+
+class AppointmentListView(ListView):
+    template_name = 'patient_writer/appointment_list.html'
+    paginate_by = 7
+    model = Appointment
+
+    def get_queryset(self):
+        patient_id = self.request.session.get('patient_id', None)
+        return Appointment.all_objects.\
+            filter(patient_id=patient_id).order_by('-date')
+
+
+class CancelAppointmentView(DeleteView):
+    template_name = 'patient_writer/cancel_appointment.html'
+    model = Appointment
+    success_url = reverse_lazy('patient_writer:appointment_list')
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Calls the delete() method on the fetched object and then
+        redirects to the success URL.
+        """
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        cancel_appointment(self.object)
+        return redirect(success_url)
 
 
 class HelpView(TemplateView):
