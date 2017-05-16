@@ -98,7 +98,7 @@ class UserProfile(models.Model):
         service_id_list = self.numberofservicerestriction_set.filter(
             date_start__lte=now_date, date_end__gte=now_date,
             number_of_used__gte=models.F('number')
-        ).values_list("service_id",flat=True)
+        ).values_list("service_id", flat=True)
 
         return (initial_service_query_set & site_allowed_services & profile_allowed_services).exclude(
             id__in=service_id_list

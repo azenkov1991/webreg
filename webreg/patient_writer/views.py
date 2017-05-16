@@ -30,8 +30,7 @@ class PatientWriteFirstStep(FormView):
             # сохранение id пациента в сессии для последующих шагов
             request.session['patient_id'] = form.cleaned_data['patient_id']
             request.session['clinic_id'] = form.cleaned_data['clinic_id']
-            patient = Patient.objects.get(pk=form.cleaned_data['patient_id'])
-            update_patient_phone_number(patient, form.cleaned_data['phone'])
+            request.session['phone'] = form.cleaned_data['phone']
         return super(PatientWriteFirstStep, self).post(request, *args, **kwargs)
 
 
@@ -59,9 +58,17 @@ class PatientWriteSecondStep(ProfileRequiredMixin, TemplateView):
         context = self.get_context_data(**kwargs)
         clinic_id = request.session.get('clinic_id', None)
         patient_id = request.session.get('patient_id', None)
+        try:
+            patient = Patient.objects.get(pk=patient_id)
+        except Patient.DoesNotExist:
+            return redirect("patient_writer:input_first_step")
+        # обновление телефона пациента
+        phone = request.session.get('phone', None)
+        if phone:
+            update_patient_phone_number(patient, phone)
         if not clinic_id or not patient_id:
             return redirect("patient_writer:input_first_step")
-        years_old = Patient.objects.get(id=patient_id).age
+        years_old = patient.age
         departments = Department.objects.filter(
             clinic_id=clinic_id,
             departmentconfig__min_age__lte=years_old,
