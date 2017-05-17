@@ -105,6 +105,7 @@ class PatientWriteSecondStep(ProfileRequiredMixin, TemplateView):
                 user_profile, patient, specialist, service, cell.date, cell
             )
             request.session['appointment_id'] = appointment.id
+            appointment.send_sms()
         except AppointmentError as e:
             request.session['error'] = str(e)
             log.error(str(e))

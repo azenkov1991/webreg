@@ -46,7 +46,9 @@ INSTALLED_APPS = [
     'constance.backends.database',
     'constance',
     'crispy_forms',
-    'flatblocks'
+    'flatblocks',
+    'djcelery',
+    'djcelery_email'
 ]
 
 
@@ -159,5 +161,29 @@ CONSTANCE_CONFIG = {
 
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
+EMAIL_HOST = get_secret("EMAIL_HOST")
+EMAIL_PORT = 25
+EMAIL_HOST_USER = get_secret("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'no-reply@skc-fmba.ru'
+
+SMS_URL = get_secret("SMS_URL")
+
+from celery import Celery
+celery = Celery(
+    'webreg',
+    broker='redis://127.0.0.1:6379/12',
+    backend='redis',
+    include=['main.tasks', 'djcelery_email.tasks']
+)
+
+WS4REDIS_CONNECTION = {
+    'host': '127.0.0.1',
+    'port': 6379,
+    'db': 9,
+}
 
 from patient_writer.settings import *
