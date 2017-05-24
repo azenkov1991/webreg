@@ -1,7 +1,7 @@
 from constance import config
 from django import forms
 from django.utils.html import format_html
-from registration.views import RegistrationForm
+from registration.forms import RegistrationFormUniqueEmail
 from main.logic import *
 
 from main.validators import oms_polis_number_validation, birth_date_validation, mobile_phone_validation
@@ -19,7 +19,7 @@ class CheckBoxAgree(forms.CheckboxInput):
                     ФГБУ ФСНКЦ ФМБА России</span></label>', out_html, "/pwriter/agreement")
 
 
-class PatientRegistrationForm(RegistrationForm):
+class PatientRegistrationForm(RegistrationFormUniqueEmail):
     def __init__(self, *args, **kwargs):
         super(PatientRegistrationForm, self).__init__(*args, **kwargs)
         self.fields.keyOrder = ['username', 'email', 'description']
@@ -76,7 +76,7 @@ class PatientRegistrationForm(RegistrationForm):
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
-        super(RegistrationForm, self).__init__(*args, **kwargs)
+        super(RegistrationFormUniqueEmail, self).__init__(*args, **kwargs)
 
     def clean_phone(self):
         phone = self.cleaned_data['phone']
@@ -101,6 +101,7 @@ class PatientRegistrationForm(RegistrationForm):
         self.cleaned_data['clinic_id'] = clinic.id
         try:
             patient = find_patient_by_polis_number(clinic, polis_number, birth_date, polis_seria)
+            self.cleaned_data['patient_id'] = patient.id
         except PatientError as er:
             raise forms.ValidationError(str(er))
 
@@ -108,6 +109,7 @@ class PatientRegistrationForm(RegistrationForm):
             raise forms.ValidationError(
                 config.PBSEARCH_ERROR,
             )
+        return self.cleaned_data
 
 
 

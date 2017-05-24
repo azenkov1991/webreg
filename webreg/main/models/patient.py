@@ -33,6 +33,11 @@ class Patient(models.Model):
     clinic = models.ManyToManyField(
         'main.Clinic', verbose_name="Мед. учреждение"
     )
+    user = models.ForeignKey(
+        'auth.User',
+        verbose_name="Пользователь",
+        null=True, blank=True,
+    )
 
     @property
     def age(self):

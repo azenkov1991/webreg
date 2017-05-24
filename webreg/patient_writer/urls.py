@@ -1,7 +1,9 @@
 from django.conf.urls import url, include
+from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
 from registration.views import RegistrationView
 from patient_writer.accounts.forms import PatientRegistrationForm
+from patient_writer.accounts.views import PatientRegistrationView
 from patient_writer.views import PatientWriteFirstStep, PatientWriteSecondStep, Confirm,\
     SpecialistTimeTable, TalonView, TalonPdf, AppointmentListView, HelpView, AppointmentDetailView,\
     CancelAppointmentView
@@ -12,9 +14,16 @@ apiurlpatterns = [
     url(r'^specializations_for_dep/(\d+)', AvailableSpecializaionsForDepartment.as_view()),
 ]
 urlpatterns = [
-    url(r'^accounts/register/$', RegistrationView.as_view(template_name='patient_writer/accounts/register.html',
-                                                          form_class=PatientRegistrationForm), {"form_class": PatientRegistrationForm},
+    url(r'^accounts/register/$', PatientRegistrationView.as_view(
+            disallowed_url=reverse_lazy('patient_writer:registration_disallowed'),
+            template_name='patient_writer/accounts/register.html',
+            form_class=PatientRegistrationForm,
+            success_url=reverse_lazy('patient_writer:registration_complete')
+        ),
         name="registration"),
+    url(r'^accounts/register/complete',
+        TemplateView.as_view(template_name="patient_writer/accounts/registration_complete.html"),
+        name="registration_complete"),
     url(r'^accounts/', include('registration.urls')),
     url(r'^input_first_step/', PatientWriteFirstStep.as_view(), name="input_first_step"),
     url(r'^input_second_step/$', PatientWriteSecondStep.as_view(), name="input_second_step"),
