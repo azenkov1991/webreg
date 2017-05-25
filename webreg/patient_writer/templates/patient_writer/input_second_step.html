@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="container-fluid has-frame">
-  <div class="col-xs-10 col-xs-offset-1">
+  <div class="col-xs-12 col-sm-10 col-sm-offset-1">
     <h3>ВЫБЕРИТЕ ДАТУ И ВРЕМЯ</h3>
     <form id="input_form_2" method="POST" action="{% url 'patient_writer:input_second_step' %}">
       {% csrf_token %}

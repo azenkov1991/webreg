@@ -1,9 +1,9 @@
 from django.conf.urls import url, include
 from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
-from registration.views import RegistrationView
+from django.contrib.auth.forms import AuthenticationForm
 from patient_writer.accounts.forms import PatientRegistrationForm
-from patient_writer.accounts.views import PatientRegistrationView
+from patient_writer.accounts.views import PatientRegistrationView, PatientActivationView, login
 from patient_writer.views import PatientWriteFirstStep, PatientWriteSecondStep, Confirm,\
     SpecialistTimeTable, TalonView, TalonPdf, AppointmentListView, HelpView, AppointmentDetailView,\
     CancelAppointmentView
@@ -19,12 +19,25 @@ urlpatterns = [
             template_name='patient_writer/accounts/register.html',
             form_class=PatientRegistrationForm,
             success_url=reverse_lazy('patient_writer:registration_complete')
-        ),
+            ),
         name="registration"),
     url(r'^accounts/register/complete',
         TemplateView.as_view(template_name="patient_writer/accounts/registration_complete.html"),
         name="registration_complete"),
-    url(r'^accounts/', include('registration.urls')),
+    url(r'^accounts/activate/(?P<activation_key>\w+)/$', PatientActivationView.as_view(
+            template_name='patient_writer/accounts/activate.html',
+            ),
+        name='registration_activate'),
+    url(r'^accounts/activate/complete/$', TemplateView.as_view(
+        template_name='patient_writer/activation_complete.html'),
+        name='activation_complete'),
+
+    url(r'^accounts/login', login, {'template_name': "patient_writer/accounts/login.html",
+                                    'authentication_form': AuthenticationForm,
+                                    'extra_context': {'redirect_field_value': reverse_lazy('patient_writer:input_first_step'),
+                                                      'redirect_field_name': 'next'}}, name="account_login"),
+    # url(r'^accounts/', include('registration.urls')),
+
     url(r'^input_first_step/', PatientWriteFirstStep.as_view(), name="input_first_step"),
     url(r'^input_second_step/$', PatientWriteSecondStep.as_view(), name="input_second_step"),
     url(r'^agreement/$', TemplateView.as_view(template_name="patient_writer/agreement.html"), name="agreement"),

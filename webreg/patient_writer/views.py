@@ -4,7 +4,7 @@ import io
 from wsgiref.util import FileWrapper
 
 from django.db.models import Q
-from django.http import StreamingHttpResponse
+from django.http import StreamingHttpResponse, HttpResponse
 from django.shortcuts import redirect
 from django.views.generic import FormView, TemplateView, View, ListView, DetailView, DeleteView
 from django.contrib.auth import login
@@ -33,6 +33,11 @@ class PatientWriteFirstStep(FormView):
             request.session['phone'] = form.cleaned_data['phone']
         return super(PatientWriteFirstStep, self).post(request, *args, **kwargs)
 
+    def get(self, request, *args, **kwargs):
+        if request.session.get('patient_id', None):
+            return redirect('patient_writer:input_second_step')
+        return super(PatientWriteFirstStep, self).get(request, *args, **kwargs)
+
 
 class Confirm(TemplateView):
     template_name = 'patient_writer/confirm.html'
@@ -56,21 +61,20 @@ class PatientWriteSecondStep(ProfileRequiredMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        clinic_id = request.session.get('clinic_id', None)
         patient_id = request.session.get('patient_id', None)
         try:
             patient = Patient.objects.get(pk=patient_id)
         except Patient.DoesNotExist:
-            return redirect("patient_writer:input_first_step")
+            return HttpResponse(status=500)
         # обновление телефона пациента
         phone = request.session.get('phone', None)
         if phone:
             update_patient_phone_number(patient, phone)
-        if not clinic_id or not patient_id:
+        if not patient_id:
             return redirect("patient_writer:input_first_step")
         years_old = patient.age
         departments = Department.objects.filter(
-            clinic_id=clinic_id,
+            clinic_id=patient.clinic.id,
             departmentconfig__min_age__lte=years_old,
             departmentconfig__max_age__gte=years_old)
         context['departments'] = departments

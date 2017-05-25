@@ -5,6 +5,7 @@ from django.shortcuts import redirect
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.auth.views import login as DjangoLogin
 from django.http import HttpResponse
 from main.logic import *
 from patient_writer.accounts.forms import PatientRegistrationForm
@@ -44,9 +45,10 @@ class PatientRegistrationView(RegistrationView):
                     log.error("Ошибка при обновлении телефона" + str(er) + str(cleaned_data))
                     return HttpResponse(status=500)
                 patient.user = new_user
+                patient.save()
                 try:
                     clinic = Clinic.objects.get(pk=cleaned_data['clinic_id'])
-                    patient.clinic.add(clinic)
+                    patient.clinic = clinic
                 except Clinic.DoesNotExist:
                     log.error("Ошибка при регистрации. Не найден пациент не найдено мед. учреждение"
                               + str(cleaned_data))
@@ -62,28 +64,23 @@ class PatientRegistrationView(RegistrationView):
         return self.success_url, (), {}
 
 
-class ActivationView(ActivationView):
-    http_method_names = ['get']
-    template_name = 'registration/activate.html'
-
-    def get(self, request, *args, **kwargs):
-        activated_user = self.activate(request, *args, **kwargs)
-        if activated_user:
-            success_url = self.get_success_url(request, activated_user)
-            try:
-                to, args, kwargs = success_url
-                return redirect(to, *args, **kwargs)
-            except ValueError:
-                return redirect(success_url)
-        return super(ActivationView, self).get(request, *args, **kwargs)
+class PatientActivationView(ActivationView):
 
     def activate(self, request, activation_key):
         activated_user = PatientRegistrationProfile.objects.activate_user(activation_key)
-        if activated_user:
-            signals.user_activated.send(sender=self.__class__, user=activated_user, request=request)
         return activated_user
 
     def get_success_url(self, user):
-        return self.success_url, (), {}
+        return reverse_lazy('patient_writer:activation_complete'), (), {}
 
 
+def login(request, *args, **kwargs):
+    http = DjangoLogin(request, *args, **kwargs)
+    try:
+        user = request.user
+        patient = Patient.objects.get(user_id=user.id)
+        request.session['patient_id'] = patient.id
+        request.sessoin['clinic_id'] = patient.clinic
+    except Exception:
+        pass
+    return http

@@ -1,0 +1,9 @@
+{% extends "patient_writer/base.html" %}
+{% load static %}
+
+
+{% block content %}
+    <h1>Активация.</h1>
+    <p>Добрый день, {{ account }}!</p>
+    <p>Ваша учетная запись активирована. <a href="{% url 'patient_writer:account_login' %}">Заходите</a> на сайт.</p>
+{% endblock %}

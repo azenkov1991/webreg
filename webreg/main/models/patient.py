@@ -30,7 +30,7 @@ class Patient(models.Model):
         max_length=6, verbose_name="Серия полиса",
         null=True, blank=True
     )
-    clinic = models.ManyToManyField(
+    clinic = models.ForeignKey(
         'main.Clinic', verbose_name="Мед. учреждение"
     )
     user = models.ForeignKey(

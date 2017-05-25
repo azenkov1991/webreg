@@ -149,10 +149,10 @@ def find_patient_by_birth_date(fn):
                                                                     last_name=last_name,
                                                                     middle_name=middle_name,
                                                                     birth_date=birth_date,
+                                                                    clinic=clinic,
                                                                     defaults={'polis_number':patient_data['polis_number'],
                                                                     'polis_seria': patient_data['polis_seria']})
                 set_external_id(patient, patient_data['patient_qqc'])
-                patient.clinic.add(clinic)
                 return patient
         except CacheQueryError:
             raise QmsIntegrationError("Ошибка интеграции с Qms")
@@ -176,8 +176,8 @@ def find_patient_by_polis_number(fn):
                                                                               'middle_name':patient_data['middle_name']},
                                                                     polis_number=polis_number,
                                                                     birth_date=birth_date,
-                                                                    polis_seria=polis_seria)
-                patient.clinic.add(clinic)
+                                                                    polis_seria=polis_seria,
+                                                                    clinic=clinic)
                 set_external_id(patient, patient_data['patient_qqc'])
                 return patient
         except CacheQueryError:
@@ -207,12 +207,12 @@ def update_patient_phone_number(fn):
     def update_patient_phone_number_in_qms(patient, phone_number):
         fn(patient, phone_number)
         # для всех клиник пациента обновить телефон
-        for clinic in patient.clinic.all():
-            qms = QMS(clinic.qmsdb.settings)
-            qqc153 = get_external_id(patient)
-            if clinic.qmsdb.update_phone:
-                try:
-                    qms.query.execute_query('UpdatePatientPhoneNumber', qqc153, phone_number)
-                except CacheQueryError:
-                    raise PatientError("Ошибка обновления телефона в Qms")
+        clinic = patient.clinic
+        qms = QMS(clinic.qmsdb.settings)
+        qqc153 = get_external_id(patient)
+        if clinic.qmsdb.update_phone:
+            try:
+                qms.query.execute_query('UpdatePatientPhoneNumber', qqc153, phone_number)
+            except CacheQueryError:
+                raise PatientError("Ошибка обновления телефона в Qms")
     return update_patient_phone_number_in_qms
