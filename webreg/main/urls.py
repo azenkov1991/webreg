@@ -23,6 +23,5 @@ urlpatterns = [
                                       'extra_context': {'redirect_field_value': '/',
                                                         'redirect_field_name': 'next'}
                                       }, name="account_logout"),
-    url(r'^accounts/password-reset', password_reset, {'template_name': "account/password_reset_.html"},
-        name="account_reset_password")
 ]
+

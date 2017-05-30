@@ -50,5 +50,4 @@ Setting Up Your Users
 
 * Запустить worker celery:
 
-    python manage.py celeryd_multi start w1 --pidfile="/tmp/%n.pid" --logfile="/var
-/log/celery/%n.log" --loglevel=INFO --time-limit=300
+    python manage.py celeryd_multi start w1 --pidfile="/tmp/%n.pid" --logfile="/var/log/celery/%n.log" --loglevel=INFO --time-limit=300
