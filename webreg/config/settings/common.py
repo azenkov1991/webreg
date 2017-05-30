@@ -59,10 +59,10 @@ LOCAL_APPS = (
     'catalogs',
     'main',
     'patient_writer',
+    'patient_writer.accounts',
     'qmsmodule',
     'qmsintegration',
     'mixins',
-    'patient_writer.accounts'
 )
 
 MIDDLEWARE = [
