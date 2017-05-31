@@ -84,8 +84,12 @@ class QMS:
             result['last_name'] = fio[1]
             result['middle_name'] = fio[2]
         polisstr = query_result['polis']
-        result['polis_number'] = re.findall(u"№ (\d*)", polisstr)[0]
-        result['polis_seria'] = re.findall(u"Серия (\d*)", polisstr)[0]
+        if polisstr:
+            result['polis_number'] = re.findall(u"№ (\d*)", polisstr)[0]
+            result['polis_seria'] = re.findall(u"Серия (\d*)", polisstr)[0]
+        else:
+            result['polis_number'] = None
+            result['polis_seria'] = None
         try:
             birth_date = datetime.datetime.strptime(result['birth_date'],"%Y%m%d")
         except ValueError:

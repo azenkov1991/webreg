@@ -37,6 +37,7 @@ class Patient(models.Model):
         'auth.User',
         verbose_name="Пользователь",
         null=True, blank=True,
+        on_delete=models.SET_NULL
     )
 
     @property

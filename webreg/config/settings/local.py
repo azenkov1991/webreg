@@ -35,7 +35,15 @@ DATABASES = {
         'PASSWORD': get_secret("DB_LOG_PASSWORD"),
         'HOST': '127.0.0.1',
         'PORT': '5432'
-    }
+    },
+    'old_db': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': get_secret('OLDDB_NAME'),
+        'USER': get_secret('OLDDB_USER'),
+        'PASSWORD': get_secret('OLDDB_PASSWORD'),
+        'HOST': get_secret('OLDDB_HOST'),
+        'PORT': get_secret('OLDDB_PORT'),
+    },
 }
 
 
