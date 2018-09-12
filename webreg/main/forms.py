@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UsernameField, AuthenticationForm as DjangoAuthenticationForm
 from main.models import UserProfile
 
+
 class AuthenticationForm(DjangoAuthenticationForm):
     username = UsernameField(
         label="Пользователь",
@@ -18,6 +19,7 @@ class AuthenticationForm(DjangoAuthenticationForm):
         'invalid_login': "Неверное имя пользователя или пароль",
         'inactive': "Аккаунт неактивен",
     }
+
 
 class UserProfileForm(forms.ModelForm):
     def clean(self):

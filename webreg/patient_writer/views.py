@@ -201,7 +201,7 @@ class SpecialistTimeTable(ProfileRequiredMixin, TemplateView):
         try:
             patient_id = request.session['patient_id']
             patient = Patient.objects.get(id=patient_id)
-        except Exception as e:
+        except (KeyError, Patient.DoesNotExist):
             return redirect("patient_writer:input_first_step")
 
         user_profile = request.user_profile

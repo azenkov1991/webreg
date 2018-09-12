@@ -69,8 +69,9 @@ class AvailableSpecialists(ProfileRequiredMixinForApi, APIView):
     def get(self, request, **kwargs):
         try:
             patient = Patient.objects.get(id=request.session['patient_id'])
-        except Exception as e:
+        except (KeyError, Patient.DoesNotExist) as e:
             return Response({"Error": str(e)})
+
         user_profile = request.user_profile
         department_id = kwargs.get('department_id', None)
         specilization_id = kwargs.get('specialization_id', None)

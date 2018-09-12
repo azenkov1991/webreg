@@ -1,6 +1,8 @@
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.mixins import AccessMixin
 from django.http import HttpResponse
+from django.core.exceptions import ImproperlyConfigured
+from main.models import SiteConfig
 
 
 class ProfileRequiredMixin(AccessMixin):
@@ -12,8 +14,8 @@ class ProfileRequiredMixin(AccessMixin):
         try:
             site = get_current_site(request)
             self.login_url = site.siteconfig.login_url
-        except:
-            pass
+        except SiteConfig.DoesNotExist as e:
+            raise ImproperlyConfigured("Нет настройки для сайта " + site.domain) from e
         if not request.user.is_authenticated or \
            not request.user_profile:
             return self.handle_no_permission()
