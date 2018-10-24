@@ -1,5 +1,5 @@
 from constance import config
-from main.models import AppointmentError, Patient, PatientError
+from main.models import AppointmentError, Patient, PatientError, Clinic
 from catalogs.models import OKMUService
 from qmsintegration.models import *
 from qmsmodule.qmsfunctions import QMS
@@ -161,27 +161,30 @@ def find_patient_by_birth_date(fn):
 
 @check_enable
 def find_patient_by_polis_number(fn):
-    def find_patient_by_polis_number_in_qms(clinic, polis_number, birth_date, polis_seria=None):
-        patient = fn(clinic, polis_number, birth_date, polis_seria)
+    def find_patient_by_polis_number_in_qms(polis_number, birth_date, polis_seria=None):
+        patient = fn(polis_number, birth_date, polis_seria)
         if patient:
             return patient
-        try:
-            qms = QMS(clinic.qmsdb.settings)
-            patient_data = qms.get_patient_information(polis_number=polis_number,
-                                                       polis_seria=polis_seria,
-                                                       birth_date=birth_date)
-            if patient_data:
-                patient, created = Patient.objects.update_or_create(defaults={'first_name':patient_data['first_name'],
-                                                                              'last_name':patient_data['last_name'],
-                                                                              'middle_name':patient_data['middle_name']},
-                                                                    polis_number=polis_number,
-                                                                    birth_date=birth_date,
-                                                                    polis_seria=polis_seria,
-                                                                    clinic=clinic)
-                set_external_id(patient, patient_data['patient_qqc'])
-                return patient
-        except CacheQueryError:
-            raise PatientError("Ошибка при поиске пациента в Qms")
+        clinics = Clinic.objects.all()
+        for clinic in clinics:
+            try:
+                qms = QMS(clinic.qmsdb.settings)
+                patient_data = qms.get_patient_information(polis_number=polis_number,
+                                                           polis_seria=polis_seria,
+                                                           birth_date=birth_date)
+                # если пациент найден в базе и прикреплен
+                if patient_data and qms.check_patient_register(patient_data['patient_qqc']):
+                    patient, created = Patient.objects.update_or_create(defaults={'first_name': patient_data['first_name'],
+                                                                                  'last_name': patient_data['last_name'],
+                                                                                  'middle_name': patient_data['middle_name']},
+                                                                        polis_number=polis_number,
+                                                                        birth_date=birth_date,
+                                                                        polis_seria=polis_seria,
+                                                                        clinic=clinic)
+                    set_external_id(patient, patient_data['patient_qqc'])
+                    return patient
+            except CacheQueryError:
+                raise PatientError("Ошибка при поиске пациента в Qms")
     return find_patient_by_polis_number_in_qms
 
 

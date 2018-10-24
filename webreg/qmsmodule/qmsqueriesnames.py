@@ -127,6 +127,10 @@ QMS_QUERIES = {
                     'class': 'User.Query',
                     'query': 'GG'
                 },
+                'CheckRegister': {
+                    'class': 'User.Query',
+                    'query': 'GetRegistr',
+                },
                 'UpdatePatientPhoneNumber': {
                     'class': 'User.QueryCatalog',
                     'query': 'UpdatePatientPhoneNumber'

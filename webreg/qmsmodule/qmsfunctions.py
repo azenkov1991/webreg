@@ -76,8 +76,8 @@ class QMS:
                 return None
             columns = self.query.get_columns()
             query_result = dict(zip(columns, query_result))
-            for (k1, k2) in zip(['birth_date', 'address_reg', 'address_liv','patient_qqc'],
-                                ['BirthDate', 'AddressReg', 'AddressLiv','qqc153'],):
+            for (k1, k2) in zip(['birth_date', 'address_reg', 'address_liv', 'patient_qqc'],
+                                ['BirthDate', 'AddressReg', 'AddressLiv', 'qqc153'],):
                 result[k1] = query_result[k2]
             fio = query_result['fio'].split("_")
             result['first_name'] = fio[0]
@@ -91,7 +91,7 @@ class QMS:
             result['polis_number'] = None
             result['polis_seria'] = None
         try:
-            birth_date = datetime.datetime.strptime(result['birth_date'],"%Y%m%d")
+            birth_date = datetime.datetime.strptime(result['birth_date'], "%Y%m%d")
         except ValueError:
             birth_date = None
         result['birth_date'] = birth_date
@@ -127,6 +127,10 @@ class QMS:
         if result[0] != u'OK':
                 return None
         return result[3]
+
+    def check_patient_register(self, patient_id):
+        self.query.execute_query('CheckRegister', self.DATABASE_CODE, patient_id)
+        return bool(self.query.result)
 
     def get_avail_spec(self, specialist_code):
         self.query.execute_query('AvailSpecDetail', self.DATABASE_CODE, specialist_code)

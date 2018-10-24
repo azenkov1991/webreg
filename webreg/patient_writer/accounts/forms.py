@@ -24,15 +24,6 @@ class PatientRegistrationForm(RegistrationFormUniqueEmail):
         super(PatientRegistrationForm, self).__init__(*args, **kwargs)
         self.fields.keyOrder = ['username', 'email', 'description']
 
-    try:
-        city_choices = list(Clinic.objects.order_by('-city').values_list('city', 'city').distinct())
-    except:
-        city_choices = []
-    city = forms.ChoiceField(
-        choices=city_choices,
-        label='Город',
-        widget=forms.Select()
-    )
     polis_number = forms.CharField(
         max_length=16, label='Номер полиса',
         widget=forms.TextInput(
@@ -107,20 +98,16 @@ class PatientRegistrationForm(RegistrationFormUniqueEmail):
         cleaned_data = self.cleaned_data
         request_param = map(lambda u: cleaned_data.get(u), ('city', 'polis_number', 'polis_seria', 'birth_date'))
         city, polis_number, polis_seria, birth_date = request_param
-        clinic = Clinic.objects.filter(city=city).first()
 
-        if not clinic:
-            raise forms.ValidationError(
-                "Не найдено Мед. учреждение для этого города",
-            )
-        self.cleaned_data['clinic_id'] = clinic.id
+
         try:
-            patient = find_patient_by_polis_number(clinic, polis_number, birth_date, polis_seria)
+            patient = find_patient_by_polis_number(polis_number, birth_date, polis_seria)
             if not patient:
                 raise forms.ValidationError(
                     config.PBSEARCH_ERROR,
             )
             self.cleaned_data['patient_id'] = patient.id
+            self.cleaned_data['clinic_id'] = patient.clinic.id
         except PatientError as er:
             raise forms.ValidationError(str(er))
 
