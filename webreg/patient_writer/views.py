@@ -26,7 +26,7 @@ class PatientWriteFirstStep(FormView):
     def post(self, request, *args, **kwargs):
         form = self.get_form()
         if form.is_valid():
-            login(request, form.get_user())
+            login(request, form.get_user(), backend='main.authentication.PolisNumberBackend')
             # сохранение id пациента в сессии для последующих шагов
             request.session['patient_id'] = form.cleaned_data['patient_id']
             request.session['clinic_id'] = form.cleaned_data['clinic_id']

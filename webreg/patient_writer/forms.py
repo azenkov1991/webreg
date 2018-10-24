@@ -102,6 +102,7 @@ class InputFirstStepForm(forms.Form):
         self.user = patient.user
         if not self.user:
             self.user = authenticate(username=settings.PATIENT_WRITER_USER)
+
         if self.user is None:
             raise forms.ValidationError(
                 "Мед учреждение",

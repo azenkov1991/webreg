@@ -45,6 +45,14 @@ class PatientRegistrationForm(RegistrationFormUniqueEmail):
         help_text='Пример: 2450000011112222',
         validators=[oms_polis_number_validation, ]
     )
+    polis_seria = forms.CharField(
+        max_length=6, label='Серия полиса', required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'оставьте пустым для полиса нового образца',
+            'autocomplete': 'off',
+        }),
+        help_text='Пример: КМС'
+    )
     birth_date = forms.DateField(
         label='Дата рождения',
         widget=forms.DateInput(
@@ -84,6 +92,13 @@ class PatientRegistrationForm(RegistrationFormUniqueEmail):
                                 ord(')'): None,
                                 ord('-'): None,
                                 ord(' '): None})
+    def clean_polis_seria(self):
+        polis_seria = self.cleaned_data['polis_seria']
+        if 'polis_number' in self.cleaned_data:
+            polis_number = self.cleaned_data['polis_number']
+            if len(polis_number) == 7 and not len(polis_seria):
+                raise forms.ValidationError('Необходима серия полиса')
+        return polis_seria
 
     def clean(self):
         super(PatientRegistrationForm, self).clean()
@@ -101,14 +116,15 @@ class PatientRegistrationForm(RegistrationFormUniqueEmail):
         self.cleaned_data['clinic_id'] = clinic.id
         try:
             patient = find_patient_by_polis_number(clinic, polis_number, birth_date, polis_seria)
+            if not patient:
+                raise forms.ValidationError(
+                    config.PBSEARCH_ERROR,
+            )
             self.cleaned_data['patient_id'] = patient.id
         except PatientError as er:
             raise forms.ValidationError(str(er))
 
-        if not patient:
-            raise forms.ValidationError(
-                config.PBSEARCH_ERROR,
-            )
+
         return self.cleaned_data
 
 
