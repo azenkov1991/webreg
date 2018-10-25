@@ -4,7 +4,7 @@ from django.views.generic.base import TemplateView
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import views as auth_views
 from patient_writer.accounts.forms import PatientRegistrationForm
-from patient_writer.accounts.views import PatientRegistrationView, PatientActivationView, login
+from patient_writer.accounts.views import PatientRegistrationView, PatientActivationView, login, logout
 
 urlpatterns = [
     url(r'^accounts/register/$', PatientRegistrationView.as_view(
@@ -25,10 +25,26 @@ urlpatterns = [
         template_name='patient_writer/activation_complete.html'),
         name='activation_complete'),
 
-    url(r'^accounts/login', login, {'template_name': "patient_writer/accounts/login.html",
-                                    'authentication_form': AuthenticationForm,
-                                    'extra_context': {'redirect_field_value': reverse_lazy('patient_writer:input_first_step'),
-                                                      'redirect_field_name': 'next'}}, name="account_login"),
+    url(r'^accounts/login', login,
+        {
+            'template_name': "patient_writer/accounts/login.html",
+            'authentication_form': AuthenticationForm,
+            'extra_context': {
+                'redirect_field_value': reverse_lazy('patient_writer:input_second_step'),
+                'redirect_field_name': 'next'
+            }
+        },
+        name="account_login"),
+
+    url(r'^accounts/logout', logout,
+        {
+            'template_name': "patient_writer/accounts/logout.html",
+            'extra_context': {
+                'redirect_field_value': reverse_lazy('patient_writer:input_first_step'),
+                'redirect_field_name': 'next'
+            }
+        },
+        name="account_logout"),
 
     url(r'^password/reset/$',
         auth_views.password_reset,

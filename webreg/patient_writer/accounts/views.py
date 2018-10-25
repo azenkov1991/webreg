@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.sites.shortcuts import get_current_site
-from django.contrib.auth.views import login as DjangoLogin
+from django.contrib.auth.views import login as DjangoLogin, logout as DjangoLogout
 from django.http import HttpResponse
 from main.logic import *
 from patient_writer.accounts.forms import PatientRegistrationForm
@@ -76,11 +76,28 @@ class PatientActivationView(ActivationView):
 
 def login(request, *args, **kwargs):
     http = DjangoLogin(request, *args, **kwargs)
+    if request.GET:
+        patient_id = request.session.get('patient_id', None)
+        if patient_id:
+            return redirect('patient_writer:input_second_step')
+
+    if request.POST:
+        try:
+            user = request.user
+            patient = Patient.objects.get(user_id=user.id)
+            request.session['patient_id'] = patient.id
+            request.session['clinic_id'] = patient.clinic.id
+        except Patient.DoesNotExist:
+            pass
+    return http
+
+
+def logout(request, *args, **kwargs):
+    http = DjangoLogout(request, *args, **kwargs)
     try:
-        user = request.user
-        patient = Patient.objects.get(user_id=user.id)
-        request.session['patient_id'] = patient.id
-        request.sessoin['clinic_id'] = patient.clinic
-    except Exception:
+        del request.session['patient_id']
+        del request.session['clinic_id']
+    except KeyError:
         pass
     return http
+
