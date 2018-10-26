@@ -4,7 +4,8 @@ from django.views.generic.base import TemplateView
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import views as auth_views
 from patient_writer.accounts.forms import PatientRegistrationForm
-from patient_writer.accounts.views import PatientRegistrationView, PatientActivationView, login, logout
+from patient_writer.accounts.views import PatientRegistrationView, PatientActivationView, login, logout, \
+    LogOutConfirmView
 
 urlpatterns = [
     url(r'^accounts/register/$', PatientRegistrationView.as_view(
@@ -36,7 +37,7 @@ urlpatterns = [
         },
         name="account_login"),
 
-    url(r'^accounts/logout', logout,
+    url(r'^accounts/logout/$', logout,
         {
             'template_name': "patient_writer/accounts/logout.html",
             'extra_context': {
@@ -45,6 +46,8 @@ urlpatterns = [
             }
         },
         name="account_logout"),
+
+    url(r'^accounts/logout-confirm/$', LogOutConfirmView.as_view(), name="account_logout_confirm"),
 
     url(r'^password/reset/$',
         auth_views.password_reset,

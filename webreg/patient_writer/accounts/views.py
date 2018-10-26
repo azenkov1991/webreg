@@ -7,6 +7,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.views import login as DjangoLogin, logout as DjangoLogout
 from django.http import HttpResponse
+from django.views.generic import TemplateView
 from main.logic import *
 from patient_writer.accounts.forms import PatientRegistrationForm
 from patient_writer.accounts.models import PatientRegistrationProfile
@@ -76,12 +77,12 @@ class PatientActivationView(ActivationView):
 
 def login(request, *args, **kwargs):
     http = DjangoLogin(request, *args, **kwargs)
-    if request.GET:
+    if request.method == 'GET':
         patient_id = request.session.get('patient_id', None)
         if patient_id:
             return redirect('patient_writer:input_second_step')
 
-    if request.POST:
+    if request.method == 'POST':
         try:
             user = request.user
             patient = Patient.objects.get(user_id=user.id)
@@ -92,7 +93,12 @@ def login(request, *args, **kwargs):
     return http
 
 
+class LogOutConfirmView(TemplateView):
+    template_name = 'patient_writer/accounts/logout.html'
+
+
 def logout(request, *args, **kwargs):
+    kwargs.update({'next_page': 'patient_writer:input_first_step'})
     http = DjangoLogout(request, *args, **kwargs)
     try:
         del request.session['patient_id']
