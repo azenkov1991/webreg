@@ -71,7 +71,7 @@ class Command(BaseCommand):
                     self.update_linked_usls(qms=qms, specialist=specialist, qqc244=spec.qqc244)
                     specialist.save()
             else:
-                if entity_exist("244",spec.qqc244):
+                if entity_exist("244", spec.qqc244):
                     specialist = self.get_exist_specialist(spec.qqc244)
                     specialist.safe_delete()
 

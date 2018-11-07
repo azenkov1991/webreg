@@ -11,15 +11,16 @@
         <button type="submit" formmethod="get" formaction="{% url 'patient_writer:input_second_step' %}" class="btn btn-primary btn-lg col-xs-12">Да. Продолжить запись</button>
       </div>
       <div class="hidden-xs col-xs-6">
-        <button type="submit" formethod="get" formaction="{% url 'patient_writer:input_first_step' %}" class="btn btn-primary btn-lg col-xs-12">Нет. Ввести заново</button>
+        <button type="submit" formethod="post" formaction="{% url 'patient_writer:account_logout' %}" class="btn btn-primary btn-lg col-xs-12">Нет. Ввести заново</button>
       </div>
       <div class="visible-xs col-xs-6">
         <button type="submit" formmethod="get" formaction="{% url 'patient_writer:input_second_step' %}" class="btn btn-primary btn-lg col-xs-12">Да</button>
       </div>
       <div class="visible-xs col-xs-6">
-        <button type="submit" formethod="get" formaction="{% url 'patient_writer:input_first_step' %}" class="btn btn-primary btn-lg col-xs-12">Нет</button>
+        <button type="submit" formethod="post" formaction="{% url 'patient_writer:account_logout' %}" class="btn btn-primary btn-lg col-xs-12">Нет</button>
       </div>
     </div>
+      <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
   </form>
 </div>
 {% endblock content%}

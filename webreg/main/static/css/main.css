@@ -86,6 +86,7 @@ label{
   top: -31px;
   right: -35px;
   float: right;
+  outline:0 !important;
 }
 
 .round{

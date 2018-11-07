@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'crispy_forms',
     'flatblocks',
     'djcelery',
-    'djcelery_email'
+    'djcelery_email',
+    'registration'
 ]
 
 
@@ -58,6 +59,7 @@ LOCAL_APPS = (
     'catalogs',
     'main',
     'patient_writer',
+    'patient_writer.accounts',
     'qmsmodule',
     'qmsintegration',
     'mixins',
@@ -117,8 +119,7 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend',
                           'main.authentication.PolisNumberBackend']
 
-# общий пользователь для записи на прием пациентов
-PATIENT_WRITER_USER = 'patient_writer'
+ACCOUNT_ACTIVATION_DAYS = 2
 
 # имя настроек профиля по умолчанию
 DEFAULT_PROFILE_SETTINGS_NAME = "default"
@@ -162,6 +163,8 @@ CONSTANCE_CONFIG = {
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
+AUTH_USER_EMAIL_UNIQUE = True
+
 EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
 EMAIL_HOST = get_secret("EMAIL_HOST")
 EMAIL_PORT = 25
@@ -180,10 +183,5 @@ celery = Celery(
     include=['main.tasks', 'djcelery_email.tasks']
 )
 
-WS4REDIS_CONNECTION = {
-    'host': '127.0.0.1',
-    'port': 6379,
-    'db': 9,
-}
 
 from patient_writer.settings import *

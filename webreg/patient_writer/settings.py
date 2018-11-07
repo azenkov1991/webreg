@@ -13,3 +13,9 @@ CONSTANCE_CONFIG.update({
 
     'TIMETABLE_DAY': (7, 'Количество дней в расписании'),
 })
+
+# общий пользователь для записи на прием пациентов
+PATIENT_WRITER_USER = 'patient_writer'
+
+# общий профиль для проекта записи на прием
+PATIENT_WRITER_PROFILE = "patient_writer"

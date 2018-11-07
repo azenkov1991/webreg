@@ -28,10 +28,16 @@ class Patient(models.Model):
     )
     polis_seria = models.CharField(
         max_length=6, verbose_name="Серия полиса",
-        null=True, blank=True
+        blank=True, default=""
     )
-    clinic = models.ManyToManyField(
+    clinic = models.ForeignKey(
         'main.Clinic', verbose_name="Мед. учреждение"
+    )
+    user = models.ForeignKey(
+        'auth.User',
+        verbose_name="Пользователь",
+        null=True, blank=True,
+        on_delete=models.SET_NULL
     )
 
     @property

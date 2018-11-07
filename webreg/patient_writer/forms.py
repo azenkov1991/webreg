@@ -1,24 +1,15 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.conf import settings
+from django.utils.html import format_html
 from datetime import date
 from constance import config
-from main.validators import oms_polis_number_validation
+from main.validators import oms_polis_number_validation, birth_date_validation, mobile_phone_validation
 from main.models import Clinic, PatientError
 from main.logic import find_patient_by_polis_number
 
 
-
 class InputFirstStepForm(forms.Form):
-    try:
-        city_choices = list(Clinic.objects.order_by('-city').values_list('city', 'city').distinct())
-    except:
-        city_choices = []
-    city = forms.ChoiceField(
-        choices=city_choices,
-        label='Город',
-        widget=forms.Select()
-    )
     polis_number = forms.CharField(
         max_length=16, label='Номер полиса',
         widget=forms.TextInput(attrs={
@@ -44,6 +35,7 @@ class InputFirstStepForm(forms.Form):
             'autocomplete': 'off',
             'placeholder': 'дд.мм.гггг',
         }),
+        validators=[birth_date_validation, ]
     )
     phone = forms.CharField(
         max_length=20, label='Сотовый телефон',
@@ -52,14 +44,14 @@ class InputFirstStepForm(forms.Form):
             'placeholder': 'сотовый/домашний в формате +7 (XXX) XXX-XX-XX',
             'autocomplete': 'off',
         }),
-        help_text='Пример: +7 (XXX) XXX-XX-XX'
+        help_text='Пример: +7 (XXX) XXX-XX-XX',
+        validators=[mobile_phone_validation, ]
     )
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
         self.user = None
         super(InputFirstStepForm, self).__init__(*args, **kwargs)
-
 
     def clean_polis_seria(self):
         polis_seria = self.cleaned_data['polis_seria']
@@ -69,25 +61,12 @@ class InputFirstStepForm(forms.Form):
                 raise forms.ValidationError('Необходима серия полиса')
         return polis_seria
 
-
     def clean_phone(self):
         phone = self.cleaned_data['phone']
-        if not phone.startswith('+7'):
-            raise forms.ValidationError('Телефон должен начинаться на +7')
-        elif len(phone) != 18:
-            raise forms.ValidationError('Неверный формат телефона')
-        return phone.translate({ord('('):None,
-                               ord(')'):None,
-                               ord('-'):None,
+        return phone.translate({ord('('): None,
+                               ord(')'): None,
+                               ord('-'): None,
                                ord(' '): None})
-
-    def clean_birth_date(self):
-        birth_date = self.cleaned_data['birth_date']
-        if birth_date <= date(year=1900, month=12, day=31):
-            raise forms.ValidationError('Некорректная дата')
-        else:
-            return birth_date
-
 
     def clean(self):
         if self._errors:
@@ -95,15 +74,9 @@ class InputFirstStepForm(forms.Form):
         cleaned_data = self.cleaned_data
         request_param = map(lambda u: cleaned_data.get(u), ('city', 'polis_number', 'polis_seria', 'birth_date'))
         city, polis_number, polis_seria, birth_date = request_param
-        clinic = Clinic.objects.filter(city=city).first()
 
-        if not clinic:
-            raise forms.ValidationError(
-                "Не найдено Мед. учреждение для этого города",
-        )
-        self.cleaned_data['clinic_id'] = clinic.id
         try:
-            patient = find_patient_by_polis_number(clinic, polis_number, birth_date, polis_seria)
+            patient = find_patient_by_polis_number(polis_number, birth_date, polis_seria)
         except PatientError as er:
             raise forms.ValidationError(str(er))
 
@@ -111,14 +84,23 @@ class InputFirstStepForm(forms.Form):
             raise forms.ValidationError(
                 config.PBSEARCH_ERROR,
             )
-        self.user = authenticate(username=settings.PATIENT_WRITER_USER)
+
+        if not patient.user:
+            self.user = authenticate(username=settings.PATIENT_WRITER_USER)
+        else:
+            self.user = authenticate(
+                username=patient.user.username, polis_number=patient.polis_number,
+                birth_date=patient.birth_date,
+                polis_seria=patient.polis_seria
+            )
+
         if self.user is None:
             raise forms.ValidationError(
                 "Мед учреждение",
                 code='invalid_login',
                 params={'username': self.username_field.verbose_name},
             )
-
+        self.cleaned_data['clinic_id'] = patient.clinic.id
         self.cleaned_data['user_id'] = self.user.id
         self.cleaned_data['patient_id'] = patient.id
         return self.cleaned_data
@@ -126,5 +108,10 @@ class InputFirstStepForm(forms.Form):
     def get_user(self):
         return self.user
 
+
 class InputSecondStepForm(forms.Form):
+    pass
+
+
+class RegistrationForm(forms.Form):
     pass
