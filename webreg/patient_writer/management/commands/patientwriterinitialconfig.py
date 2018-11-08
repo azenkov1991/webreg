@@ -44,8 +44,10 @@ class Command(BaseCommand):
 
         user_profile, created = UserProfile.objects.get_or_create(
             name=patient_writer_profile_name,
-            site=site,
-            profile_settings=profile_settings
+            defaults={
+                'site': site,
+                'profile_settings': profile_settings
+            }
         )
         user_profile.user.add(user)
         print("Создан профиль пользователя по умолчанию")

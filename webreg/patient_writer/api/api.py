@@ -48,13 +48,14 @@ class AvailableSpecializaionsForDepartment(ProfileRequiredMixinForApi, APIView):
             allowed_slot_types = get_allowed_slot_types(user_profile, patient,
                                                         department, specialization_config.specialization)
             # проверка наличия свобоных ячеек
-            cell_exists = Cell.objects.filter(
-                date__range=(date_from, date_to),
-                specialist__department_id=department_id,
-                specialist__specialization=specialization_config.specialization,
-                slot_type__in=allowed_slot_types,
-                free=True
-            ).exists()
+            cell_exists = True
+            # cell_exists = Cell.objects.filter(
+            #     date__range=(date_from, date_to),
+            #     specialist__department_id=department_id,
+            #     specialist__specialization=specialization_config.specialization,
+            #     slot_type__in=allowed_slot_types,
+            #     free=True
+            # ).exists()
             # настройка показывать комментарий заставляет показывать специальность
             # даже если нет свободных ячеек и специализация выключена
             if not specialization_config.is_show_comment:

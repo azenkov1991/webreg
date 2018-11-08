@@ -8,7 +8,7 @@ from django.http import StreamingHttpResponse, HttpResponse
 from django.shortcuts import redirect
 from django.views.generic import FormView, TemplateView, View, ListView, DetailView, DeleteView
 from django.contrib.auth import login
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ImproperlyConfigured
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from patient_writer.forms import InputFirstStepForm
@@ -96,11 +96,11 @@ class PatientWriteSecondStep(ProfileRequiredMixin, TemplateView):
         department = Department.objects.get(id=department_id)
         allowed_slot_types = get_allowed_slot_types(user_profile, patient, department, specialist.specialization)
         if cell.slot_type.id not in allowed_slot_types:
-            raise PermissionDenied
+            raise PermissionDenied("Нет доступных для назначения слотов")
         service = get_specialist_service(specialist)
         # Для специализации и специалиста обязательно должна быть настроена услуга
         if not service:
-            raise PermissionDenied
+            raise ImproperlyConfigured("Для специализации и специалиста обязательно должна быть настроена услуга")
         request.session['cell_id'] = cell_id
         if request.session.get('error', None):
             del request.session['error']
