@@ -20,9 +20,31 @@ class QmsDB(models.Model):
     name = models.CharField(
         max_length=128, verbose_name="Название"
     )
-    connection_param = JSONField(
-        verbose_name="Настройки соединения"
+    host = models.CharField(
+        max_length=128, verbose_name="Адрес хоста",
+        default="localhost"
     )
+    user = models.CharField(
+        max_length=128, verbose_name="Пользователь",
+        default="_SYSTEM"
+    )
+    password = models.CharField(
+        max_length=128, verbose_name="Пароль",
+        default="SYS"
+    )
+    port = models.PositiveIntegerField(
+        verbose_name="Порт", default=1972
+    )
+
+    wsdl_port = models.PositiveIntegerField(
+        verbose_name="Порт wsdl", default=57772
+    )
+
+    namespace = models.CharField(
+        max_length=32, verbose_name="Namespace",
+        default="QMS"
+    )
+
     db_code = models.CharField(
         max_length=128, verbose_name="Код основной базы данных"
     )
@@ -41,7 +63,14 @@ class QmsDB(models.Model):
     @property
     def settings(self):
         return {
-            'CONNECTION_PARAM': self.connection_param,
+            'CONNECTION_PARAM': {
+                'host': self.host,
+                'port': str(self.port),
+                'wsdl_port': str(self.wsdl_port),
+                'user': self.user,
+                'password': self.password,
+                'namespace': self.namespace,
+            },
             'CACHE_CODING': self.coding,
             'DATABASE_CODE': self.db_code
         }
@@ -125,6 +154,7 @@ class IdMatchingTable(models.Model):
     class Meta:
         unique_together = ('internal_id', 'object_matching_table')
         verbose_name_plural = 'Таблица соответсвий id'
+
 
 def delete_id_from_id_matching_table(sender, **kwargs):
     if config.QMS_INTEGRATION_ENABLE:

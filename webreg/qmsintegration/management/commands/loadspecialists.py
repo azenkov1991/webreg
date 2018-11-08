@@ -1,6 +1,7 @@
 import  logging
 from catalogs.models import *
 from django.core.management.base import BaseCommand, CommandError
+from django.core.exceptions import ImproperlyConfigured
 from qmsmodule.qmsfunctions import *
 from qmsintegration.models import *
 from main.models import Specialist, Department, Specialization
@@ -11,9 +12,7 @@ logger = logging.getLogger("webreg")
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("dbname", help="Название настроек базы QMS из qmsintegration.OmsDB")
-        parser.add_argument("pID", help="Подразделение в QMS")
         parser.add_argument("department", help="Id подразделения", type=int)
-
 
     def cre_spec(self, fio, specialization, department_id, qqc244):
         spec = None
@@ -89,7 +88,13 @@ class Command(BaseCommand):
 
 
         qms = QMS(qmsdb.settings)
-        self.load_specs_in_department(qms=qms, department=department, qms_department=options["pID"])
+        try:
+            qms_department = department.qmsdepartment
+        except QmsDepartment.DoesNotExist:
+            raise ImproperlyConfigured('Необходимо настроить соответсвие подразделений сайта и qms')
+
+        for qms_department_code in qms_department.codes.all():
+            self.load_specs_in_department(qms, department, qms_department_code.code)
 
 
 
