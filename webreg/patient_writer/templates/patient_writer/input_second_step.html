@@ -92,18 +92,24 @@
               </div>
             </div>
           </div>
-          <button id="show-timetable-button" type="button" class="btn btn-primary btn-block">
-            ВЫБРАТЬ
-          </button>
+          <div class="row">
+              <div class="col-sm-4 col-sm-offset-4">
+                <button id="show-timetable-button" type="button" class="btn btn-primary btn-block">
+                    ВЫБРАТЬ
+                </button>
+              </div>
+          </div>
         </div>
         <input id="id_cell" type="hidden" name="cell">
         <div  class="modal fade" id="timetable-modal-window">
           <div>
             <div class="modal-content">
               <div class="modal-header">
-                <button type="button" class="btn btn-primary btn-block" data-dismiss="modal">
-                  <span class="glyphicon glyphicon-chevron-left"></span>Назад
-                </button>
+                <div class="col-xs-4 col-xs-offset-4">
+                  <button type="button" class="btn btn-primary btn-block" data-dismiss="modal">
+                    <span class="glyphicon glyphicon-chevron-left"></span>Назад
+                  </button>
+                </div>
               </div>
               <div id="id_loading_message" style="display: none">
                 <h4>Загрузка расписания...</h4>
@@ -113,7 +119,9 @@
               <div class="modal-body" id="id_timetable">
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-primary btn-block" data-dismiss="modal">Закрыть</button>
+                <div class="col-xs-4 col-xs-offset-4">
+                  <button type="button" class="btn btn-primary btn-block" data-dismiss="modal">Закрыть</button>
+                </div>
               </div>
             </div>
           </div>
