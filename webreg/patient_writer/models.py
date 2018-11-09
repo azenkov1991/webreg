@@ -39,7 +39,7 @@ class SpecializationConfig(models.Model):
         default=False, verbose_name='Вывод комментария'
     )
     comment = models.CharField(
-        max_length=127, verbose_name='Комментарий', blank=True, null=True
+        max_length=512, verbose_name='Комментарий', blank=True, null=True
     )
 
     class Meta:

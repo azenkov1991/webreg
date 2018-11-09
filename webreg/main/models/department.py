@@ -1,6 +1,7 @@
 from django.db import models
 from mixins.models import SafeDeleteMixin
 
+
 class Department(SafeDeleteMixin):
     name = models.CharField(
         max_length=127, verbose_name="Название подразделения"
@@ -14,6 +15,7 @@ class Department(SafeDeleteMixin):
     address = models.CharField(
         max_length=255, verbose_name="Адрес подразделения"
     )
+
     def __str__(self):
         return self.name
 
