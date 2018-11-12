@@ -39,14 +39,18 @@ def create_appointment(fn):
         except QmsIntegrationError:
             raise AppointmentError("Ошибка интеграции с qms")
 
-        try:
-            qqc244n = user_profile.qmsuser.qqc244
-        except models.RelatedObjectDoesNotExist:
-            raise AppointmentError("Не указан ресурс Qms выполняющий назначения")
-
         clinic = user_profile.clinic
         if not clinic:
             clinic = specialist.department.clinic
+
+        try:
+            qms_user = QmsUser.objects.get(
+                user_profile=user_profile, qmsdb=clinic.qmsdb
+            )
+            qqc244n = qms_user.qqc244
+        except QmsUser.DoesNotExist:
+            raise AppointmentError("Не указан ресурс Qms выполняющий назначения")
+
         try:
             qms = QMS(clinic.qmsdb.settings)
             lab_number = None

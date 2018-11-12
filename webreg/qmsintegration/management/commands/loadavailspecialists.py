@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from logging import getLogger
 from main.models import UserProfile, SpecialistRestriction
-from qmsintegration.models import QmsDB, QmsIntegrationError, get_internal_id
+from qmsintegration.models import QmsDB, QmsIntegrationError, get_internal_id, QmsUser
 from qmsmodule.qmsfunctions import QMS
 
 
@@ -24,8 +24,10 @@ class Command(BaseCommand):
             raise CommandError("Нет профиля пользователя с именем " + user_profile_name)
 
         try:
-            qms_user = user_profile.qmsuser
-        except UserProfile.RelatedObjectDoesNotExist:
+            qms_user = QmsUser.objects.get(
+                user_profile=user_profile, qmsdb=qmsdb
+            )
+        except QmsUser.DoesNotExist:
             raise CommandError("Для профиля " + user_profile.name + " не найден пользователь qms")
 
         logger = getLogger("command_manage")
@@ -37,9 +39,11 @@ class Command(BaseCommand):
         new_restriction_set_ids = set()
         for qqc244 in qqc244list:
             try:
-                specialist_id = get_internal_id("244",qqc244)
-                restriction, created = SpecialistRestriction.objects.get_or_create(specialist_id=specialist_id,
-                                                        profile_settings_id=user_profile.profile_settings.id)
+                specialist_id = get_internal_id("244", qqc244)
+                restriction, created = SpecialistRestriction.objects.get_or_create(
+                    specialist_id=specialist_id,
+                    profile_settings_id=user_profile.profile_settings.id
+                )
                 new_restriction_set_ids.add(restriction.id)
             except QmsIntegrationError:
                 logger.error("Не найден специалист " + qqc244)

@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from main.models import UserProfile, ServiceRestriction
 from catalogs.models import OKMUService
-from qmsintegration.models import QmsDB
+from qmsintegration.models import QmsDB, QmsUser
 from qmsmodule.qmsfunctions import QMS
 
 
@@ -24,8 +24,10 @@ class Command(BaseCommand):
             raise CommandError("Нет профиля пользователя с именем " + user_profile_name)
 
         try:
-            qms_user = user_profile.qmsuser
-        except UserProfile.RelatedObjectDoesNotExist:
+            qms_user = QmsUser.objects.get(
+                user_profile=user_profile, qmsdb=qmsdb
+            )
+        except QmsUser.DoesNotExist:
             raise CommandError("Для профиля " + user_profile.name + " не найден пользователь qms")
 
         qms = QMS(qmsdb.settings)

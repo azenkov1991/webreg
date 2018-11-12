@@ -90,7 +90,13 @@ class QmsUser(models.Model):
     qqc244 = models.CharField(
         max_length=256, verbose_name="qqc пользователя"
     )
-    user_profile = models.OneToOneField('main.UserProfile', verbose_name="Профиль пользователя")
+    user_profile = models.ForeignKey(
+        'main.UserProfile', verbose_name="Профиль пользователя"
+    )
+
+    qmsdb = models.ForeignKey(
+        QmsDB, verbose_name="База Qms"
+    )
 
     def __str__(self):
         return self.name
@@ -98,6 +104,7 @@ class QmsUser(models.Model):
     class Meta:
         verbose_name = "Пользователь qms"
         verbose_name_plural = "Пользователи qms"
+        unique_together = ('user_profile', 'qmsdb',)
 
 
 class QmsDepartment(models.Model):
