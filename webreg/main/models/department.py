@@ -17,7 +17,7 @@ class Department(SafeDeleteMixin):
     )
 
     def __str__(self):
-        return self.name
+        return self.name + ', ' + self.address
 
     class Meta:
         app_label = 'main'
