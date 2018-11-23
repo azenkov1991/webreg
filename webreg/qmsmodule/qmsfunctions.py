@@ -204,7 +204,7 @@ class QMS:
         :param date: дата назначения
         :param time_start: время назначения. Если время назначения None, то назначение в очередь
         :param time_end:
-        :param episode_type: Тип эпизода 1 - АМБУЛАТОРНО, 2 - СТАЦИОНАРНО
+        :param episode_type: Тип эпизода 1 - АМБУЛАТОРНО, 2 - СТОМАТОЛОГИЯ
         :param create_if: True - создавать источник финансирования
         :additional_data: - дополнительные параметры создания назначений
             diagnos_code - код диагноза направлений
@@ -215,26 +215,22 @@ class QMS:
         today_date_qms = datetime.datetime.now().strftime("%Y%m%d")
         diagnos_code = additional_data.get("diagnos_code", None)
         diagnos_descripion = additional_data.get("diagnos_description", None)
-        # поиск существующей услуги ввода назначений
-        self.query.execute_query("GetPreviousqqc186", user, today_date_qms, patient)
-        qqc186 = self.query.result
 
-        if not qqc186:
-            # попытка найти предыдущий эпизод
-            self.query.execute_query("GetPreviousqqc174", patient, specialist,
-                                     30, date.strftime("%Y%m%d"))
+        # попытка найти предыдущий эпизод
+        self.query.execute_query("GetPreviousqqc174", patient, specialist,
+                                 30, date.strftime("%Y%m%d"))
+        qqc174 = self.query.result
+        if not qqc174:
+            self.query.execute_query("Create174", user, patient,
+                                     today_date_qms, diagnos_code, diagnos_descripion, episode_type, None, None)
             qqc174 = self.query.result
-            if not qqc174:
-                self.query.execute_query("Create174", user, patient,
-                                         today_date_qms, diagnos_code, diagnos_descripion, episode_type, None, None)
-                qqc174 = self.query.result
-            if not qqc174:
-                log.error("Не создан эпизод в qms. " + str(locals()))
-                return None
+        if not qqc174:
+            log.error("Не создан эпизод в qms. " + str(locals()))
+            return None
 
-            self.query.execute_query("Create186", user, today_date_qms,
-                                     datetime.datetime.now().strftime("%H:%M"), qqc174)
-            qqc186 = self.query.result
+        self.query.execute_query("Create186", user, today_date_qms,
+                                 datetime.datetime.now().strftime("%H:%M"), qqc174)
+        qqc186 = self.query.result
 
         if not qqc186:
             log.error("Не создана услуга ввода назначений. " + str(locals()))
@@ -297,21 +293,17 @@ class QMS:
         diagnos_code = additional_data.get("diagnos_code", None)
         diagnos_descripion = additional_data.get("diagnos_description", None)
 
-        # поиск существующей услуги ввода назначений
-        self.query.execute_query("GetPreviousqqc186", user, today_date_qms, patient, 1)
+
+        self.query.execute_query("Create174", user, patient,
+                                 today_date_qms, diagnos_code, diagnos_descripion, 1, None, None)
+        qqc174 = self.query.result
+        if not qqc174:
+            log.error("Не создан эпизод в qms. " + str(locals()))
+            return None, None
+
+        self.query.execute_query("Create186Lab", user, today_date_qms,
+                                     datetime.datetime.now().strftime("%H:%M"), qqc174)
         qqc186 = self.query.result
-
-        if not qqc186:
-            self.query.execute_query("Create174", user, patient,
-                                     today_date_qms, diagnos_code, diagnos_descripion, 1, None, None)
-            qqc174 = self.query.result
-            if not qqc174:
-                log.error("Не создан эпизод в qms. " + str(locals()))
-                return None, None
-
-            self.query.execute_query("Create186Lab", user, today_date_qms,
-                                         datetime.datetime.now().strftime("%H:%M"), qqc174)
-            qqc186 = self.query.result
 
         if not qqc186:
             log.error("Не создана услуга ввода назначений. " + str(locals()))

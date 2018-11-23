@@ -29,7 +29,6 @@ def get_secret(setting, secrets=secrets):
 
 SECRET_KEY = get_secret("SECRET_KEY")
 
-ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -116,8 +115,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend',
-                          'main.authentication.PolisNumberBackend']
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'main.authentication.PolisNumberBackend'
+]
 
 ACCOUNT_ACTIVATION_DAYS = 2
 
