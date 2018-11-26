@@ -50,6 +50,7 @@ class TestQmsFunctions(TestCase):
                                               time_start, time_end)
         self.assertTrue(qqc1860, "qqc1860 не должно быть пусто")
         self.qms.query.execute_query('Cancel1860', qqc1860)
+        self.qms.query.execute_query('HardDelete174', qqc1860[0:10])
 
     def test_create_appointment_order(self):
         qqc244n = "vABdAAоABAD"
@@ -60,6 +61,7 @@ class TestQmsFunctions(TestCase):
         qqc1860 = self.qms.create_appointment(qqc244n, qqc153, qqc244, Du, date)
         self.assertTrue(qqc1860, "qqc1860 не должно быть пусто")
         self.qms.query.execute_query('Cancel1860', qqc1860)
+        self.qms.query.execute_query('HardDelete174', qqc1860[0:10])
 
     def test_create_lab_appointment(self):
         qqc244n = "vABdAAоABAD"
@@ -70,6 +72,7 @@ class TestQmsFunctions(TestCase):
         (qqc1860, lab_number) = self.qms.create_laboratory_appointment(qqc244n, qqc153, qqc244, Du, date)
         self.assertTrue(qqc1860, "qqc1860 не должно быть пусто")
         self.qms.query.execute_query('Cancel1860', qqc1860)
+        self.qms.query.execute_query('HardDelete174', qqc1860[0:10])
 
     def test_create_lab_appointment_with_lab_param(self):
         qqc244n = "vABdAAоABAD"
@@ -87,6 +90,7 @@ class TestQmsFunctions(TestCase):
         self.qms.query.execute_query("GG", "1860", "qlsClinCode", qqc1860)
         self.assertEqual(self.qms.query.result, "19-24")
         self.qms.query.execute_query('Cancel1860', qqc1860)
+        self.qms.query.execute_query('HardDelete174', qqc1860[0:10])
 
 
 

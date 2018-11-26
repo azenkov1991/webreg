@@ -69,7 +69,8 @@ class TestMainModule(TestCase):
 
         self.patient = Patient(first_name="Иванов", last_name="Иван", middle_name="Иванович",
                                birth_date=datetime.date(1991, 12, 3),
-                               polis_number="123456789012345")
+                               polis_number="123456789012345",
+                               clinic=self.clinic)
         self.patient.save()
 
     def test_create_legal_appointment(self):
