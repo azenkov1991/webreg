@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.db import models
-from main.models import Department, Specialization, SlotType
-from catalogs.models import OKMUService
+from main.models import Department, Specialization, SlotType, Service
 from patient_writer.models import DepartmentConfig, SpecializationConfig, SlotTypeConfig
 
 
@@ -170,8 +169,11 @@ class Command(BaseCommand):
                 service_code = old_doctors[0]['usl_du']
 
                 try:
-                    service = OKMUService.objects.get(code=service_code)
-                except OKMUService.DoesNotExist:
+                    service = Service.objects.get(
+                        code=service_code,
+                        clinic_id=clinic_id
+                    )
+                except Service.DoesNotExist:
                     continue
 
                 specialization_config = SpecializationConfig(

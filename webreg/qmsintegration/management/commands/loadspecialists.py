@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.core.exceptions import ImproperlyConfigured
 from qmsmodule.qmsfunctions import *
 from qmsintegration.models import *
-from main.models import Specialist, Department, Specialization
+from main.models import Specialist, Department, Specialization, Service
 
 logger = logging.getLogger("webreg")
 
@@ -40,7 +40,6 @@ class Command(BaseCommand):
         spec.save()
         return spec
 
-
     def update_linked_usls(self, qms, specialist, qqc244):
         qms_usls = qms.get_usl_for_spec(qqc244)
         postgre_usls = [du.code for du in specialist.performing_services.all()]
@@ -50,12 +49,14 @@ class Command(BaseCommand):
                     if usl.code in postgre_usls:
                         postgre_usls.remove(usl.code)
                     else:
-                        usl_obj, created = OKMUService.objects.get_or_create(code=usl.code, is_finished=1, level=4)
+                        usl_obj, created = Service.objects.get_or_create(
+                            code=usl.code, clinic=specialist.department.clinic, is_finished=1, level=4,
+                        )
                         specialist.performing_services.add(usl_obj)
                 except models.ObjectDoesNotExist:
                     continue
         for usl in postgre_usls:
-            specialist.performing_services.remove(OKMUService.objects.get(code=usl))
+            specialist.performing_services.remove(Service.objects.get(code=usl, clinic=specialist.department.clinic))
 
     def load_specs_in_department(self, qms, department, qms_department):
         qms_specialists = qms.get_all_doctors(qms_department)

@@ -11,7 +11,7 @@ class Specialist(SafeDeleteMixin):
         null=True, on_delete=models.SET_NULL
     )
     performing_services = models.ManyToManyField(
-        "catalogs.OKMUService", verbose_name="Выполняемые услуги"
+        "main.Service", verbose_name="Выполняемые услуги"
     )
     department = models.ForeignKey(
         'main.Department', verbose_name="Подразделение"

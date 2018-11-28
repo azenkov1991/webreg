@@ -2,9 +2,10 @@ from django.db import models
 from django.core.validators import MinValueValidator
 from django.core.exceptions import ValidationError
 
+
 class NumberOfServiceRestriction(models.Model):
     service = models.ForeignKey(
-        "catalogs.OKMUService", verbose_name="Услуга"
+        "main.Service", verbose_name="Услуга"
     )
     number = models.IntegerField(
         validators=[MinValueValidator(0)], verbose_name="Количество"

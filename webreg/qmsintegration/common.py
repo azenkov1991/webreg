@@ -1,6 +1,5 @@
 from datetime import date, time
-from main.models import Cell, SlotType, Cabinet
-from catalogs.models import OKMUService
+from main.models import Cell, SlotType, Cabinet, Service
 from qmsmodule.qmsfunctions import QMS
 from qmsintegration.models import get_external_id
 
@@ -18,9 +17,14 @@ def update_specialist_timetable(specialist, date_from, date_to, qms, slot_type=N
     qqc244 = get_external_id(specialist)
     qms_cells = qms.get_timetable(qqc244, date_from, date_to, slot_type)
     # получаем все ячейки за заданный период по заданному спецу, которые лежат в базе, к которым нет назначения
-    local_cells_not_appointed = list(Cell.objects.filter(date__range=[date_from, date_to],date__gte=date.today(),
-                                                         specialist_id=specialist.id,
-                                                         appointment__isnull = True).values_list('id', flat=True))
+    local_cells_not_appointed = list(
+        Cell.objects.filter(
+            date__range=[date_from, date_to],
+            date__gte=date.today(),
+            specialist_id=specialist.id,
+            appointment__isnull=True
+        ).values_list('id', flat=True)
+    )
     # к которым eсть назначения
     local_cells_not_free = Cell.objects.filter(date__range=[date_from, date_to],
                                                specialist_id=specialist.id,
@@ -75,7 +79,11 @@ def update_specialist_timetable(specialist, date_from, date_to, qms, slot_type=N
                     cell.performing_services.remove(service)
             for okmu in qms_cell.okmu_list:
                 if okmu:
-                    cell.performing_services.add(OKMUService.objects.get_or_create(code=okmu,is_finished=1,level=4)[0])
+                    cell.performing_services.add(
+                        Service.objects.get_or_create(
+                            code=okmu, clinic=specialist.department.clinic, is_finished=1, level=4
+                        )[0]
+                    )
 
     # все оставшиеся ячейки к которым не было назначений удаляются
     Cell.objects.filter(id__in=local_cells_not_appointed).delete()

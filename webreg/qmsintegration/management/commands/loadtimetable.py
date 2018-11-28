@@ -4,8 +4,7 @@ from django.core.management.base import BaseCommand, CommandError
 from qmsmodule.qmsfunctions import *
 from qmsintegration.models import *
 from qmsintegration.common import update_specialist_timetable
-from main.models import Specialist, Department, Cell, Cabinet, SlotType
-from catalogs.models import OKMUService
+from main.models import Specialist, Department, Cell, Cabinet, SlotType, Service
 from qmsintegration.management.commands.loadspecialists import Command as CmdSpec
 
 logger = logging.getLogger("webreg")

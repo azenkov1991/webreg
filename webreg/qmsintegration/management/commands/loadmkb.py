@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 from qmsmodule.qmsfunctions import *
 from qmsintegration.models import *
 
+
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("dbname", help="Название настроек базы QMS из qmsintegration.OmsDB")

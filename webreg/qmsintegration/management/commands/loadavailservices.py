@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from main.models import UserProfile, ServiceRestriction
-from catalogs.models import OKMUService
+from main.models import UserProfile, ServiceRestriction, Service
 from qmsintegration.models import QmsDB, QmsUser
 from qmsmodule.qmsfunctions import QMS
 
@@ -15,6 +14,7 @@ class Command(BaseCommand):
         user_profile_name = options['user_profile_name']
         try:
             qmsdb = QmsDB.objects.get(name=dbname)
+            clinic = qmsdb.clinic
         except QmsDB.DoesNotExist:
             raise CommandError("Нет описания базы данных Qms с именем " + dbname)
 
@@ -37,7 +37,7 @@ class Command(BaseCommand):
         ).values_list('id', flat=True))
         new_restriction_set_ids = set()
         for code in code_list:
-            service, created = OKMUService.objects.get_or_create(code=code)
+            service, created = Service.objects.get_or_create(code=code, clinic=clinic)
             restriction, created = ServiceRestriction.objects.get_or_create(
                 service_id=service.id,
                 profile_settings_id=user_profile.profile_settings.id

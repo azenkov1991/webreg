@@ -3,7 +3,7 @@ from django.db import models
 
 class SiteServiceRestriction(models.Model):
     services = models.ManyToManyField(
-        "catalogs.OKMUService", verbose_name="Услуга"
+        "main.Service", verbose_name="Услуга"
     )
     site = models.OneToOneField(
         "sites.Site", verbose_name="Сайт"

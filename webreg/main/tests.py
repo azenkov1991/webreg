@@ -4,7 +4,6 @@ from django.contrib.sites.models import Site
 from constance.test import override_config
 from django.contrib.auth.models import User
 from main.models import *
-from catalogs.models import OKMUService
 
 
 @override_config(QMS_INTEGRATION_ENABLE=False)
@@ -30,12 +29,21 @@ class TestMainModule(TestCase):
         self.clinic.save()
         self.department = Department(name="Поликлиника1", clinic=self.clinic)
         self.department.save()
-        self.service1 = OKMUService(code="A01.01.01", name="Прием терапевта", is_finished=1, level=4)
+        self.service1 = Service(
+            code="A01.01.01", clinic=self.clinic,
+            name="Прием терапевта", is_finished=1, level=4
+        )
         self.service1.save()
-        self.service2 = OKMUService(code="A01.01.02", name="Прием терапевта2", is_finished=1, level=4)
+        self.service2 = Service(
+            code="A01.01.02", clinic=self.clinic,
+            name="Прием терапевта2", is_finished=1, level=4
+        )
         self.service2.save()
-        self.service_not_allowed_for_site = OKMUService(code="A01.05.01", name="Прием невролога",
-                                                        is_finished=1, level=4)
+        self.service_not_allowed_for_site = Service(
+            code="A01.05.01", clinic=self.clinic,
+            name="Прием невролога",
+            is_finished=1, level=4
+        )
         self.service_not_allowed_for_site.save()
         site_service_restriction = SiteServiceRestriction(site=self.site)
         site_service_restriction.save()
@@ -163,14 +171,18 @@ class TestMainModule(TestCase):
         tomorrow = datetime.date.today() + datetime.timedelta(1)
 
         # 10 тестовых услуг
-        for i in range(3,14):
-            service = OKMUService(code=("A01.01." + str(i)),
-                                  name="Тестовая услуга №" + str(i))
+        for i in range(3, 14):
+            service = Service(
+                code=("A01.01." + str(i)), name="Тестовая услуга №" + str(i),
+                clinic=self.clinic
+            )
             service.save()
             #  11  12 13 не разрешены для назначения
             if i not in [11,12,13]:
-                ServiceRestriction(profile_settings=self.profile_settings,
-                                   service=service).save()
+                ServiceRestriction(
+                    profile_settings=self.profile_settings,
+                    service=service
+                ).save()
 
             # десятая услуга полностью использована
             if i==10:
@@ -207,9 +219,10 @@ class TestMainModule(TestCase):
         self.assertEqual(lst, list(range(3,8)), "Определение доступных услуг1")
 
         # с initial_query_set
-        initial_query_set = OKMUService.objects.filter(code__contains="A01.01").exclude(code__in=["A01.01.3",
-                                                                                                  "A01.01.4",
-                                                                                                  "A01.01.5"])
+        initial_query_set = Service.objects.filter(
+            code__contains="A01.01", clinic=self.clinic).exclude(
+            code__in=["A01.01.3", "A01.01.4", "A01.01.5"]
+        )
         lst = list(map(lambda x: int(x.split('.')[2]),
                        self.user_profile.get_allowed_services(initial_query_set).values_list('code', flat=True)))
         self.assertEqual(lst, list(range(6, 8)),"Определение доступных услуг2")
@@ -218,7 +231,7 @@ class TestMainModule(TestCase):
         SiteServiceRestriction.objects.all().delete()
         lst = list(map(lambda x: int(x.split('.')[2]),
                        self.user_profile.get_allowed_services().values_list('code', flat=True)))
-        self.assertEqual(lst, list(range(3, 10)),"Определение доступных услуг3")
+        self.assertEqual(lst, list(range(3, 10)), "Определение доступных услуг3")
 
     def test_allowed_specialists(self):
         specialization, created = Specialization.objects.get_or_create(name="Терапевт")

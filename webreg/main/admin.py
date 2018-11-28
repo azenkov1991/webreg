@@ -1,9 +1,17 @@
 from django.contrib import admin
 from django import forms
 from main.models import *
-from catalogs.models import OKMUService
 from mixins.admin import safe_delete_mixin_admin
 from main.forms import UserProfileForm
+
+
+@safe_delete_mixin_admin
+class ServiceAdmin(admin.ModelAdmin):
+    list_display = (
+        'code', 'name'
+    )
+    search_fields = ('code', 'name')
+    list_filter = ('level',)
 
 
 class DepartmentAdmin(admin.ModelAdmin):
@@ -50,7 +58,7 @@ class AppointmentForm(forms.ModelForm):
         try:
             self.fields['service'].queryset = self.instance.cell.specialist.performing_services.all()
         except:
-            self.fields['service'].queryset = OKMUService.objects.all()
+            self.fields['service'].queryset = Service.objects.all()
 
 
 @safe_delete_mixin_admin
@@ -111,6 +119,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('name', 'site', 'users_str')
     form = UserProfileForm
 
+admin.site.register(Service, ServiceAdmin)
 admin.site.register(Specialist, SpecialistAdmin)
 admin.site.register(Cell, CellAdmin)
 admin.site.register(Cabinet, CabinetAdmin)

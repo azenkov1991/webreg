@@ -29,7 +29,7 @@ class SpecializationConfig(models.Model):
         "main.SlotType", verbose_name="Разрешенные типы слотов"
     )
     service = models.ForeignKey(
-        "catalogs.OKMUService",
+        "main.Service",
         verbose_name="Назначаемая услуга",
     )
     enable = models.BooleanField(
@@ -54,7 +54,7 @@ class SpecialistConfig(models.Model):
         verbose_name="Specialist"
     )
     service = models.ForeignKey(
-        "catalogs.OKMUService",
+        "main.Service",
         verbose_name="Услуга для назначения",
         null=True, blank=True
     )

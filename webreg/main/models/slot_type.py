@@ -12,6 +12,7 @@ class SlotType(models.Model):
     clinic = models.ForeignKey(
         'main.Clinic', verbose_name="Мед. учреждение"
     )
+
     def __str__(self):
         return self.name
 

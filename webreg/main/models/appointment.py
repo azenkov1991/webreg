@@ -15,7 +15,7 @@ class Appointment(TimeStampedModel, SafeDeleteMixin):
         'main.Specialist', verbose_name="Специалист"
     )
     service = models.ForeignKey(
-        "catalogs.OKMUService", verbose_name="Услуга"
+        "main.Service", verbose_name="Услуга"
     )
     patient = models.ForeignKey(
         'main.Patient', verbose_name="Пациент"

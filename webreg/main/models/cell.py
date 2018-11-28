@@ -20,13 +20,13 @@ class Cell(models.Model):
         'main.Cabinet', verbose_name="Кабинет", null=True, blank=True
     )
     performing_services = models.ManyToManyField(
-        "catalogs.OKMUService", verbose_name="Выполняемые услуги", blank=True
+        "main.Service", verbose_name="Выполняемые услуги", blank=True
     )
     slot_type = models.ForeignKey(
         'main.SlotType', verbose_name="Тип слота",
         null=True, blank=True, on_delete=models.SET_NULL
     )
-    free  = models.BooleanField(
+    free = models.BooleanField(
         verbose_name="Свободна", default=True
     )
 

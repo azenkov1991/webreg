@@ -1,6 +1,6 @@
 import datetime
 from django.db import models
-from catalogs.models import OKMUService
+from .service import Service
 from django.conf import settings, ImproperlyConfigured
 from .specialist import Specialist
 from .profile_settings import ProfileSettings
@@ -77,7 +77,7 @@ class UserProfile(models.Model):
         """
 
         if initial_service_query_set is None:
-            initial_service_query_set = OKMUService.objects.all()
+            initial_service_query_set = Service.objects.all()
 
         # проверка на ограничение услуг сайта
         try:

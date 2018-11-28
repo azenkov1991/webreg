@@ -10,7 +10,7 @@ class ProfileSettings(models.Model):
         verbose_name="Ограничения на тип ячейки"
     )
     service_restrictions = models.ManyToManyField(
-        'catalogs.OKMUService', through='main.ServiceRestriction',
+        'main.Service', through='main.ServiceRestriction',
         verbose_name="Доступные для назначения услуги"
     )
     specialist_restrictions = models.ManyToManyField(
@@ -44,7 +44,7 @@ class ServiceRestriction(models.Model):
         ProfileSettings, verbose_name="Настройки профиля пользователя"
     )
     service = models.ForeignKey(
-        'catalogs.OKMUService', verbose_name="Услуга"
+        'main.Service', verbose_name="Услуга"
     )
 
     class Meta:

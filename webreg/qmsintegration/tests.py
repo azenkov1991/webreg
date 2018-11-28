@@ -2,7 +2,6 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from main.logic import *
-from catalogs.models import OKMUService
 from qmsintegration.models import *
 from qmsmodule.qmsfunctions import QMS
 
@@ -112,15 +111,27 @@ class TestQmsIntegrationAppointment(TestCase):
         self.qms_user.save()
         self.department = Department(name="Поликлиника1", clinic=self.clinic)
         self.department.save()
-        self.service1 = OKMUService(code="B01.047.01", name="Прием врача-терапевта первичный", is_finished=1, level=4)
+        self.service1 = Service(
+            code="B01.047.01", clinic=self.clinic,
+            name="Прием врача-терапевта первичный", is_finished=1, level=4
+        )
         self.service1.save()
-        self.service2 = OKMUService(code="B01.047.02", name="Прием врача-терапевта повторный", is_finished=1, level=4)
+        self.service2 = Service(
+            code="B01.047.02", clinic=self.clinic,
+            name="Прием врача-терапевта повторный", is_finished=1, level=4
+        )
         self.service2.save()
-        self.lab_service = OKMUService(code="A08.05.004", name="Исследование уровня лейкоцитов в крови",
-                                       type="Лаборатория", is_finished=1, level=4)
+        self.lab_service = Service(
+            code="A08.05.004", clinic=self.clinic,
+            name="Исследование уровня лейкоцитов в крови",
+            type="Лаборатория", is_finished=1, level=4
+        )
         self.lab_service.save()
-        self.lab_service2 = OKMUService(code="A09.05.023", name="Исследование_уровня_глюкозы_в_крови",
-                                        type="Лаборатория", is_finished=1, level=4)
+        self.lab_service2 = Service(
+            code="A09.05.023", clinic=self.clinic,
+            name="Исследование_уровня_глюкозы_в_крови",
+            type="Лаборатория", is_finished=1, level=4
+        )
         self.lab_service2.save()
 
         site_permissions = SiteServiceRestriction(site=self.site)

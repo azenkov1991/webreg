@@ -1,6 +1,5 @@
 from constance import config
-from main.models import AppointmentError, Patient, PatientError, Clinic
-from catalogs.models import OKMUService
+from main.models import AppointmentError, Patient, PatientError, Clinic, Service
 from qmsintegration.models import *
 from qmsmodule.qmsfunctions import QMS
 from qmsmodule.cachequery import CacheQueryError
@@ -67,8 +66,11 @@ def create_appointment(fn):
                     new_code = qms.query.result
                     if new_code:
                         try:
-                            service = OKMUService.objects.get(code=new_code)
-                        except OKMUService.DoesNotExist:
+                            service = Service.objects.get(
+                                code=new_code,
+                                clinic=patient.clinic
+                            )
+                        except Service.DoesNotExist:
                             raise AppointmentError("Не найдена услуга повторного приема")
                 # Проверка занятости ячейки в qms
                 if cell:
