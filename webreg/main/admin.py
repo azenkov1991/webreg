@@ -68,6 +68,7 @@ class AppointmentAdmin(admin.ModelAdmin):
     list_filter = ('date', 'specialist')
     search_fields = ('specialist', '-date')
     ordering = ('-date', 'specialist')
+    raw_id_fields = ('service', 'cell', 'patient', )
 
 
 class CellAdmin(admin.ModelAdmin):
@@ -86,6 +87,7 @@ class SlotRestrictionInline(admin.TabularInline):
 
 
 class ServiceRestrictionInline(admin.TabularInline):
+    raw_id_fields = ('service',)
     model = ServiceRestriction
     extra = 1
 
@@ -100,6 +102,7 @@ class ProfileSettingsAdmin(admin.ModelAdmin):
 
 
 class NumberOfServiceRestrictionAdmin(admin.ModelAdmin):
+    raw_id_fields = ('service',)
     exclude = ('number_of_used',)
 
 

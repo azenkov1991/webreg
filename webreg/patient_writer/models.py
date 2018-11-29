@@ -117,6 +117,9 @@ class DepartmentConfig(models.Model):
     max_age = models.PositiveIntegerField(
         default=200, verbose_name='Максимальный возраст'
     )
+    order = models.PositiveIntegerField(
+        verbose_name="Порядок", default=0,
+    )
 
     def __str__(self):
         return '{0}, {1}'.format(self.department.name, self.department.address)

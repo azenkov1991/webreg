@@ -76,7 +76,8 @@ class PatientWriteSecondStep(ProfileRequiredMixin, TemplateView):
         departments = Department.objects.filter(
             clinic_id=patient.clinic.id,
             departmentconfig__min_age__lte=years_old,
-            departmentconfig__max_age__gte=years_old)
+            departmentconfig__max_age__gte=years_old
+        ).order_by('departmentconfig__order')
         context['departments'] = departments
         return self.render_to_response(context)
 

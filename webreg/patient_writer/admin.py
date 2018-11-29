@@ -5,6 +5,7 @@ from .models import SpecializationConfig, SlotTypeConfig, DepartmentConfig, Clin
 class SpecializationConfigInline(admin.TabularInline):
     model = SpecializationConfig
     filter_horizontal = ('slot_types',)
+    raw_id_fields = ('service', )
     extra = 0
 
 
@@ -16,13 +17,14 @@ class DepartamentConfigAdmin(admin.ModelAdmin):
     def get_fieldsets(self, request, obj=None):
         interval_fields = [
             'day_start_offset', 'today_time_interval',
-            'day_range', 'min_age', 'max_age'
+            'day_range', 'min_age', 'max_age',
         ]
         phone_fields = ['phone', 'phone2']
         base_field = [
-            ('Подразделение',{'fields':['department']}),
+            ('Подразделение', {'fields':['department']}),
             ('Интервалы', {'fields': interval_fields, }),
             ('Телефоны', {'fields': phone_fields, }),
+            ('Прочее', {'fields': ['order']}),
         ]
         return base_field
 
