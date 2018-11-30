@@ -20,7 +20,7 @@ class CheckBoxAgree(forms.CheckboxInput):
                     ФГБУ ФСНКЦ ФМБА России</span></label>', out_html, "/pwriter/agreement")
 
 
-BIRTH_YEAR_CHOICES = (year for year in range(date.today().year, date.today().year-120, -1))
+BIRTH_YEAR_CHOICES = [year for year in range(date.today().year, date.today().year-120, -1)]
 
 
 class PatientRegistrationForm(RegistrationFormUniqueEmail):

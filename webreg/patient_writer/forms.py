@@ -8,7 +8,7 @@ from main.validators import oms_polis_number_validation, birth_date_validation, 
 from main.models import Clinic, PatientError
 from main.logic import find_patient_by_polis_number
 
-BIRTH_YEAR_CHOICES = (year for year in range(date.today().year, date.today().year-120, -1))
+BIRTH_YEAR_CHOICES = [year for year in range(date.today().year, date.today().year-120, -1)]
 
 
 class InputFirstStepForm(forms.Form):

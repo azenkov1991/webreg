@@ -142,14 +142,14 @@ table tr.table-separator>td{
 }
 
 #id_birth_date_day{
-  width: 22%;
+  width: 24%;
 }
 
 #id_birth_date_month{
-  width: 37%;
+  width: 39%;
 }
 #id_birth_date_year{
-  width: 39%;
+  width: 35%;
   float: right;
 }
 
