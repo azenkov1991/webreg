@@ -1,3 +1,4 @@
+from datetime import date
 from constance import config
 from django import forms
 from django.utils.html import format_html
@@ -17,6 +18,9 @@ class CheckBoxAgree(forms.CheckboxInput):
         return format_html('<label class="checkbox">{0}<span class="checkbox">Я принимаю \
                     <a href="{1}">правила обработки даных</a> \
                     ФГБУ ФСНКЦ ФМБА России</span></label>', out_html, "/pwriter/agreement")
+
+
+BIRTH_YEAR_CHOICES = (year for year in range(date.today().year, date.today().year-120, -1))
 
 
 class PatientRegistrationForm(RegistrationFormUniqueEmail):
@@ -46,11 +50,11 @@ class PatientRegistrationForm(RegistrationFormUniqueEmail):
     )
     birth_date = forms.DateField(
         label='Дата рождения',
-        widget=forms.DateInput(
+        widget=forms.SelectDateWidget(
+            years=BIRTH_YEAR_CHOICES,
             attrs={
-                'class': 'dateinput',
                 'autocomplete': 'off',
-                'placeholder': 'дд.мм.гггг'
+                'placeholder': 'дд.мм.гггг',
             }
         ),
         help_text='Пример: 01.01.2001',

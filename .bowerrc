@@ -1,5 +1,6 @@
 {
-
+  "registry": "https://registry.bower.io",
+  "strict-ssl": false,
   "directory": "webreg/main/static/library",
   "ignoredDependencies": [
     "jquery"

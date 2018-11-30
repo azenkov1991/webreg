@@ -137,5 +137,19 @@ table tr.table-separator>td{
   padding: 1px;
 }
 
+.controls .selectdatewidget{
+  display: inline;
+}
 
+#id_birth_date_day{
+  width: 22%;
+}
+
+#id_birth_date_month{
+  width: 37%;
+}
+#id_birth_date_year{
+  width: 39%;
+  float: right;
+}
 
