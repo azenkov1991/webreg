@@ -35,6 +35,7 @@ class Command(BaseCommand):
         qqc244list = qms.get_avail_spec_qqc_list(qms_user.qqc244)
         old_restriction_set_ids = set(SpecialistRestriction.objects.filter(
             profile_settings_id=user_profile.profile_settings.id,
+            specialist__department__clinic_id=qmsdb.clinic.id
         ).values_list('id', flat=True))
         new_restriction_set_ids = set()
         for qqc244 in qqc244list:

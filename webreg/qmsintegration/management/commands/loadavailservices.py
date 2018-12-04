@@ -34,6 +34,7 @@ class Command(BaseCommand):
         code_list = qms.get_avail_services_code_list(qms_user.qqc244)
         old_restriction_set_ids = set(ServiceRestriction.objects.filter(
             profile_settings_id=user_profile.profile_settings.id,
+            service__clinic_id=clinic.id,
         ).values_list('id', flat=True))
         new_restriction_set_ids = set()
         for code in code_list:

@@ -30,7 +30,7 @@ class FileLogHandler(Handler):
         if session:
             session_key = session.session_key
         else:
-            session_key = None
+            session_key = 'no_session_key'
 
         if not os.path.exists(settings.LOG_DIRECTORY):
             os.makedirs(settings.LOG_DIRECTORY)
