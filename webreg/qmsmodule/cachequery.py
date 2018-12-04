@@ -35,6 +35,7 @@ class CacheSOAPQuery:
         self.password = connection_param.get("password", "_SYS")
         self.queries = queries
         self.logger = logging.getLogger("cachequery")
+        self.qms_answer_logger = logging.getLogger("qms_answers")
         # 'http://10.1.100.5:57772/csp/skcqms/DeepSeeExtract.Query.cls?wsdl'
         self.connection_string = 'http://' + connection_param['host'] + ':' + \
                                  connection_param['wsdl_port'] + '/csp/' + \
@@ -131,7 +132,7 @@ class CacheSOAPQuery:
             raise CacheQueryError("Execute query error")
         self.data = list(data)
         self._result = data[0][0]
-        self.logger.debug("\n".join(list(map(lambda u: "| ".join(map(lambda q: str(q) if q else '', u)), data))))
+        self.qms_answer_logger("\n".join(list(map(lambda u: "| ".join(map(lambda q: str(q) if q else '', u)), data))))
 
     def fetch_all(self):
         return self.data
@@ -180,6 +181,7 @@ class CacheODBCQuery:
         self.namespace = connection_param.get("namespace", "USER")
         self.queries = queries
         self.logger = logging.getLogger("cachequery")
+        self.qms_answer_logger = logging.getLogger("qms_answers")
         self.cache_coding = cache_coding
         self.always_new_connect = always_new_connect
         self.url = self.host + "[" + self.port + "]:" + self.namespace
@@ -269,7 +271,7 @@ class CacheODBCQuery:
         if len(lst) == 0:
             return []
         else:
-            self.logger.debug("| ".join(list(map(str, lst))))
+            self.qms_answer_logger.debug("| ".join(list(map(str, lst))))
             if self._result is None:
                 self._result = lst[0]
         return lst

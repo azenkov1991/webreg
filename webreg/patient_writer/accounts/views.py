@@ -67,7 +67,7 @@ class PatientRegistrationView(RegistrationView):
         except UserProfile.DoesNotExist:
             raise ImproperlyConfigured("Необходимо настроить профиль пользователя для записи на прием")
         new_user.save()
-        action.log(Actions.REGISTER)
+        action.log(Actions.REGISTER, user_id=new_user.id)
         return new_user
 
     def get_success_url(self, user):
@@ -78,7 +78,8 @@ class PatientActivationView(ActivationView):
 
     def activate(self, request, activation_key):
         activated_user = PatientRegistrationProfile.objects.activate_user(activation_key)
-        action.log(Actions.ACTIVE)
+        if activated_user:
+            action.log(Actions.ACTIVE, user_id=activated_user.id)
         return activated_user
 
     def get_success_url(self, user):

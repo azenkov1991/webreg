@@ -59,13 +59,13 @@ class UserAction(models.Model):
     patient.short_description = "Пациент"
 
     @classmethod
-    def log(cls, action, info=None):
+    def log(cls, action, info=None, user_id=None):
         request = GlobalRequestMiddleware.get_current_request()
         if request:
-            user_id = request.user.id
+            if not user_id:
+                user_id = request.user.id
             patient_id = request.session.get('patient_id', None)
         else:
-            user_id = None
             patient_id = None
         log = cls(
             user_id=user_id, patient_id=patient_id, action=action, info=info,

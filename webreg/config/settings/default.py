@@ -26,25 +26,35 @@ LOGGING_CONF = {
             'class': 'loghandle.loghandle.LogHandler',
             'formatter': 'simple'
         },
+        'filehandler': {
+            'level': 'DEBUG',
+            'class': 'loghandle.loghandle.FileLogHandler',
+            'formatter': 'simple'
+        },
     },
     'loggers': {
         'webreg': {
-            'handlers': ['dbhandler', 'console'],
+            'handlers': ['dbhandler'],
             'propagate': False,
             'level': 'DEBUG',
         },
         'cachequery': {
-            'handlers': ['dbhandler', 'console'],
+            'handlers': ['dbhandler'],
             'propagate': False,
             'level': 'DEBUG',
         },
         'qmsfunctions': {
-            'handlers': ['dbhandler', 'console'],
+            'handlers': ['dbhandler'],
             'propagate': False,
             'level': 'DEBUG',
         },
         'command_manage': {
             'handlers': ['dbhandler', 'console'],
+            'propagate': False,
+            'level': 'DEBUG',
+        },
+        'qms_answers': {
+            'handlers': ['filehandler'],
             'propagate': False,
             'level': 'DEBUG',
         },

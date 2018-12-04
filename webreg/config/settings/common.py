@@ -9,6 +9,9 @@ BASE_DIR = Path(__file__).ancestor(3)
 CONFIG_DIR = Path(__file__).ancestor(2)
 MEDIA_ROOT = BASE_DIR.child("media")
 STATIC_ROOT = BASE_DIR.child("static")
+
+LOG_DIRECTORY = Path(__file__).ancestor(4) + os.sep + 'log'
+
 STATICFILES_DIRS = (
 )
 TEMPLATE_DIRS = ()
