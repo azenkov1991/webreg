@@ -142,6 +142,7 @@ class Command(BaseCommand):
                 day_range=old_dep.day_range,
                 phone=old_dep.phone,
                 phone2=old_dep.phone2,
+                order=old_dep.id,
                 min_age=old_dep.min_age,
                 max_age=old_dep.max_age,
             )

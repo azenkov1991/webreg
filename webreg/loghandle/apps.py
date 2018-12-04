@@ -6,7 +6,7 @@ from django.conf import settings
 
 class LoghandleAppConfig(AppConfig):
     name = 'loghandle'
-    verbose_name = "Application for manage logs"
+    verbose_name = "Логи"
 
     def ready(self):
         logging.config.dictConfig(settings.LOGGING_CONF)

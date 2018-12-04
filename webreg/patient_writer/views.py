@@ -16,6 +16,20 @@ from patient_writer.models import DepartmentConfig, ClinicConfig, Specialization
 from main.mixins import ProfileRequiredMixin
 from main.logic import *
 from .logic import get_allowed_slot_types, get_specialist_service
+from loghandle.models import UserAction as action
+
+
+class Actions:
+    AUTHENTICATION = 'Аутентификация'
+    CONFIRM = 'Подтверждение пользователя'
+    GET_DEPARTMENTS = 'Получение списка подразделений'
+    GET_SPECIALITIES = 'Получение специальностей'
+    GET_SPECIALISTS = 'Получение специалистов'
+    GET_TIMETABLE = 'Получение расписания'
+    CHECK_FREE_CELL = 'Проверка доступности ячейки'
+    CREATE_APPOINTMENT = 'Создание назначения'
+    GET_TALON = 'Получение талона'
+    CANCEL_APPOINTMENT = 'Отмена записи'
 
 
 class PatientWriteFirstStep(FormView):
@@ -31,6 +45,8 @@ class PatientWriteFirstStep(FormView):
             request.session['patient_id'] = form.cleaned_data['patient_id']
             request.session['clinic_id'] = form.cleaned_data['clinic_id']
             request.session['phone'] = form.cleaned_data['phone']
+            action.log(Actions.AUTHENTICATION)
+
         return super(PatientWriteFirstStep, self).post(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -72,6 +88,7 @@ class PatientWriteSecondStep(ProfileRequiredMixin, TemplateView):
             update_patient_phone_number(patient, phone)
         if not patient_id:
             return redirect("patient_writer:input_first_step")
+        action.log(Actions.CONFIRM)
         years_old = patient.age
         departments = Department.objects.filter(
             clinic_id=patient.clinic.id,
@@ -109,6 +126,7 @@ class PatientWriteSecondStep(ProfileRequiredMixin, TemplateView):
             appointment = create_appointment(
                 user_profile, patient, specialist, service, cell.date, cell
             )
+            action.log(Actions.CREATE_APPOINTMENT)
             request.session['appointment_id'] = appointment.id
             appointment.send_sms()
         except AppointmentError as e:
@@ -196,6 +214,7 @@ class TalonPdf(ProfileRequiredMixin, View):
             )
             response['Content-Length'] = result.tell()
             result.seek(0)
+            action.log(Actions.GET_TALON)
         return response
 
 
@@ -269,7 +288,7 @@ class SpecialistTimeTable(ProfileRequiredMixin, TemplateView):
             })
         context['dates'] = dates
         context['timetable_header'] = "Выберите время"
-
+        action.log(Actions.GET_TIMETABLE)
         return self.render_to_response(context)
 
 
@@ -307,7 +326,12 @@ class CancelAppointmentView(DeleteView):
         """
         self.object = self.get_object()
         success_url = self.get_success_url()
-        cancel_appointment(self.object)
+        try:
+            cancel_appointment(self.object)
+        except AppointmentError as err:
+            log.error(str(err))
+            # TODO перенаправить на страницу с ошибкой
+        action.log(Actions.CANCEL_APPOINTMENT)
         return redirect(success_url)
 
 

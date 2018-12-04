@@ -11,6 +11,14 @@ from django.views.generic import TemplateView
 from main.logic import *
 from patient_writer.accounts.forms import PatientRegistrationForm
 from patient_writer.accounts.models import PatientRegistrationProfile
+from loghandle.models import UserAction as action
+
+
+class Actions:
+    REGISTER = "Пользователь зарегистрировался"
+    ACTIVE = "Пользователь стал активным"
+    LOGIN = "Пользоваетль залогинился"
+    LOGOUT = "Пользователь вышел"
 
 log = logging.getLogger("webreg")
 
@@ -59,6 +67,7 @@ class PatientRegistrationView(RegistrationView):
         except UserProfile.DoesNotExist:
             raise ImproperlyConfigured("Необходимо настроить профиль пользователя для записи на прием")
         new_user.save()
+        action.log(Actions.REGISTER)
         return new_user
 
     def get_success_url(self, user):
@@ -69,6 +78,7 @@ class PatientActivationView(ActivationView):
 
     def activate(self, request, activation_key):
         activated_user = PatientRegistrationProfile.objects.activate_user(activation_key)
+        action.log(Actions.ACTIVE)
         return activated_user
 
     def get_success_url(self, user):
@@ -90,6 +100,7 @@ def login(request, *args, **kwargs):
             request.session['clinic_id'] = patient.clinic.id
         except Patient.DoesNotExist:
             pass
+        action.log(Actions.LOGIN)
     return http
 
 
@@ -99,6 +110,7 @@ class LogOutConfirmView(TemplateView):
 
 def logout(request, *args, **kwargs):
     kwargs.update({'next_page': 'patient_writer:input_first_step'})
+    action.log(Actions.LOGOUT)
     http = DjangoLogout(request, *args, **kwargs)
     try:
         del request.session['patient_id']

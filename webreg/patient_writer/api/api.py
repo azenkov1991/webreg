@@ -6,6 +6,12 @@ from main.mixins import ProfileRequiredMixinForApi
 from main.logic import *
 from patient_writer.models import SpecializationConfig
 from patient_writer.logic import get_allowed_slot_types
+from loghandle.models import UserAction as action
+
+
+class Actions:
+    GET_SPECIALITIES = 'Получение специальностей'
+    GET_SPECIALISTS = 'Получение специалистов'
 
 
 class SpecializationConfigSerializer(serializers.ModelSerializer):
@@ -62,7 +68,7 @@ class AvailableSpecializaionsForDepartment(ProfileRequiredMixinForApi, APIView):
                 if not specialization_config.enable or \
                    not cell_exists:
                     specialization_configs = specialization_configs.exclude(id=specialization_config.id)
-
+        action.log(Actions.GET_SPECIALITIES)
         return Response(SpecializationConfigSerializer(specialization_configs, many=True).data)
 
 
@@ -114,4 +120,5 @@ class AvailableSpecialists(ProfileRequiredMixinForApi, APIView):
             ).exists()
             if not cell_exists:
                 specialists = specialists.exclude(id=specialist.id)
+        action.log(Actions.GET_SPECIALISTS)
         return Response(SpecialistSerializer(specialists, many=True).data)
