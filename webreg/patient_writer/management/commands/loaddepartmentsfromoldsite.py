@@ -173,14 +173,16 @@ class Command(BaseCommand):
                 qms_department_code.save()
                 print('Добавлен код подразделения qms' + dep_code_old.code + 'для ' + str(department))
 
-            for old_spec in SpecialityOld.objects.using('old_db').filter(departament_id=old_dep.id):
+            for old_spec in SpecialityOld.objects.using('old_db').filter(
+                departament_id=old_dep.id, is_get_doctor=True
+            ):
                 try:
-                    specialization = Specialization.objects.get(name__iexact=old_spec.name)
+                    specialization = Specialization.objects.filter(name__iexact=old_spec.name)[0]
                     print('Найдена специализация ' + specialization.name)
 
-                except Specialization.DoesNotExist:
+                except IndexError:
                     specialization = Specialization(
-                        name=old_spec.name.title()
+                        name=(old_spec.name[0].upper() + old_spec.name[1:].lower())
                     )
                     specialization.save()
                     print('не найдена специализация ' + old_spec.name)

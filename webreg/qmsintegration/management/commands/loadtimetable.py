@@ -65,7 +65,7 @@ class Command(BaseCommand):
         if not specialists:
             raise CommandError("Необходимо задать специалиста или подразделение со специалистами")
 
-        logger.info("Загрузка расписания с " + str(date_from) + "по " + str(date_to) + 'для учреждения ' + )
+        logger.info("Загрузка расписания с " + str(date_from) + "по " + str(date_to) + 'для учреждения ' + str(qmsdb.clinic))
 
         for specialist in specialists:
             logger.info("Загрузка расписания специалиста" + str(specialist))

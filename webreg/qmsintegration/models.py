@@ -1,4 +1,5 @@
 import logging
+from main.models import *
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.db.models.signals import post_delete
@@ -164,17 +165,46 @@ class IdMatchingTable(models.Model):
 
 
 def delete_id_from_id_matching_table(sender, **kwargs):
+    """
+    Удаление кода Qms при удалеии объекта модели
+    """
     if config.QMS_INTEGRATION_ENABLE:
         try:
-            IdMatchingTable.objects.get(internal_id=kwargs['instance'].id,
-                                        object_matching_table__internal_name=kwargs['instance']._meta.label).delete()
+            IdMatchingTable.objects.get(
+                internal_id=kwargs['instance'].id,
+                object_matching_table__internal_name=kwargs['instance']._meta.label
+            ).delete()
         except IdMatchingTable.DoesNotExist:
             pass
+
+
+def delete_object(sender, **kwargs):
+    """
+    Удаление объекта модели при удалении кода Qms
+    """
+    if config.QMS_INTEGRATION_ENABLE:
+        instance_id = kwargs['instance'].internal_id
+        instance_model = kwargs['instance'].object_matching_table.internal_name
+        try:
+            model_class = list(
+                filter(
+                    lambda x: hasattr(x, '_meta') and (x._meta.label == instance_model),
+                    globals().values()
+                )
+            )[0]
+            model_class.objects.filter(id=instance_id).delete()
+        except:
+            pass
+        print(instance_model)
+        print(instance_id)
+
 try:
+    post_delete.connect(delete_object, sender=IdMatchingTable)
     for obj_table in ObjectMatchingTable.objects.all():
-        post_delete.connect(delete_id_from_id_matching_table,sender=obj_table.internal_name)
+        post_delete.connect(delete_id_from_id_matching_table, sender=obj_table.internal_name)
 except:
     pass
+
 
 def get_external_variables(dic):
     """

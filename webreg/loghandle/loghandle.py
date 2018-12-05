@@ -37,7 +37,7 @@ class FileLogHandler(Handler):
 
         file_name = settings.LOG_DIRECTORY + os.sep + self.name + "-" + date.today().strftime("%Y%m%d")
         with open(file_name, 'a') as f:
-            f.write(datetime.now().strftime("%H:%M") + " | " + session_key + " | " + record.getMessage() + "\n")
+            f.write(datetime.now().strftime("%H:%M") + " | " + str(session_key) + " | " + record.getMessage() + "\n")
 
 
 
