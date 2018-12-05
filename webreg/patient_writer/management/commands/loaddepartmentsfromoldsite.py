@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import models
 from main.models import Department, Specialization, SlotType, Service
 from patient_writer.models import DepartmentConfig, SpecializationConfig, SlotTypeConfig
+from qmsintegration.models import QmsDepartment, QmsDepartmentCode
 
 
 class DepartmentOld(models.Model):
@@ -60,6 +61,16 @@ class DepartmentOld(models.Model):
     class Meta:
         managed = False
         db_table = "patient_writer_departament"
+
+
+class DepartamentCodeOld(models.Model):
+    departament_id = models.IntegerField(verbose_name='Департамент')
+    code = models.CharField(max_length=31, verbose_name='Код')
+    is_active_write = models.BooleanField(verbose_name='Доступность для записи', default=True)
+
+    class Meta:
+        managed = False
+        db_table = "patient_writer_departamentcode"
 
 
 class SessionTypeOld(models.Model):
@@ -148,6 +159,19 @@ class Command(BaseCommand):
             )
             department_config.save()
             print('Созданы настройки для подразделения ' + str(department))
+            episode_type = 1 if old_dep.type_incoming == "АМБУЛАТОРНО" else 2
+            qms_department = QmsDepartment(department=department, episode_type=episode_type)
+            qms_department.save()
+            print('Создано qms подразделение для ' + str(department))
+
+            dep_codes_old = DepartamentCodeOld.objects.using('old_db').filter(departament_id=old_dep.id)
+
+            for dep_code_old in dep_codes_old:
+                qms_department_code = QmsDepartmentCode(
+                    qmsdepartament=qms_department, code=dep_code_old.code
+                )
+                qms_department_code.save()
+                print('Добавлен код подразделения qms' + dep_code_old.code + 'для ' + str(department))
 
             for old_spec in SpecialityOld.objects.using('old_db').filter(departament_id=old_dep.id):
                 try:

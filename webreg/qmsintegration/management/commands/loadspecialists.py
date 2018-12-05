@@ -6,13 +6,13 @@ from qmsmodule.qmsfunctions import *
 from qmsintegration.models import *
 from main.models import Specialist, Department, Specialization, Service
 
-logger = logging.getLogger("webreg")
+logger = logging.getLogger("command_manage")
 
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("dbname", help="Название настроек базы QMS из qmsintegration.OmsDB")
-        parser.add_argument("department", help="Id подразделения", type=int)
+        parser.add_argument("--department", dest='department', help="Id подразделения", type=int)
 
     def cre_spec(self, fio, specialization, department_id, qqc244):
         spec = None
@@ -82,20 +82,23 @@ class Command(BaseCommand):
         except models.ObjectDoesNotExist:
             raise CommandError("Нет описания базы данных Qms с именем " + dbname)
         department_id = options["department"]
-        try:
-            department = Department.objects.get(pk=department_id)
-        except models.ObjectDoesNotExist:
-            raise CommandError("Нет подразделения с id = " + department_id)
-
-
+        if department_id:
+            departments = Department.objects.filter(id=department_id)
+            if not len(departments):
+                raise CommandError("Нет подразделения с id = " + department_id)
+        else:
+            departments = Department.objects.filter(clinic_id=qmsdb.clinic.id)
+        logger.info('Загрузка специалистов для учреждения ' + str(qmsdb.clinic))
         qms = QMS(qmsdb.settings)
-        try:
-            qms_department = department.qmsdepartment
-        except QmsDepartment.DoesNotExist:
-            raise ImproperlyConfigured('Необходимо настроить соответсвие подразделений сайта и qms')
 
-        for qms_department_code in qms_department.codes.all():
-            self.load_specs_in_department(qms, department, qms_department_code.code)
+        for department in departments:
+            try:
+                qms_department = department.qmsdepartment
+            except QmsDepartment.DoesNotExist:
+                raise ImproperlyConfigured('Необходимо настроить соответсвие подразделений сайта и qms')
+            logger.info('Загрузка специалистов подразделения ' + str(department))
+            for qms_department_code in qms_department.codes.all():
+                self.load_specs_in_department(qms, department, qms_department_code.code)
 
 
 

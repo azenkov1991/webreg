@@ -4,7 +4,7 @@ from django.db import models
 class Specialization(models.Model):
     name = models.CharField(
         max_length=128, verbose_name='Специализация',
-        blank=True, null=True
+        blank=True, null=True, unique=True
     )
 
     def __str__(self):

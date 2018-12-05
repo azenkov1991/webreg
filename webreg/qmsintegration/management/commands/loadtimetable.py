@@ -7,7 +7,7 @@ from qmsintegration.common import update_specialist_timetable
 from main.models import Specialist, Department, Cell, Cabinet, SlotType, Service
 from qmsintegration.management.commands.loadspecialists import Command as CmdSpec
 
-logger = logging.getLogger("webreg")
+logger = logging.getLogger("command_manage")
 
 
 class Command(BaseCommand):
@@ -65,10 +65,10 @@ class Command(BaseCommand):
         if not specialists:
             raise CommandError("Необходимо задать специалиста или подразделение со специалистами")
 
+        logger.info("Загрузка расписания с " + str(date_from) + "по " + str(date_to) + 'для учреждения ' + )
 
-        print("Загрузка расписания с " + str(date_from) + "по " + str(date_to))
         for specialist in specialists:
-            print("Загрузка расписания " + str(specialist))
+            logger.info("Загрузка расписания специалиста" + str(specialist))
             update_specialist_timetable(specialist, date_from, date_to, qms, slot_type)
 
 
