@@ -25,6 +25,7 @@ class PatientSerializer(serializers.ModelSerializer):
         model = Patient
         fields = ('id', 'fio', 'birth_date')
 
+
 class CellSerializer(serializers.ModelSerializer):
     cabinet = CabinetTimeTableSerializer()
     slot_type = SlotTypeSerializer()
@@ -45,10 +46,11 @@ class SpecialistsFreeCells(ProfileRequiredMixinForApi, APIView):
         user_profile = request.user_profile
         slot_types = user_profile.get_slot_restrictions().values('id')
         specialist = Specialist.objects.get(id=specialist_id)
-        cells = Cell.get_free_cells(specialist,
-                                    datetime.datetime.strptime(date_from, "%Y-%m-%d").date(),
-                                    datetime.datetime.strptime(date_to, "%Y-%m-%d").date(),
-                                    )
+        cells = Cell.get_free_cells(
+            specialist,
+            datetime.datetime.strptime(date_from, "%Y-%m-%d").date(),
+            datetime.datetime.strptime(date_to, "%Y-%m-%d").date(),
+        )
         if slot_type_id:
             cells = cells.filter(slot_type_id=int(slot_type_id))
         if slot_types:

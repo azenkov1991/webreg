@@ -60,6 +60,7 @@ class Command(BaseCommand):
 
     def load_specs_in_department(self, qms, department, qms_department):
         qms_specialists = qms.get_all_doctors(qms_department)
+        logger.info('Загрузка специалистов из подразделения qms ' + qms_department)
         for spec in qms_specialists:
             if spec.IsActive:
                 if spec.firstName and spec.lastName and spec.middleName:

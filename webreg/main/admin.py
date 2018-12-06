@@ -34,7 +34,7 @@ class SpecialistAdmin(admin.ModelAdmin):
         'fio', 'specialization', 'department',
     )
     list_display_links = ('fio', 'specialization')
-    list_filter = ('specialization',)
+    list_filter = ('department', 'specialization',)
     search_fields = ('fio',)
     raw_id_fields = ('performing_services',)
     autocomplete_lookup_fields = {
@@ -122,6 +122,10 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('name', 'site', 'users_str')
     form = UserProfileForm
 
+
+class SlotTypeAdmin(admin.ModelAdmin):
+    list_filter = ('clinic', )
+
 admin.site.register(Service, ServiceAdmin)
 admin.site.register(Specialist, SpecialistAdmin)
 admin.site.register(Cell, CellAdmin)
@@ -133,7 +137,7 @@ admin.site.register(Department, DepartmentAdmin)
 admin.site.register(Specialization, admin.ModelAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(NumberOfServiceRestriction, NumberOfServiceRestrictionAdmin)
-admin.site.register(SlotType, admin.ModelAdmin)
+admin.site.register(SlotType, SlotTypeAdmin)
 admin.site.register(ProfileSettings, ProfileSettingsAdmin)
 admin.site.register(SiteServiceRestriction, SiteServicePermissoionAdmin)
 admin.site.register(SiteConfig, SiteConfigAdmin)

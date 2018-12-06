@@ -25,7 +25,9 @@ class Command(BaseCommand):
             name = tses.name
             color = tses.color
             try:
-                tses_obj = SlotType.objects.get(name=name)
+                tses_obj = SlotType.objects.get(
+                    name=name, clinic=qmsdb.clinic
+                )
             except SlotType.DoesNotExist:
                 tses_obj = SlotType()
 

@@ -48,8 +48,10 @@ def update_specialist_timetable(specialist, date_from, date_to, qms, slot_type=N
            qms_cell.date >= date.today():
             slot_type = None
             if qms_cell.slot_type:
-                slot_type = SlotType.objects.get_or_create(name=qms_cell.slot_type,
-                                                           clinic_id=specialist.department.clinic.id)[0]
+                slot_type = SlotType.objects.get_or_create(
+                    name=qms_cell.slot_type,
+                    clinic_id=specialist.department.clinic.id
+                )[0]
             cabinet = None
             if qms_cell.cabinet:
                 try:
