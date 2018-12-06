@@ -4,13 +4,17 @@ import json
 from unipath import Path
 from django.core.exceptions import ImproperlyConfigured
 
+DEBUG = False
+
+ROOT_POJECT_DIR = Path(__file__).ancestor(4)
 
 BASE_DIR = Path(__file__).ancestor(3)
 CONFIG_DIR = Path(__file__).ancestor(2)
-MEDIA_ROOT = BASE_DIR.child("media")
-STATIC_ROOT = BASE_DIR.child("static")
 
-LOG_DIRECTORY = Path(__file__).ancestor(4) + os.sep + 'log'
+MEDIA_ROOT = ROOT_POJECT_DIR.child("media")
+STATIC_ROOT = ROOT_POJECT_DIR.child("static")
+
+LOG_DIRECTORY = ROOT_POJECT_DIR.child('log')
 
 STATICFILES_DIRS = (
 )
@@ -51,7 +55,8 @@ INSTALLED_APPS = [
     'flatblocks',
     'djcelery',
     'djcelery_email',
-    'registration'
+    'registration',
+    'compressor'
 ]
 
 
@@ -155,7 +160,7 @@ MEDIA_URL = '/media/'
 
 for item in LOCAL_APPS:
     INSTALLED_APPS += (item, )
-    STATICFILES_DIRS += ((item, Path(BASE_DIR, item, 'static')), )
+    # STATICFILES_DIRS += ((item, Path(BASE_DIR, item, 'static')), )
 
 DATABASE_ROUTERS = ['loghandle.db_router.LogRouter']
 
@@ -188,5 +193,17 @@ celery = Celery(
     include=['main.tasks', 'djcelery_email.tasks']
 )
 
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+)
+
+COMPRESS_CSS_FILTERS = [
+    'compressor.filters.cssmin.CSSMinFilter'
+]
+COMPRESS_JS_FILTERS = [
+    'compressor.filters.jsmin.JSMinFilter'
+]
 
 from patient_writer.settings import *

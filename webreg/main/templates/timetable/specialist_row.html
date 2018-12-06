@@ -1,6 +1,10 @@
 {% load static %}
+{% load compress %}
+
+{% compress css %}
 <link rel="stylesheet" href = "{% static 'css/timetable.css' %}"/>
 <link rel="stylesheet" href = "{% static 'css/timetablecarousel.css' %}"/>
+{% endcompress %}
 
 <div class="container-fluid speicialist-timetable-row">
   <div class="row">

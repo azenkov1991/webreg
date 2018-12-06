@@ -61,9 +61,8 @@ node_modules/
 .env
 
 # User-uploaded media
-django_project_root/media/
-
-staticfiles/
+media/
+static/
 
 webreg/config/settings/local.py
 

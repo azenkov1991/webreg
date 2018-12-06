@@ -1,5 +1,9 @@
 from .common import *
 DEBUG = True
+if not DEBUG:
+    COMPRESS_ENABLED = True
+    COMPRESS_OFFLINE = True
+
 
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases

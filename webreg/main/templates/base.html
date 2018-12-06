@@ -1,5 +1,6 @@
 {% load staticfiles i18n %}<!DOCTYPE html>
 {% load flatblocks %}
+{% load compress %}
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -14,11 +15,15 @@
       <script src="{% static 'library/html5shiv/dist/html5shiv.min.js' %}"></script>
     <![endif]-->
 
+
     {% block css %}
-    <link rel="stylesheet" href="{% static 'library/bootstrap/dist/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/bootstrapstyle.css' %}">
-    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+      <link rel="stylesheet" href="{% static 'library/bootstrap/dist/css/bootstrap.min.css' %}">
+      {% compress css %}
+      <link rel="stylesheet" href="{% static 'css/bootstrapstyle.css' %}">
+      <link rel="stylesheet" href="{% static 'css/main.css' %}">
+      {% endcompress %}
     {% endblock %}
+
   </head>
 
   <body>
@@ -82,7 +87,9 @@
           <script src="{% static 'library/bootstrap/dist/js/bootstrap.min.js' %}"></script>
           <script src="{% static 'library/jquery.maskedinput/dist/jquery.maskedinput.min.js' %}"></script>
           <script src="{% static 'library/jquery-nice-select/js/jquery.nice-select.min.js' %}"></script>
+          {% compress js %}
           <script src="{% static 'js/init.js' %}"></script>
+          {% endcompress %}
         {% endblock javascript %}
 
         {% block modal %}{% endblock modal %}
