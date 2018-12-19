@@ -19,6 +19,7 @@ class Actions:
     ACTIVE = "Пользователь стал активным"
     LOGIN = "Пользоваетль залогинился"
     LOGOUT = "Пользователь вышел"
+    WRONG_PASSWORD = "Неверный пароль"
 
 log = logging.getLogger("webreg")
 
@@ -96,12 +97,23 @@ def login(request, *args, **kwargs):
     if request.method == 'POST':
         try:
             user = request.user
-            patient = Patient.objects.get(user_id=user.id)
-            request.session['patient_id'] = patient.id
-            request.session['clinic_id'] = patient.clinic.id
+            if user.id:
+                patient = Patient.objects.get(user_id=user.id)
+                request.session['patient_id'] = patient.id
+                request.session['clinic_id'] = patient.clinic.id
         except Patient.DoesNotExist:
             pass
-        action.log(Actions.LOGIN)
+        if user.id:
+            action.log(Actions.LOGIN)
+        else:
+            action.log(
+                Actions.WRONG_PASSWORD,
+                info={
+                    'username': http.context_data['form'].cleaned_data['username'],
+                    'password': http.context_data['form'].cleaned_data['password'],
+                }
+            )
+
     return http
 
 

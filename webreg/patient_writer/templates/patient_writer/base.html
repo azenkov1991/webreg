@@ -16,11 +16,13 @@
             </div>
 
             <div class="collapse navbar-collapse" id="main-navbar-collapse">
+              {% comment %}
               <ul class="nav navbar-nav">
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'patient_writer:help' %}">Помощь</a>
                 </li>
               </ul>
+              {% endcomment %}
               <ul class="nav navbar-nav navbar-right">
                 {% if request.user.is_authenticated %}
                 <li class="nav-item navbar-right">
@@ -29,6 +31,11 @@
                 <li class="hidden-xs nav-item">
                     <a href="" class="nav-link">{{ patient.first_name }} {{patient.last_name.0}}. {{ patient.middle_name.0 }}.</a>
                 </li>
+                <li class="visible-xs nav-item">
+                {% if patient %}
+                    <a class="nav-link navbar-right" href="{% url 'patient_writer:appointment_list' %}"><span class="glyphicon glyphicon-th-list"></span> История записи</a>
+                {% endif%}
+                </li>
                 {% else %}
                 <li class="nav-item">
                   <a href="{% url 'patient_writer:registration' %}" class="nav-link">Регистрация</a>
@@ -36,8 +43,14 @@
                 <li class="nav-item">
                   <a id="log-in-link" class="nav-link" href="{% url 'patient_writer:account_login' %}"><span class="glyphicon glyphicon-log-in"></span> Войти в личный кабинет</a>
                 </li>
-
                 {% endif %}
+                <li class="visible-xs nav-item">
+                  <a class="nav-link navbar-right"  href="#link2"><span class="glyphicon glyphicon-question-sign"></span> Вопросы и ответы</a>
+                </li>
+                <li class="visible-xs nav-item">
+                  <a class="nav-link navbar-right" href="{% url 'patient_writer:agreement' %}"><span class="glyphicon glyphicon-list-alt"></span> Согласие на обработку ПД</a>
+                </li>
+
               </ul>
             </div>
           </div>
@@ -46,9 +59,9 @@
 
 {% block sidenavigation %}
 {% if patient %}
-<a class="list-group-item" href="{% url 'patient_writer:appointment_list' %}"><span class="glyphicon glyphicon-th-list"></span> История записи</a>
+<a class="hidden-xs list-group-item" href="{% url 'patient_writer:appointment_list' %}"><span class="glyphicon glyphicon-th-list"></span> История записи</a>
 {% endif%}
-<a class="list-group-item" href="#link2"><span class="glyphicon glyphicon-question-sign"></span> Вопросы и ответы</a>
-<a class="list-group-item" href="{% url 'patient_writer:agreement' %}"><span class="glyphicon glyphicon-list-alt"></span> Согласие на обработку ПД</a>
+<a class="hidden-xs list-group-item" href="#link2"><span class="glyphicon glyphicon-question-sign"></span> Вопросы и ответы</a>
+<a class="hidden-xs list-group-item" href="{% url 'patient_writer:agreement' %}"><span class="glyphicon glyphicon-list-alt"></span> Согласие на обработку ПД</a>
 
 {% endblock sidenavigation %}
