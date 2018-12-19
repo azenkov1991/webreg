@@ -130,7 +130,7 @@ class QMS:
 
     def check_patient_register(self, patient_id):
         self.query.execute_query('CheckRegister', self.DATABASE_CODE, patient_id)
-        return bool(self.query.result)
+        return bool(int(self.query.result))
 
     def get_avail_spec(self, specialist_code):
         self.query.execute_query('AvailSpecDetail', self.DATABASE_CODE, specialist_code)

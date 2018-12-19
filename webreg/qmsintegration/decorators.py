@@ -179,7 +179,8 @@ def find_patient_by_polis_number(fn):
                                                            polis_seria=polis_seria,
                                                            birth_date=birth_date)
                 # если пациент найден в базе и прикреплен
-                if patient_data and qms.check_patient_register(patient_data['patient_qqc']):
+                check_patient_attach = qms.check_patient_register(patient_data['patient_qqc'])
+                if patient_data and check_patient_attach:
                     patient, created = Patient.objects.update_or_create(defaults={'first_name': patient_data['first_name'],
                                                                                   'last_name': patient_data['last_name'],
                                                                                   'middle_name': patient_data['middle_name']},
