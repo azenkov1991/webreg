@@ -16,7 +16,6 @@ class InputFirstStepForm(forms.Form):
         max_length=16, label='Номер полиса',
         widget=forms.TextInput(attrs={
             'placeholder': '16 знаков для полиса нового образца',
-            'autocomplete': 'off',
             'mask': '9999999999999999',
             'mask-restrict': 'reject',
         }),
@@ -27,7 +26,6 @@ class InputFirstStepForm(forms.Form):
         max_length=6, label='Серия полиса', required=False,
         widget=forms.TextInput(attrs={
             'placeholder': 'оставьте пустым для полиса нового образца',
-            'autocomplete': 'off',
             'disabled': 'disabled',
         }),
         help_text='Пример: КМС'
@@ -37,7 +35,6 @@ class InputFirstStepForm(forms.Form):
         widget=forms.SelectDateWidget(
             years=BIRTH_YEAR_CHOICES,
             attrs={
-            'autocomplete': 'off',
             'placeholder': 'дд.мм.гггг',
             }
         ),
