@@ -1,4 +1,6 @@
 {% extends 'patient_writer/base.html' %}
+{% load compress %}
+{% load static %}
 {% block content %}
 <div class="container-fluid has-frame">
   <div class="row">
@@ -14,5 +16,14 @@
   </div>
 </div>
 {% endblock content %}
+
+{% block javascript %}
+    {{ block.super }}
+{% compress js %}
+<script src="{% static '/js/input_first_form_control.js' %}"></script>
+{% endcompress %}
+
+{% endblock %}
+
 
 

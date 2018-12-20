@@ -28,6 +28,7 @@ class InputFirstStepForm(forms.Form):
         widget=forms.TextInput(attrs={
             'placeholder': 'оставьте пустым для полиса нового образца',
             'autocomplete': 'off',
+            'disabled': 'disabled',
         }),
         help_text='Пример: КМС'
     )
