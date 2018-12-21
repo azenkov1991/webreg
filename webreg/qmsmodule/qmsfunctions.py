@@ -88,8 +88,8 @@ class QMS:
             result['polis_number'] = re.findall(u"№ (\d*)", polisstr)[0]
             result['polis_seria'] = re.findall(u"Серия (\d*)", polisstr)[0]
         else:
-            result['polis_number'] = None
-            result['polis_seria'] = None
+            result['polis_number'] = ''
+            result['polis_seria'] = ''
         try:
             birth_date = datetime.datetime.strptime(result['birth_date'], "%Y%m%d")
         except ValueError:

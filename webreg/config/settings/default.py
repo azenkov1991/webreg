@@ -53,9 +53,9 @@ LOGGING_CONF = {
             'level': 'DEBUG',
         },
         'command_manage': {
-            'handlers': ['dbhandler', 'console'],
+            'handlers': ['filehandler', 'console'],
             'propagate': False,
-            'level': 'DEBUG',
+            'level': 'INFO',
         },
         'qms_answers': {
             'handlers': ['filehandler'],

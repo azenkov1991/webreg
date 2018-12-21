@@ -1,12 +1,15 @@
+from logging import getLogger
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
 from main.models import UserProfile, Patient
-from qmsintegration.models import QmsDB, set_external_id
+from main.logic import find_patient_by_polis_number
+from qmsintegration.models import QmsDB, set_external_id, IdMatchingTable
 from qmsmodule.qmsfunctions import QMS
 
+logger = getLogger("command_manage")
 
 class OldUser(models.Model):
     username = models.CharField(
@@ -68,33 +71,28 @@ class Command(BaseCommand):
         qms = QMS(qmsdb.settings)
         profile = UserProfile.objects.get(name=settings.PATIENT_WRITER_PROFILE)
         for ext_user in OldUser.objects.using("old_db").all():
-            if ext_user.qqc153:
+            if ext_user.qqc153 and not IdMatchingTable.objects.filter(external_id=ext_user.qqc153).exists():
+                logger.info('trying to find ' + ext_user.username)
                 patient_information = qms.get_patient_information(patient_qqc=ext_user.qqc153)
-                if patient_information:
-                    print("load " + ext_user.username)
-                    user = User.objects.create(
-                        username=ext_user.username,
-                        password=ext_user.password,
-                        first_name=ext_user.first_name,
-                        last_name=ext_user.last_name,
-                        email=ext_user.email,
-                        is_staff=ext_user.is_staff,
-                        is_active=ext_user.is_active,
-                        date_joined=ext_user.date_joined,
-                    )
-                    profile.user.add(user)
-                    patient = Patient.objects.create(
-                        first_name=patient_information['first_name'],
-                        last_name=patient_information['last_name'],
-                        middle_name=patient_information['middle_name'],
-                        birth_date=patient_information['birth_date'],
-                        polis_number=patient_information['polis_number'],
-                        polis_seria= patient_information['polis_seria'],
-                        phone=ext_user.phone,
-                        user_id=user.id,
-                        clinic_id=qmsdb.clinic.id
-                    )
-                    set_external_id(patient, ext_user.qqc153)
+                if patient_information and patient_information['polis_number']:
+                    patient = find_patient_by_polis_number(patient_information['polis_number'], patient_information['birth_date'])
+                    if patient:
+                        logger.info("saving " + ext_user.username)
+                        user = User.objects.create(
+                            username=ext_user.username,
+                            password=ext_user.password,
+                            first_name=ext_user.first_name,
+                            last_name=ext_user.last_name,
+                            email=ext_user.email,
+                            is_staff=ext_user.is_staff,
+                            is_active=ext_user.is_active,
+                            date_joined=ext_user.date_joined,
+                        )
+                        profile.user.add(user)
+                        patient.phone = ext_user.phone
+                        patient.user = user
+                        patient.save()
+                        set_external_id(patient, ext_user.qqc153)
 
 
 

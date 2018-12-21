@@ -28,7 +28,7 @@ class Patient(models.Model):
     )
     polis_seria = models.CharField(
         max_length=6, verbose_name="Серия полиса",
-        blank=True, default=""
+        blank=True, null=True
     )
     clinic = models.ForeignKey(
         'main.Clinic', verbose_name="Мед. учреждение"
