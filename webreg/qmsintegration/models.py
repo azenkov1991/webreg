@@ -195,8 +195,6 @@ def delete_object(sender, **kwargs):
             model_class.objects.filter(id=instance_id).delete()
         except:
             pass
-        print(instance_model)
-        print(instance_id)
 
 try:
     post_delete.connect(delete_object, sender=IdMatchingTable)

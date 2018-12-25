@@ -6,10 +6,11 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from main.models import UserProfile, Patient
 from main.logic import find_patient_by_polis_number
-from qmsintegration.models import QmsDB, set_external_id, IdMatchingTable
+from qmsintegration.models import QmsDB, set_external_id, get_external_id, IdMatchingTable
 from qmsmodule.qmsfunctions import QMS
 
 logger = getLogger("command_manage")
+
 
 class OldUser(models.Model):
     username = models.CharField(
@@ -59,24 +60,38 @@ class OldUser(models.Model):
 
 
 class Command(BaseCommand):
-    def add_arguments(self, parser):
-        parser.add_argument("dbname", help="Название настроек базы QMS из qmsintegration.OmsDB")
-
     def handle(self, *args, **options):
-        dbname=options['dbname']
         try:
-            qmsdb = QmsDB.objects.get(name=dbname)
+            qmsdb1 = QmsDB.objects.get(id=1)
+            qmsdb2 = QmsDB.objects.get(id=2)
         except QmsDB.DoesNotExist:
-            raise CommandError("Нет описания базы данных Qms с именем " + dbname)
-        qms = QMS(qmsdb.settings)
+            raise CommandError("Нет описания баз данных Qms")
+        qms1 = QMS(qmsdb1.settings)
+        qms2 = QMS(qmsdb2.settings)
         profile = UserProfile.objects.get(name=settings.PATIENT_WRITER_PROFILE)
         for ext_user in OldUser.objects.using("old_db").all():
             if ext_user.qqc153 and not IdMatchingTable.objects.filter(external_id=ext_user.qqc153).exists():
                 logger.info('trying to find ' + ext_user.username)
+                if ext_user.qqc153[:3] == "vAB":
+                    qms = qms1
+                    qmsdb=qmsdb1
+                elif ext_user.qqc153[:3] == "vAC":
+                    qms = qms2
+                    qmsdb = qmsdb2
+                else:
+                    logger.error('qqc неизвестной базы ' + ext_user.qqc153)
+                    continue
+
                 patient_information = qms.get_patient_information(patient_qqc=ext_user.qqc153)
                 if patient_information and patient_information['polis_number']:
                     patient = find_patient_by_polis_number(patient_information['polis_number'], patient_information['birth_date'])
                     if patient:
+                        if patient.clinic.id != qmsdb.clinic.id:
+                            logger.error('Пациент прикреплен к двум базам ' + str(patient))
+                            continue
+                        if ext_user.qqc153 != get_external_id(patient):
+                            logger.error('qqc пациента не совпадает' + str(patient))
+                            continue
                         logger.info("saving " + ext_user.username)
                         user = User.objects.create(
                             username=ext_user.username,
@@ -92,7 +107,7 @@ class Command(BaseCommand):
                         patient.phone = ext_user.phone
                         patient.user = user
                         patient.save()
-                        set_external_id(patient, ext_user.qqc153)
+
 
 
 
