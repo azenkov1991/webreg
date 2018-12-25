@@ -89,7 +89,7 @@ class Command(BaseCommand):
                         if patient.clinic.id != qmsdb.clinic.id:
                             logger.error('Пациент прикреплен к двум базам ' + str(patient))
                             continue
-                        if ext_user.qqc153 != get_external_id(patient):
+                        if ext_user.qqc153 != get_external_id(patient, qmsdb):
                             logger.error('qqc пациента не совпадает' + str(patient))
                             continue
                         logger.info("saving " + ext_user.username)

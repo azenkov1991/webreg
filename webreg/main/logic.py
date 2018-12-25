@@ -132,8 +132,8 @@ def create_patient(clinic, first_name, last_name, middle_name, birth_date, polis
                       birth_date=birth_date,
                       polis_number=polis_nmber,
                       polis_seria=polis_seria)
+    patient.clinic = clinic
     patient.save()
-    patient.clinic.add(clinic)
     return patient
 
 

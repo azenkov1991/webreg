@@ -156,11 +156,18 @@ class ObjectMatchingTable(models.Model):
 
 class IdMatchingTable(models.Model):
     internal_id = models.IntegerField(verbose_name='ID сущности')
-    external_id = models.CharField(max_length=128, verbose_name='ID во внешней системе')
+    external_id = models.CharField(
+        max_length=128, verbose_name='ID во внешней системе',
+        unique=True
+    )
     object_matching_table = models.ForeignKey(ObjectMatchingTable)
 
+    qmsdb = models.ForeignKey(
+        QmsDB, verbose_name="База qms", null=True
+    )
+
     class Meta:
-        unique_together = ('internal_id', 'object_matching_table')
+        unique_together = ('internal_id', 'object_matching_table', 'qmsdb')
         verbose_name_plural = 'Таблица соответсвий id'
 
 
@@ -240,7 +247,7 @@ def delete_external_ids(models):
                                        object_matching_table__internal_name=object_name).delete()
 
 
-def set_external_id(model, qqc):
+def set_external_id(model, qqc, qmsdb=None):
     internal_name = model._meta.label
     internal_id = model.id
     try:
@@ -249,19 +256,32 @@ def set_external_id(model, qqc):
         log.error("Попытка установки id объекта, отсутствующего в ObjectMatchingTable object = " + internal_name )
         raise QmsIntegrationError
     try:
-        imt = IdMatchingTable.objects.get(internal_id=internal_id, external_id=qqc,
-                                          object_matching_table_id=omt.id)
+        imt = IdMatchingTable.objects.get(
+            internal_id=internal_id, external_id=qqc,
+            object_matching_table_id=omt.id, qmsdb=qmsdb
+        )
     except IdMatchingTable.DoesNotExist:
-        imt = IdMatchingTable(internal_id=internal_id, external_id=qqc,
-                              object_matching_table_id=omt.id)
+        imt = IdMatchingTable(
+            internal_id=internal_id, external_id=qqc,
+            object_matching_table_id=omt.id,
+            qmsdb=qmsdb
+        )
         imt.save()
 
 
-def get_external_id(model):
+def get_external_id(model, qmsdb=None):
     internal_name = model._meta.label
     internal_id = model.id
     try:
-        imt = IdMatchingTable.objects.get(internal_id=internal_id, object_matching_table__internal_name=internal_name)
+        if not qmsdb:
+            imt = IdMatchingTable.objects.get(
+                internal_id=internal_id, object_matching_table__internal_name=internal_name,
+            )
+        else:
+            imt = IdMatchingTable.objects.get(
+                internal_id=internal_id, object_matching_table__internal_name=internal_name,
+                qmsdb=qmsdb
+        )
     except models.ObjectDoesNotExist:
         log.error("Ошибка интеграции с Qms. Не найден id: internal_id=" + str(internal_id) +
                   " model=" + internal_name)
@@ -269,10 +289,24 @@ def get_external_id(model):
     return imt.external_id
 
 
-def get_internal_id(qms_obj, external_id):
+def get_internal_id(qms_obj, external_id, qmsdb=None):
     try:
-        imt = IdMatchingTable.objects.get(external_id=external_id, object_matching_table__external_name=qms_obj)
+        if not qmsdb:
+            try:
+                imt = IdMatchingTable.objects.get(
+                    external_id=external_id, object_matching_table__external_name=qms_obj
+                )
+            except IdMatchingTable.MultipleObjectsReturned:
+                log.error('Найдено несколько соответсвий в таблице ' + str(qms_obj) + ' ' + str(external_id))
+                raise QmsIntegrationError
+        else:
+            imt = IdMatchingTable.objects.get(
+                external_id=external_id, object_matching_table__external_name=qms_obj,
+                qmsdb=qmsdb
+            )
     except IdMatchingTable.DoesNotExist:
+        log.error("Ошибка интеграции с Qms. Не найден id: external_id=" + str(external_id) +
+                  " qms_obj=" + str(qms_obj))
         raise QmsIntegrationError
     return imt.internal_id
 

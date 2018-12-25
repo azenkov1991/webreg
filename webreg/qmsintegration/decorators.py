@@ -158,7 +158,7 @@ def find_patient_by_birth_date(fn):
                                                                     clinic=clinic,
                                                                     defaults={'polis_number':patient_data['polis_number'],
                                                                     'polis_seria': patient_data['polis_seria']})
-                set_external_id(patient, patient_data['patient_qqc'])
+                set_external_id(patient, patient_data['patient_qqc'], qmsdb=clinic.qmsdb)
                 return patient
         except CacheQueryError:
             raise QmsIntegrationError("Ошибка интеграции с Qms")
@@ -187,7 +187,7 @@ def find_patient_by_polis_number(fn):
                                                                         birth_date=birth_date,
                                                                         polis_seria=polis_seria,
                                                                         clinic=clinic)
-                    set_external_id(patient, patient_data['patient_qqc'])
+                    set_external_id(patient, patient_data['patient_qqc'], qmsdb=clinic.qmsdb)
                     return patient
             except CacheQueryError:
                 raise PatientError("Ошибка при поиске пациента в Qms")
@@ -204,7 +204,10 @@ def create_patient(fn):
             if not qqc153:
                 raise QmsIntegrationError("Ошибка при создании пациента в Qms")
             patient = fn(clinic, first_name, last_name, middle_name, birth_date, polis_number, polis_seria)
-            set_external_id(patient, qqc153)
+            if clinic:
+                set_external_id(patient, qqc153, qmsdb=clinic.qmsdb)
+            else:
+                set_external_id(patient, qqc153)
         except CacheQueryError:
             raise PatientError("Ошибка при создании пациента в Qms")
         return patient
@@ -218,7 +221,7 @@ def update_patient_phone_number(fn):
         # для всех клиник пациента обновить телефон
         clinic = patient.clinic
         qms = QMS(clinic.qmsdb.settings)
-        qqc153 = get_external_id(patient)
+        qqc153 = get_external_id(patient, clinic.qmsdb)
         if clinic.qmsdb.update_phone:
             try:
                 qms.query.execute_query('UpdatePatientPhoneNumber', qqc153, phone_number)

@@ -179,7 +179,7 @@ class TestQmsIntegrationAppointment(TestCase):
             clinic=self.clinic
         )
         self.patient.save()
-        set_external_id(self.patient, "vABAJnb")
+        set_external_id(self.patient, "vABAJnb", self.clinic.qmsdb)
         self.patient2 = Patient(
             first_name="Тест", last_name="Тест", middle_name="Мужчина",
             birth_date = datetime.date(1991, 12, 4),
@@ -187,7 +187,7 @@ class TestQmsIntegrationAppointment(TestCase):
             clinic=self.clinic
         )
         self.patient2.save()
-        set_external_id(self.patient2, "vABAF.x")
+        set_external_id(self.patient2, "vABAF.x", self.clinic.qmsdb)
 
     def tearDown(self):
         self.qms.query.execute_query('DeleteFakeRasp', "vABdAAuAAAC", self.date_qms_str)

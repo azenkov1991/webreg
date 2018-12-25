@@ -31,7 +31,8 @@ class Patient(models.Model):
         blank=True, null=True
     )
     clinic = models.ForeignKey(
-        'main.Clinic', verbose_name="Мед. учреждение"
+        'main.Clinic', verbose_name="Мед. учреждение",
+        null=True, blank=True
     )
     user = models.ForeignKey(
         'auth.User',
