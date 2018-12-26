@@ -130,7 +130,18 @@ class QMS:
 
     def check_patient_register(self, patient_id):
         self.query.execute_query('CheckRegister', self.DATABASE_CODE, patient_id)
-        return bool(int(self.query.result))
+        is_patient_attached = bool(int(self.query.result))
+        self.query.execute_query('DateCheckAttach', patient_id)
+        qms_date_string = self.query.result
+        if qms_date_string:
+            try:
+                comparison_date = datetime.datetime.strptime(qms_date_string, '%Y%m%d')
+            except ValueError:
+                log.error('Qms вернул дату неправильного формата ' + comparison_date + 'qqc_153= ' + patient_id)
+                comparison_date = None
+        else:
+            comparison_date = None
+        return is_patient_attached, comparison_date
 
     def get_avail_spec(self, specialist_code):
         self.query.execute_query('AvailSpecDetail', self.DATABASE_CODE, specialist_code)

@@ -52,6 +52,11 @@ LOGGING_CONF = {
             'propagate': False,
             'level': 'DEBUG',
         },
+        'qmsdecorators': {
+            'handlers': ['dbhandler'],
+            'propagate': False,
+            'level': 'ERROR',
+        },
         'command_manage': {
             'handlers': ['filehandler', 'console'],
             'propagate': False,

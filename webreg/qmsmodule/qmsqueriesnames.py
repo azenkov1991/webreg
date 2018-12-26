@@ -131,6 +131,10 @@ QMS_QUERIES = {
                     'class': 'User.Query',
                     'query': 'GetRegistr',
                 },
+                'DateCheckAttach': {
+                    'class': 'User.QueryCatalog',
+                    'query': 'DateCheckAttach',
+                },
                 'UpdatePatientPhoneNumber': {
                     'class': 'User.QueryCatalog',
                     'query': 'UpdatePatientPhoneNumber'
