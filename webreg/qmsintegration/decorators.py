@@ -202,7 +202,7 @@ def find_patient_by_polis_number(fn):
                 return None
 
             # сортировка по дате сверки прикрепления
-            patient_information_in_qms.sort(key=lambda x: x[1], reverse=True)
+            patient_information_in_qms.sort(key=lambda x: x[0], reverse=True)
             patient_data = patient_information_in_qms[0][1]
             clinic = patient_information_in_qms[0][2]
 
