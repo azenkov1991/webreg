@@ -16,7 +16,7 @@
         </label>
         <div>
           <select class="select form-control" id="id_department" name="department" required>
-            <option disabled selected value=-1> -- Выберете подразделение -- </option>
+            <option disabled selected value=-1> -- Выберите подразделение -- </option>
             {% for department in departments %}
               <option value="{{department.id}}">{{department.name}}, {{department.address}}</option>
             {% endfor %}
@@ -28,7 +28,7 @@
           Специальность <span class="asteriskField">*</span>
         </label>
         <select id="id_speciality" type="text" class="form-control" name="speciality" required>
-          <option disabled selected value=-1> -- Выберете специальность -- </option>
+          <option disabled selected value=-1> -- Выберите специальность -- </option>
         </select>
         <button id="speciality_question" class="hidden-xs btn btn-primary question-mark" type="button" data-toggle="modal" data-target="#speciality_help_modal">?</button>
         <div id="speciality_help_modal" class="modal fade">
@@ -94,7 +94,7 @@
             </div>
           </div>
           <div class="row">
-              <div class="col-sm-4 col-sm-offset-4">
+              <div class="col-sm-6 col-sm-offset-3">
                 <button id="show-timetable-button" type="button" class="btn btn-primary btn-block">
                     ВЫБРАТЬ
                 </button>

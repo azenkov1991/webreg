@@ -118,7 +118,9 @@ $(document).ready(function () {
 
                         timeTableModalWindow.modal('hide');
                     }
-                })
+                });
+                $('.jcarousel').trigger('jcarousel:reload');
+
            },
             error: function (request, errorType, errorMessage) {
                setError('Ошибка: ' + errorType + ' ' + errorMessage);

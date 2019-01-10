@@ -5,8 +5,8 @@
         var controlNext = $('.jcarousel-control-next');
         jcarousel
             .on('jcarousel:reload jcarousel:create', function (event) {
-                var carousel = $(this),
-                    width = carousel.innerWidth();
+                var carousel = $(this);
+                var width = carousel.innerWidth();
                 // подгонка ширины карусели под количесвто столбцов
                 var cellWidth = carousel.find('li').innerWidth();
                 var numberOfColumns = carousel.find('ul li').length;
