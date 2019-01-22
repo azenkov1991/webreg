@@ -9,6 +9,7 @@ django-crispy-forms==1.6.1
 django-flatblocks==0.9.3
 xhtml2pdf==0.2b1
 celery==3.1.25
+
 django-celery==3.2.1
 django-celery-email==1.1.5
 django-registration==2.2

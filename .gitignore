@@ -25,6 +25,7 @@ __pycache__
 
 # Logs
 logs
+log
 *.log
 pip-log.txt
 npm-debug.log*
