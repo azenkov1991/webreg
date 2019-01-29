@@ -5,6 +5,7 @@ from django.core.exceptions import ImproperlyConfigured
 from qmsmodule.qmsfunctions import *
 from qmsintegration.models import *
 from main.models import Specialist, Department, Specialization, Service
+from patient_writer.models import SpecialistConfig
 
 logger = logging.getLogger("command_manage")
 
@@ -58,7 +59,7 @@ class Command(BaseCommand):
         for usl in postgre_usls:
             specialist.performing_services.remove(Service.objects.get(code=usl, clinic=specialist.department.clinic))
 
-    def load_specs_in_department(self, qms, department, qms_department):
+    def load_specs_in_department(self, qms, department, qms_department, qms_user):
         qms_specialists = qms.get_all_doctors(qms_department)
         logger.info('Загрузка специалистов из подразделения qms ' + qms_department)
         for spec in qms_specialists:
@@ -66,12 +67,48 @@ class Command(BaseCommand):
                 if spec.firstName and spec.lastName and spec.middleName:
                     fio = spec.firstName + " " + spec.lastName + ' ' + spec.middleName
                     specialization, created = Specialization.objects.get_or_create(name=spec["specialization"])
-                    specialist = self.get_specialist(fio=fio, specialization=specialization, department_id=department.id,
-                                                     qqc244=spec.qqc244)
+                    specialist = self.get_specialist(
+                        fio=fio, specialization=specialization, department_id=department.id,
+                        qqc244=spec.qqc244
+                    )
                     specialist.undelete()
                     self.update_linked_usls(qms=qms, specialist=specialist, qqc244=spec.qqc244)
                     specialist.save()
+
+                    # получение основной назначаемой услуги для сервиса записи на прием
+                    first_service_code, second_service_code = qms.get_first_and_second_specialist_service_code(
+                        get_external_id(specialist, qms_user.qmsdb),
+                        qms_user.qqc244
+                    )
+
+                    specialist_config, created = SpecialistConfig.objects.get_or_create(
+                        specialist=specialist,
+                    )
+
+                    if first_service_code:
+                        try:
+                            first_service = Service.objects.get(
+                                clinic=department.clinic,
+                                code=first_service_code
+                            )
+                            specialist_config.service = first_service
+                        except Service.DoesNotExist:
+                            first_service = None
+                            logger.error('Не найдена услуга скодом ' + first_service_code)
+                    if second_service_code:
+                        try:
+                            second_service = Service.objects.get(
+                                clinic=department.clinic,
+                                code=second_service_code
+                            )
+                            specialist_config.service2 = second_service
+                        except Service.DoesNotExist:
+                            second_service = None
+                            logger.error('Не найдена услуга скодом ' + second_service_code)
+
+                    specialist_config.save()
             else:
+                # если специалист неактивен
                 if entity_exist("244", spec.qqc244):
                     specialist = self.get_exist_specialist(spec.qqc244)
                     specialist.safe_delete()
@@ -82,6 +119,11 @@ class Command(BaseCommand):
             qmsdb = QmsDB.objects.get(name=dbname)
         except models.ObjectDoesNotExist:
             raise CommandError("Нет описания базы данных Qms с именем " + dbname)
+        try:
+            qms_user = qmsdb.qmsuser_set.all()[0]
+        except IndexError:
+            raise CommandError('Не настроен пользователь Qms для базы ' + dbname)
+
         department_id = options["department"]
         if department_id:
             departments = Department.objects.filter(id=department_id)
@@ -99,7 +141,7 @@ class Command(BaseCommand):
                 raise ImproperlyConfigured('Необходимо настроить соответсвие подразделений сайта и qms')
             logger.info('Загрузка специалистов подразделения ' + str(department))
             for qms_department_code in qms_department.codes.all():
-                self.load_specs_in_department(qms, department, qms_department_code.code)
+                self.load_specs_in_department(qms, department, qms_department_code.code, qms_user)
 
 
 

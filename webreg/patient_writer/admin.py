@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import SpecializationConfig, SlotTypeConfig, DepartmentConfig, ClinicConfig
+from .models import SpecializationConfig, SlotTypeConfig, DepartmentConfig, ClinicConfig, SpecialistConfig
 
 
 class SpecializationConfigInline(admin.TabularInline):
@@ -21,7 +21,7 @@ class DepartamentConfigAdmin(admin.ModelAdmin):
         ]
         phone_fields = ['phone', 'phone2']
         base_field = [
-            ('Подразделение', {'fields':['department']}),
+            ('Подразделение', {'fields': ['department']}),
             ('Интервалы', {'fields': interval_fields, }),
             ('Телефоны', {'fields': phone_fields, }),
             ('Прочее', {'fields': ['order']}),
@@ -41,6 +41,11 @@ class SlotTypeConfigAdmin(admin.ModelAdmin):
     name.short_description = "Имя"
 
 
+class SpecialistConfigAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'service', 'service2', )
+    raw_id_fields = ('service', 'service2')
+
 admin.site.register(DepartmentConfig, DepartamentConfigAdmin)
 admin.site.register(SlotTypeConfig, SlotTypeConfigAdmin)
 admin.site.register(ClinicConfig, admin.ModelAdmin)
+admin.site.register(SpecialistConfig, SpecialistConfigAdmin)

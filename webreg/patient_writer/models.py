@@ -56,8 +56,22 @@ class SpecialistConfig(models.Model):
     service = models.ForeignKey(
         "main.Service",
         verbose_name="Услуга для назначения",
-        null=True, blank=True
+        null=True, blank=True,
+        related_name="first_service_specialist"
     )
+    service2 = models.ForeignKey(
+        "main.Service",
+        verbose_name="Услуга повторного приема",
+        null=True, blank=True,
+        related_name="second_service_specialist"
+    )
+
+    def __str__(self):
+        return self.specialist.fio
+
+    class Meta:
+        verbose_name = "Настройки для специалиста"
+        verbose_name_plural = "Настройки для специалистов"
 
 
 class ClinicConfig(models.Model):

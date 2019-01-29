@@ -23,6 +23,10 @@ QMS_QUERIES = {
                             'class': 'User.QueryCatalog',
                             'query': 'AvailSpec'
                 },
+                'AvailUslForSpec': {
+                            'class': 'User.Query',
+                            'query': 'AvailUslForSpec'
+                },
                 'RaspFreeDetail': {
                             'class': 'User.Query',
                             'query': 'RaspFreeDetail'

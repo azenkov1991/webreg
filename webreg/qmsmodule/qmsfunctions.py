@@ -157,6 +157,33 @@ class QMS:
         lst = self.query.fetch_all()
         return [sublist[0] for sublist in lst]
 
+    def get_first_and_second_specialist_service_code(self, specialist_code, qms_user_code):
+        service1 = None
+        service2 = None
+        self.query.execute_query('AvailUslForSpec', self.DATABASE_CODE, qms_user_code, specialist_code)
+        services_list = self.query.fetch_all()
+
+        re_list = list()
+        re_list.append(re.compile(r'^Прием_([\w|\W]*)_первичный$'))
+        re_list.append(re.compile(r'^Первичный_прием_([\w|\W]*)$'))
+        re_list.append(re.compile(r'^Консультация_врача_специалиста_([\w|\W]*)$'))
+
+        re_list_second = list()
+        re_list_second.append(re.compile(r'^Прием_([\w|\W]*)_повторный$'))
+        re_list_second.append(re.compile(r'^Повторный_прием_([\w|\W]*)$'))
+
+        for service in services_list:
+            for r in re_list:
+                if r.match(service[1]):
+                    service1 = service[0]
+                    break
+            for r in re_list_second:
+                if r.match(service[1]):
+                    service2 = service[0]
+                    break
+        return service1, service2
+
+
     def get_all_doctors(self, department_code=None):
         self.query.execute_query("GetAllDoctors", self.DATABASE_CODE, department_code)
         return self.query.get_proxy_objects_list()
