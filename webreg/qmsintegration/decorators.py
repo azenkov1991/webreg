@@ -72,7 +72,7 @@ def create_appointment(fn):
                         try:
                             service = Service.objects.get(
                                 code=new_code,
-                                clinic=patient.clinic
+                                clinic=patient.clinic_attached
                             )
                         except Service.DoesNotExist:
                             raise AppointmentError("Не найдена услуга повторного приема")
@@ -251,7 +251,7 @@ def update_patient_phone_number(fn):
     def update_patient_phone_number_in_qms(patient, phone_number):
         fn(patient, phone_number)
         # для всех клиник пациента обновить телефон
-        clinic = patient.clinic
+        clinic = patient.clinic_attached
         qms = QMS(clinic.qmsdb.settings)
         qqc153 = get_external_id(patient, clinic.qmsdb)
         if clinic.qmsdb.update_phone:

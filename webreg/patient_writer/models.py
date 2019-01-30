@@ -93,6 +93,10 @@ class ClinicConfig(models.Model):
     send_sms = models.BooleanField(
         verbose_name="Посылать СМС ?", default=True
     )
+    find_only_attached = models.BooleanField(
+        verbose_name="Искать только прикрепленных пациентов",
+        default=True
+    )
 
     def __str__(self):
         return self.clinic.name

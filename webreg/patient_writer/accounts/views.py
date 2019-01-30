@@ -58,7 +58,7 @@ class PatientRegistrationView(RegistrationView):
                 patient.save()
                 try:
                     clinic = Clinic.objects.get(pk=cleaned_data['clinic_id'])
-                    patient.clinic = clinic
+                    patient.clinic_attached = clinic
                 except Clinic.DoesNotExist:
                     log.error("Ошибка при регистрации. Не найден пациент не найдено мед. учреждение"
                               + str(cleaned_data))
@@ -100,7 +100,7 @@ def login(request, *args, **kwargs):
             if user.id:
                 patient = Patient.objects.get(user_id=user.id)
                 request.session['patient_id'] = patient.id
-                request.session['clinic_id'] = patient.clinic.id
+                request.session['clinic_id'] = patient.clinic_attached.id
         except Patient.DoesNotExist:
             pass
         if user.id:

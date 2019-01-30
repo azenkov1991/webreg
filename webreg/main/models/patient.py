@@ -30,8 +30,13 @@ class Patient(models.Model):
         max_length=6, verbose_name="Серия полиса",
         blank=True, null=True
     )
-    clinic = models.ForeignKey(
-        'main.Clinic', verbose_name="Мед. учреждение",
+    clinics = models.ManyToManyField(
+        'main.Clinic', verbose_name="Мед. учреждения",
+        related_name="patients"
+    )
+    clinic_attached = models.ForeignKey(
+        'main.Clinic', verbose_name='Мед. учреждение прикреплкния',
+        related_name='attached_patients',
         null=True, blank=True
     )
     user = models.ForeignKey(

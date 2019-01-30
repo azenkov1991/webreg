@@ -103,6 +103,18 @@ Cell.get_free_cells = get_free_cells
 
 @qms.find_patient_by_polis_number
 def find_patient_by_polis_number(polis_number, birth_date, polis_seria=None):
+    """
+    :param polis_number:
+     Номер полиса
+    :param birth_date:
+     Дата рождения datetime.date
+    :param polis_seria:
+     Серия полиса
+    :param only_attached:
+     Искать только прикрепленных
+    :return:
+
+    """
     try:
         return Patient.objects.get(
             polis_number=polis_number,
@@ -126,14 +138,17 @@ def find_patient_by_birth_date(clinic, first_name, last_name, middle_name, birth
 
 
 @qms.create_patient
-def create_patient(clinic, first_name, last_name, middle_name, birth_date, polis_nmber=None, polis_seria=None):
-    patient = Patient(first_name=first_name,
-                      last_name=last_name,
-                      middle_name=middle_name,
-                      birth_date=birth_date,
-                      polis_number=polis_nmber,
-                      polis_seria=polis_seria)
-    patient.clinic = clinic
+def create_patient(clinics, first_name, last_name, middle_name, birth_date, polis_nmber=None, polis_seria=None):
+    patient = Patient(
+        first_name=first_name,
+        last_name=last_name,
+        middle_name=middle_name,
+        birth_date=birth_date,
+        polis_number=polis_nmber,
+        polis_seria=polis_seria
+    )
+    for clinic in clinics:
+        patient.clinics.add(clinic)
     patient.save()
     return patient
 

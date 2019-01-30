@@ -176,17 +176,21 @@ class TestQmsIntegrationAppointment(TestCase):
             first_name="Тест", last_name="Дарья", middle_name="Женщина",
             birth_date=datetime.date(1991, 12, 3),
             polis_number="123456789012345",
-            clinic=self.clinic
+            clinic_attached=self.clinic
         )
         self.patient.save()
+        self.patient.clinics.add(self.clinic)
+
         set_external_id(self.patient, "vABAJnb", self.clinic.qmsdb)
         self.patient2 = Patient(
             first_name="Тест", last_name="Тест", middle_name="Мужчина",
-            birth_date = datetime.date(1991, 12, 4),
-            polis_number = "123456789012345",
-            clinic=self.clinic
+            birth_date=datetime.date(1991, 12, 4),
+            polis_number="123456789012345",
+            clinic_attached=self.clinic
         )
         self.patient2.save()
+        self.patient2.clinics.add(self.clinic)
+
         set_external_id(self.patient2, "vABAF.x", self.clinic.qmsdb)
 
     def tearDown(self):

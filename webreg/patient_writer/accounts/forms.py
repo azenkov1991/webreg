@@ -112,7 +112,7 @@ class PatientRegistrationForm(RegistrationFormUniqueEmail):
                     config.PBSEARCH_ERROR,
             )
             self.cleaned_data['patient_id'] = patient.id
-            self.cleaned_data['clinic_id'] = patient.clinic.id
+            self.cleaned_data['clinic_id'] = patient.clinic_attached.id
         except PatientError as er:
             raise forms.ValidationError(str(er))
 
