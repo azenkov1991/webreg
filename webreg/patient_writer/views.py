@@ -41,11 +41,35 @@ class PatientWriteFirstStep(FormView):
         form = self.get_form()
         if form.is_valid():
             login(request, form.get_user(), backend='main.authentication.PolisNumberBackend')
+
             # сохранение id пациента в сессии для последующих шагов
             request.session['patient_id'] = form.cleaned_data['patient_id']
-            request.session['clinic_id'] = form.cleaned_data['clinic_id']
             request.session['phone'] = form.cleaned_data['phone']
+
             action.log(Actions.AUTHENTICATION)
+
+            # если пациент принадлежит нескольким базам
+            # то исключаем те, к которым он не прикреплен, если стоит галочка
+            # если осталось больше одной то заставляем выбирать организацию
+            patient = Patient.objects.get(id=form.cleaned_data['patient_id'])
+
+            def filter_patient_clinics(clinic):
+                if clinic.clinicconfig.find_only_attached and (clinic != patient.clinic_attached):
+                    return False
+                else:
+                    return True
+            if patient.clinics.all().count() > 1:
+                clinics = patient.clinics.all()
+                clinics = list(filter(filter_patient_clinics, clinics))
+                if len(clinics) > 1:
+                    redirect('patient_writer:choose_clinic')
+                else:
+                    request.session['clinic_id'] = clinics[0].id
+            else:
+                request.session['clinic_id'] = patient.clinic_attached.id
+
+
+
 
         return super(PatientWriteFirstStep, self).post(request, *args, **kwargs)
 
