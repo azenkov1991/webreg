@@ -62,14 +62,11 @@ class PatientWriteFirstStep(FormView):
                 clinics = patient.clinics.all()
                 clinics = list(filter(filter_patient_clinics, clinics))
                 if len(clinics) > 1:
-                    redirect('patient_writer:choose_clinic')
+                    return redirect('patient_writer:select_clinic')
                 else:
                     request.session['clinic_id'] = clinics[0].id
             else:
                 request.session['clinic_id'] = patient.clinic_attached.id
-
-
-
 
         return super(PatientWriteFirstStep, self).post(request, *args, **kwargs)
 
@@ -77,6 +74,25 @@ class PatientWriteFirstStep(FormView):
         if request.session.get('patient_id', None):
             return redirect('patient_writer:input_second_step')
         return super(PatientWriteFirstStep, self).get(request, *args, **kwargs)
+
+
+class SelectClinicView(TemplateView):
+    template_name = 'patient_writer/select_clinic.html'
+
+    def get(self, request, *args, **kwargs):
+        patient_id = request.session.get('patient_id', None)
+        if not patient_id:
+            return redirect("patient_writer:input_first_step")
+        return super(SelectClinicView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(SelectClinicView, self).get_context_data(**kwargs)
+        context['clinics'] = Clinic.objects.all()
+        return context
+
+    def post(self, *args, **kwargs):
+        self.request.session['clinic_id'] = self.request.POST['clinic']
+        return redirect('patient_writer:input_second_step')
 
 
 class Confirm(TemplateView):
@@ -114,8 +130,14 @@ class PatientWriteSecondStep(ProfileRequiredMixin, TemplateView):
             return redirect("patient_writer:input_first_step")
         action.log(Actions.CONFIRM)
         years_old = patient.age
+        clinic_id = self.request.session['clinic_id']
+        try:
+            clinic = Clinic.objects.get(id=clinic_id)
+        except Clinic.DoesNotExist:
+            return redirect('patient_writer:select_clinic')
+
         departments = Department.objects.filter(
-            clinic_id=patient.clinic_attached.id,
+            clinic_id=clinic.id,
             departmentconfig__min_age__lte=years_old,
             departmentconfig__max_age__gte=years_old
         ).order_by('departmentconfig__order')
