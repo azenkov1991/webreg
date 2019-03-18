@@ -62,7 +62,7 @@ class PatientWriteFirstStep(FormView):
                 clinics = patient.clinics.all()
                 clinics = list(filter(filter_patient_clinics, clinics))
                 if len(clinics) > 1:
-                    return redirect('patient_writer:select_clinic')
+                    return redirect('/pwriter/select_clinic/?next_page=/pwriter/input_second_step')
                 else:
                     request.session['clinic_id'] = clinics[0].id
             else:
@@ -88,11 +88,13 @@ class SelectClinicView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SelectClinicView, self).get_context_data(**kwargs)
         context['clinics'] = Clinic.objects.all()
+        context['next_page'] = self.request.GET.get('next_page', None)
         return context
 
     def post(self, *args, **kwargs):
         self.request.session['clinic_id'] = self.request.POST['clinic']
-        return redirect('patient_writer:input_second_step')
+        next_page = self.request.POST['next_page']
+        return redirect(next_page)
 
 
 class Confirm(TemplateView):

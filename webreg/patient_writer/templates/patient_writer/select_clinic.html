@@ -19,6 +19,7 @@
       {% endfor %}
     </div>
     </div>
+    <input type="hidden" name="next_page" value="{{ next_page }}" />
     {% csrf_token %}
   </form>
 </div>
