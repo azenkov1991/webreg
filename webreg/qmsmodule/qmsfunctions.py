@@ -129,13 +129,19 @@ class QMS:
         return result[3]
 
     def check_patient_register(self, patient_id):
+        """
+        :param patient_id:
+         patient_id - qqc пациента
+        :return:
+         Возвращает кортеж из (bool, datetime.date) Если прикреплен и дата прикрепления
+        """
         self.query.execute_query('CheckRegister', self.DATABASE_CODE, patient_id)
         is_patient_attached = bool(int(self.query.result))
         self.query.execute_query('DateCheckAttach', patient_id)
         qms_date_string = self.query.result
         if qms_date_string:
             try:
-                comparison_date = datetime.datetime.strptime(qms_date_string, '%Y%m%d')
+                comparison_date = datetime.datetime.strptime(qms_date_string, '%Y%m%d').date()
             except ValueError:
                 log.error('Qms вернул дату неправильного формата ' + comparison_date + 'qqc_153= ' + patient_id)
                 comparison_date = None

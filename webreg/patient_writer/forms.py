@@ -103,7 +103,7 @@ class InputFirstStepForm(forms.Form):
                 code='invalid_login',
                 params={'username': self.username_field.verbose_name},
             )
-        self.cleaned_data['clinic_id'] = patient.clinic.id
+
         self.cleaned_data['user_id'] = self.user.id
         self.cleaned_data['patient_id'] = patient.id
         return self.cleaned_data

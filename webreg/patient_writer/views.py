@@ -41,11 +41,32 @@ class PatientWriteFirstStep(FormView):
         form = self.get_form()
         if form.is_valid():
             login(request, form.get_user(), backend='main.authentication.PolisNumberBackend')
+
             # сохранение id пациента в сессии для последующих шагов
             request.session['patient_id'] = form.cleaned_data['patient_id']
-            request.session['clinic_id'] = form.cleaned_data['clinic_id']
             request.session['phone'] = form.cleaned_data['phone']
+
             action.log(Actions.AUTHENTICATION)
+
+            # если пациент принадлежит нескольким базам
+            # то исключаем те, к которым он не прикреплен, если стоит галочка
+            # если осталось больше одной то заставляем выбирать организацию
+            patient = Patient.objects.get(id=form.cleaned_data['patient_id'])
+
+            def filter_patient_clinics(clinic):
+                if clinic.clinicconfig.find_only_attached and (clinic != patient.clinic_attached):
+                    return False
+                else:
+                    return True
+            if patient.clinics.all().count() > 1:
+                clinics = patient.clinics.all()
+                clinics = list(filter(filter_patient_clinics, clinics))
+                if len(clinics) > 1:
+                    return redirect('/pwriter/select_clinic/?next_page=/pwriter/input_second_step')
+                else:
+                    request.session['clinic_id'] = clinics[0].id
+            else:
+                request.session['clinic_id'] = patient.clinic_attached.id
 
         return super(PatientWriteFirstStep, self).post(request, *args, **kwargs)
 
@@ -53,6 +74,27 @@ class PatientWriteFirstStep(FormView):
         if request.session.get('patient_id', None):
             return redirect('patient_writer:input_second_step')
         return super(PatientWriteFirstStep, self).get(request, *args, **kwargs)
+
+
+class SelectClinicView(TemplateView):
+    template_name = 'patient_writer/select_clinic.html'
+
+    def get(self, request, *args, **kwargs):
+        patient_id = request.session.get('patient_id', None)
+        if not patient_id:
+            return redirect("patient_writer:input_first_step")
+        return super(SelectClinicView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(SelectClinicView, self).get_context_data(**kwargs)
+        context['clinics'] = Clinic.objects.all()
+        context['next_page'] = self.request.GET.get('next_page', None)
+        return context
+
+    def post(self, *args, **kwargs):
+        self.request.session['clinic_id'] = self.request.POST['clinic']
+        next_page = self.request.POST['next_page']
+        return redirect(next_page)
 
 
 class Confirm(TemplateView):
@@ -90,8 +132,14 @@ class PatientWriteSecondStep(ProfileRequiredMixin, TemplateView):
             return redirect("patient_writer:input_first_step")
         action.log(Actions.CONFIRM)
         years_old = patient.age
+        clinic_id = self.request.session['clinic_id']
+        try:
+            clinic = Clinic.objects.get(id=clinic_id)
+        except Clinic.DoesNotExist:
+            return redirect('patient_writer:select_clinic')
+
         departments = Department.objects.filter(
-            clinic_id=patient.clinic.id,
+            clinic_id=clinic.id,
             departmentconfig__min_age__lte=years_old,
             departmentconfig__max_age__gte=years_old
         ).order_by('departmentconfig__order')

@@ -188,7 +188,7 @@ SMS_URL = get_secret("SMS_URL")
 from celery import Celery
 celery = Celery(
     'webreg',
-    broker='redis://127.0.0.1:6379/12',
+    broker='redis://127.0.0.1:6379/15',
     backend='redis',
     include=['main.tasks', 'djcelery_email.tasks']
 )

@@ -175,14 +175,13 @@ def delete_id_from_id_matching_table(sender, **kwargs):
     """
     Удаление кода Qms при удалеии объекта модели
     """
-    if config.QMS_INTEGRATION_ENABLE:
-        try:
-            IdMatchingTable.objects.get(
-                internal_id=kwargs['instance'].id,
-                object_matching_table__internal_name=kwargs['instance']._meta.label
-            ).delete()
-        except IdMatchingTable.DoesNotExist:
-            pass
+    try:
+        IdMatchingTable.objects.filter(
+            internal_id=kwargs['instance'].id,
+            object_matching_table__internal_name=kwargs['instance']._meta.label
+        ).delete()
+    except IdMatchingTable.DoesNotExist:
+        pass
 
 
 def delete_object(sender, **kwargs):
@@ -243,8 +242,10 @@ def delete_external_ids(models):
     for model in models:
         object_name = model._meta.label
         object_id = model.id
-        IdMatchingTable.objects.filter(internal_id=object_id,
-                                       object_matching_table__internal_name=object_name).delete()
+        IdMatchingTable.objects.filter(
+            internal_id=object_id,
+            object_matching_table__internal_name=object_name
+        ).delete()
 
 
 def set_external_id(model, qqc, qmsdb=None):

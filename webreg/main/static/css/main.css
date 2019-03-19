@@ -153,3 +153,11 @@ table tr.table-separator>td{
   float: right;
 }
 
+.department-select-button{
+  display: block;
+  margin: auto;
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: bold;
+}
+

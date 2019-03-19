@@ -86,7 +86,7 @@ class Command(BaseCommand):
                 if patient_information and patient_information['polis_number']:
                     patient = find_patient_by_polis_number(patient_information['polis_number'], patient_information['birth_date'])
                     if patient:
-                        if patient.clinic.id != qmsdb.clinic.id:
+                        if patient.clinic_attached.id != qmsdb.clinic.id:
                             logger.error('Пациент прикреплен к двум базам ' + str(patient))
                             continue
                         if ext_user.qqc153 != get_external_id(patient, qmsdb):

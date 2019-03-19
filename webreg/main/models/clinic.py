@@ -13,6 +13,9 @@ class Clinic(models.Model):
     )
     index_address = models.CharField(max_length=31, verbose_name='Индекс')
     email = models.EmailField(verbose_name='Электронная почта')
+    picture = models.ImageField(
+        verbose_name='Фотография', null=True
+    )
 
     def __str__(self):
         return self.name

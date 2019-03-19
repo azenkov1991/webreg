@@ -72,7 +72,7 @@ def create_appointment(fn):
                         try:
                             service = Service.objects.get(
                                 code=new_code,
-                                clinic=patient.clinic
+                                clinic=patient.clinic_attached
                             )
                         except Service.DoesNotExist:
                             raise AppointmentError("Не найдена услуга повторного приема")
@@ -187,10 +187,11 @@ def find_patient_by_polis_number(fn):
                 # если пациент найден в базе и прикреплен
                 if patient_data:
                     is_patient_attached, comparison_date = qms.check_patient_register(patient_data['patient_qqc'])
-                    if is_patient_attached:
-                        if not comparison_date:
-                            comparison_date = datetime.date(1000, 12, 31)
-                        patient_information_in_qms.append((comparison_date, patient_data, clinic))
+
+                    # для сортровки, если пациент не прикреплен или нет даты
+                    if (not comparison_date) or (not is_patient_attached):
+                        comparison_date = datetime.date(1000, 12, 31)
+                    patient_information_in_qms.append((comparison_date, patient_data, clinic))
 
             # если пациент найден и прикреплен к нескольким базам, то это ошибка
             # но по дате сверке находим какая все таки база
@@ -211,13 +212,15 @@ def find_patient_by_polis_number(fn):
                 defaults={'first_name': patient_data['first_name'],
                           'last_name': patient_data['last_name'],
                           'middle_name': patient_data['middle_name'],
-                          'clinic': clinic,
+                          'clinic_attached': clinic,
                           },
                 polis_number=polis_number,
                 birth_date=birth_date,
                 polis_seria=polis_seria,
 
             )
+            # Добавление связи со всеми поликлиниками
+            patient.clinics.add(*[pi[2] for pi in patient_information_in_qms])
             set_external_id(patient, patient_data['patient_qqc'], qmsdb=clinic.qmsdb)
             return patient
 
@@ -251,7 +254,7 @@ def update_patient_phone_number(fn):
     def update_patient_phone_number_in_qms(patient, phone_number):
         fn(patient, phone_number)
         # для всех клиник пациента обновить телефон
-        clinic = patient.clinic
+        clinic = patient.clinic_attached
         qms = QMS(clinic.qmsdb.settings)
         qqc153 = get_external_id(patient, clinic.qmsdb)
         if clinic.qmsdb.update_phone:
