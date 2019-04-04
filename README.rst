@@ -71,3 +71,38 @@
 3. Настроить Подразделения Qms, указав все подразделения Qms относящиеся к подразделению
 
 4. Создать пользователя Qms, который будет создавать назначения
+
+
+Command manage
+---------------------------
+Создание начальной иаблицы соответствий моделей и объектов Qms
+    ``python manage.py createobjectmatchingtable``
+
+Загрузка типов слотов из QMS.
+    ``python manage.py loadslottypes dbname``
+
+    dbname - имя из настроек базы данных qms
+
+Загрузка специалистов.
+    ``python manage.py loadspecialists dbname --department 1``
+
+    dbname - имя из настроек базы данных qms
+    --department - id подразделения. Загружает всех специалистов, к которым можно записаться в QMS из подразделений QMS, коды которых прописаны в 'Подразделения QMS'
+
+Загрузка разрешений для записи к специалистам
+    ``python manage.py loadavailspecialists.py dbname user_profile_name``
+
+    dbname - имя из настроек базы данных qms
+    user_profile_name - имя профиля пользователя которому подгружаются разрешения
+
+Загрузка разрешений для записи услуг
+    ``python manage.py loadavailservices.py dbname user_profile_name``
+
+    dbname - имя из настроек базы данных qms
+    user_profile_name - имя профиля пользователя которому подгружаются разрешения
+
+Загрузка расписания
+
+    ``python manage.py loadtimetable dbname``
+
+    dbname - имя из настроек базы данных qms. Без остальных параметров загрузит для всех подразделений расписание за 14 дней.
