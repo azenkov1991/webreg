@@ -78,10 +78,21 @@ Command manage
 Создание начальной иаблицы соответствий моделей и объектов Qms
     ``python manage.py createobjectmatchingtable``
 
+Создание начальных настроек для проекта patietn_writer
+    ``python manage.py patientwriterinitialconfig.py domain``
+
+    domain - имя домена для сервиса записи на прием
+
+
 Загрузка типов слотов из QMS.
     ``python manage.py loadslottypes dbname``
 
     dbname - имя из настроек базы данных qms
+
+
+Загрузка всех услуг из Qms c иерархией по разделам
+    ``python manage.py loadokmu dbname``
+
 
 Загрузка специалистов.
     ``python manage.py loadspecialists dbname --department 1``
