@@ -207,20 +207,31 @@ def find_patient_by_polis_number(fn):
             patient_data = patient_information_in_qms[0][1]
             clinic = patient_information_in_qms[0][2]
 
-            # если пациент найден в базе и прикреплен
-            patient, created = Patient.objects.update_or_create(
-                defaults={'first_name': patient_data['first_name'],
-                          'last_name': patient_data['last_name'],
-                          'middle_name': patient_data['middle_name'],
-                          'clinic_attached': clinic,
-                          },
-                polis_number=polis_number,
-                birth_date=birth_date,
-                polis_seria=polis_seria,
+            # если пациент найден в базе
+            # пациент мог быть не найден в базе так как сменил полис
+            try:
+                patient_id = get_internal_id(
+                    153, patient_data['patient_qqc'], qmsdb=clinic.qmsdb
+                )
+                patient = Patient.objects.get(id=patient_id)
+                patient.polis_number = polis_number
+                patient.save()
+            except QmsIntegrationError as e:
+               patient, created = Patient.objects.update_or_create(
+                    defaults={'first_name': patient_data['first_name'],
+                              'last_name': patient_data['last_name'],
+                              'middle_name': patient_data['middle_name'],
+                              'clinic_attached': clinic,
+                              },
+                    polis_number=polis_number,
+                    birth_date=birth_date,
+                    polis_seria=polis_seria,
 
-            )
+                )
+
             # Добавление связи со всеми поликлиниками
             patient.clinics.add(*[pi[2] for pi in patient_information_in_qms])
+
             set_external_id(patient, patient_data['patient_qqc'], qmsdb=clinic.qmsdb)
             return patient
 
