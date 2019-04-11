@@ -95,7 +95,7 @@ class CacheSOAPQuery:
     def execute_query(self, query_name, *params):
         assert query_name in self.queries
         self.__nullstate()
-        self.logger.debug('Execute query' + query_name)
+        self.logger.debug('Execute query ' + query_name + str(params))
         try:
             client = self._get_client(self.queries[query_name]['class'])
         except Exception as err:
@@ -225,7 +225,7 @@ class CacheODBCQuery:
         """
         assert query_name in self.queries
         self.__nullstate__()
-        self.logger.debug('Execute query' + query_name)
+        self.logger.debug('Execute query ' + query_name + str(params))
         # Если вызов метода класса а не запроса
         if self.queries[query_name].get('class_method'):
             self._result = self._execute_class_method(query_name, *params)

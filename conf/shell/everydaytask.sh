@@ -1,5 +1,8 @@
 #!/bin/bash
 
+export PATH=$PATH:/usr/cachesys/bin
+export LD_LIBRARY_PATH=/lib64:/home/webreg/cachesys/bin
+
 envdir=/home/webreg/env/
 projectdir=/home/webreg/webreg/webreg/
 
