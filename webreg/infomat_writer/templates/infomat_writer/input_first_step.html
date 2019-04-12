@@ -1,0 +1,30 @@
+{% extends 'infomat_writer/base.html' %}
+{% load static %}
+{% load compress %}
+{% block content %}
+<div class="container-fluid has-frame">
+  <div class="row">
+    <div class="col-xs-12 col-sm-8 col-sm-offset-2">
+      <h3>ЗАПИСЬ НА ПРИЕМ</h3>
+      <form id="input_form_1" method="POST" action="{% url 'infomat_writer:input_first_step' %}">
+        {% include 'form_field_generic.html' %}
+        <div class="col-xs-12  col-sm-6 col-sm-offset-3 form-btn">
+          <button class="row btn btn-primary btn-lg btn-block" type="submit"> Далее <span class="glyphicon glyphicon-chevron-right"></span></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block javascript %}
+    {{ block.super }}
+{% compress js %}
+<script src="{% static '/js/input_first_form_control.js' %}"></script>
+{% endcompress %}
+
+{% endblock %}
+
+
+
+

@@ -66,6 +66,7 @@ LOCAL_APPS = (
     'catalogs',
     'main',
     'patient_writer',
+    'infomat_writer',
     'patient_writer.accounts',
     'qmsmodule',
     'qmsintegration',

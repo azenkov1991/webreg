@@ -1,0 +1,18 @@
+{% extends 'infomat_writer/base.html' %}
+{% load flatblocks %}
+{% block content %}
+  <div id="agreement" class="container-fluid has-frame">
+    <div class="row">
+      <div class="col-xs-12 ">
+        <h2>Согласие на обработку персональных данных</h2>
+        {% flatblock "agreement"%}
+      </div>
+    </div>
+    <div class="row col-xs-12 col-sm-6 col-sm-offset-3">
+      <div>
+        <a class="btn btn-primary btn-lg btn-block form-btn" href="{{ request.META.HTTP_REFERER }}"><span class="glyphicon glyphicon-chevron-left"></span>Назад</a>
+      </div>
+    </div>
+  </div>
+
+{% endblock content %}

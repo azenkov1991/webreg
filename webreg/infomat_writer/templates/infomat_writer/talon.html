@@ -1,0 +1,33 @@
+{% extends 'infomat_writer/base.html' %}
+{% block content %}
+{% if not error %}
+<div class="container-fluid has-frame">
+  <h3>ТАЛОН</h3>
+  <div id="talon" method="GET" action="">
+    {% include 'patient_writer/talon_row.html' with label="Подразделение:" value=cell.specialist.department.name %}
+    {% include 'patient_writer/talon_row.html' with label="Адрес:" value=cell.specialist.department.address %}
+    {% include 'patient_writer/talon_row.html' with label="Дата приема:" value=cell.date %}
+    {% include 'patient_writer/talon_row.html' with label="Время приема:" value=cell.time_start %}
+    {% if cell.cabinet %}
+      {% include 'patient_writer/talon_row.html' with label="Кабинет:" value=cell.cabinet.number %}
+    {% endif %}
+    {% include 'patient_writer/talon_row.html' with label="Врач:" value=cell.specialist.fio %}
+    {% if speciality_comment %}
+      {% include 'patient_writer/talon_row.html' with label="Комментарий:" value=speciality_comment %}
+    {% endif %}
+  </div>
+   <div class="row">
+  </div>
+</div>
+<div class="span12"><br/></div>
+<div class="container-fluid">
+  <div class="col-xs-12 col-sm-6 col-sm-offset-3">
+    <a class="btn btn-primary btn-lg btn-block zero-side-padding" type="submit" href="{% url 'infomat_writer:input_second_step' %}" style="white-space: normal"> <span class="glyphicon glyphicon-pencil"></span> Запись к другому врачу</a>
+  </div>
+</div>
+{% else %}
+ <div id="error-message" class="alert alert-danger">
+  {{ error }}
+ </div>
+{% endif %}
+{% endblock content %}

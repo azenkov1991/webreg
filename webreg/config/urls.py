@@ -27,6 +27,7 @@ apiurlpatterns = mainapiurlpatterns
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^pwriter/', include('patient_writer.urls', namespace="patient_writer")),
+    url(r'^infomat_writer/', include('infomat_writer.urls', namespace="infomat_writer")),
     url(r'api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'api/', include(apiurlpatterns)),
     url(r'api/pwriter/', include(patient_writer_apiurlpatterns))
