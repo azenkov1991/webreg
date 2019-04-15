@@ -9,7 +9,7 @@ from infomat_writer.views import PatientWriteFirstStep, PatientWriteSecondStep, 
 
 
 urlpatterns = [
-    url(r'^input_first_step/', PatientWriteFirstStep.as_view(), name="input_first_step"),
+    url(r'^input_first_step/(?P<department>[\d+]+)/$', PatientWriteFirstStep.as_view(), name="input_first_step"),
     url(r'^input_second_step/$', PatientWriteSecondStep.as_view(), name="input_second_step"),
     url(r'^confirm/$', Confirm.as_view(), name="confirm"),
     url(r'^agreement/$', TemplateView.as_view(template_name="infomat_writer/agreement.html"), name="agreement"),

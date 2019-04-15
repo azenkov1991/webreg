@@ -10,6 +10,19 @@
     <h3>ВЫБЕРИТЕ ДАТУ И ВРЕМЯ</h3>
     <form id="input_form_2" method="POST" action="{% url 'infomat_writer:input_second_step' %}">
       {% csrf_token %}
+      <div id="department-form" class="form-group" style="display: none;">
+        <label for="id_department" class="control-label requiredField">
+          Подразделение <span class="asteriskField">*</span>
+        </label>
+        <div>
+          <select class="select form-control" id="id_department" name="department" required>
+            <option disabled selected value=-1> -- Выберите подразделение -- </option>
+            {% for department in departments %}
+              <option value="{{department.id}}">{{department.name}}, {{department.address}}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
       <div id="speciality-form" class="form-group">
         <label for="id_speciality" class="control-label requiredField">
           Специальность <span class="asteriskField">*</span>
@@ -132,6 +145,13 @@
   <script type="text/javascript" src="{% static 'library/jcarousel/dist/jquery.jcarousel.min.js' %}"></script>
   {% compress js %}
   <script type="text/javascript" src="{% static 'js/timetablecarousel.js' %}"></script>
-  <script src="{% static '/js/input_second_form_control.js' %}"></script>
+  <script src="{% static '/js/input_second_form_control_infomat.js' %}"></script>
+  <script>
+  $( function(){
+    $('#id_department').val({{ department_id }});
+    window.getSpecializations({{ department_id }});
+
+  });
+  </script>
   {% endcompress %}
 {% endblock javascript%}

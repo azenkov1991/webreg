@@ -56,19 +56,20 @@ class PatientWriteFirstStep(FormView):
         return super(PatientWriteFirstStep, self).post(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        if request.GET.get('clinic_id', None):
-            request.session['clinic_id'] = int(request.GET['clinic_id'])
-        elif request.session.get('clinic_id', None) is None:
+        request.session.flush()
+        department_id = int(kwargs['department'])
+        request.session['department_id'] = department_id
+        print(department_id)
+        try:
+            department = Department.objects.get(id=department_id)
+            request.session['clinic_id'] = department.clinic.id
+        except Department.DoesNotExist:
             raise Http404
-
-        if request.GET.get('department_id', None):
-            request.session['department_id'] = int(request.GET['department_id'])
-        elif request.session.get('department_id', None) is None:
-            raise Http404
-
-        if request.session.get('patient_id', None):
-            return redirect('infomat_writer:input_second_step')
         return super(PatientWriteFirstStep, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        kwargs.update({'department_id': self.request.session['department_id']})
+        return super(PatientWriteFirstStep, self).get_context_data(**kwargs)
 
 
 class Confirm(TemplateView):
@@ -79,18 +80,11 @@ class Confirm(TemplateView):
         patient_id = request.session.get('patient_id', None)
         clinic_id = request.session.get('clinic_id', None)
         if not patient_id or not clinic_id:
-            return redirect(
-                '/infomat_writer/input_first_step?clinic_id=' +
-                str(request.session['clinic_id']) + '&department_id=' + str(request.session['department_id'])
-            )
+            return redirect('infomat_writer:input_first_step', department=request.session['department_id'])
         try:
             patient = Patient.objects.get(id=patient_id)
         except Patient.DoesNotExist:
-            return redirect(
-                '/infomat_writer/input_first_step?clinic_id=' +
-                str(request.session['clinic_id']) + '&department_id=' + str(request.session['department_id'])
-            )
-        context['patient'] = patient
+            return redirect('infomat_writer:input_first_step', department=request.session['department_id'])
         return self.render_to_response(context)
 
 
@@ -109,14 +103,14 @@ class PatientWriteSecondStep(ProfileRequiredMixin, TemplateView):
         if phone:
             update_patient_phone_number(patient, phone)
         if not patient_id:
-            return redirect("infomat_writer:input_first_step")
+            return redirect("infomat_writer:input_first_step", department=self.request.session['department_id'])
         action.log(Actions.CONFIRM)
         years_old = patient.age
         clinic_id = self.request.session['clinic_id']
         try:
             clinic = Clinic.objects.get(id=clinic_id)
         except Clinic.DoesNotExist:
-            return redirect('infomat_writer:input_first_step')
+            return redirect('infomat_writer:input_first_step', department=self.request.session['department_id'])
 
         departments = Department.objects.filter(
             clinic_id=clinic.id,
@@ -124,6 +118,7 @@ class PatientWriteSecondStep(ProfileRequiredMixin, TemplateView):
             departmentconfig__max_age__gte=years_old
         ).order_by('departmentconfig__order')
         context['departments'] = departments
+        context['department_id'] = request.session.get('department_id', None)
         return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):
@@ -182,8 +177,7 @@ class TalonView(ProfileRequiredMixin, TemplateView):
 def logout(request, *args, **kwargs):
     kwargs.update(
         {
-            'next_page': '/infomat_writer/input_first_step?clinic_id=' +
-                         str(request.session['clinic_id']) + '&department_id=' + str(request.session['department_id'])
+            'next_page': '/infomat_writer/input_first_step/' + str(request.session['department_id']) + '/'
         },
     )
     action.log(Actions.LOGOUT)
