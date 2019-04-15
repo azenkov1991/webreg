@@ -18,11 +18,13 @@
 
     {% block css %}
       <link rel="stylesheet" href="{% static 'library/bootstrap/dist/css/bootstrap.min.css' %}">
+      <link rel="stylesheet" href="{% static 'library/keyboard/dist/css/keyboard.min.css' %}">
       {% compress css %}
       <!--
       <link rel="stylesheet" href="{% static 'css/bootstrapstyle.css' %}">
       //comment-->
       <link rel="stylesheet" href="{% static 'css/main.css' %}">
+      <link rel="stylesheet" href="{% static 'css/keyboard.css' %}">
       {% endcompress %}
     {% endblock %}
 
@@ -53,8 +55,10 @@
           <script src="{% static 'library/bootstrap/dist/js/bootstrap.min.js' %}"></script>
           <script src="{% static 'library/jquery.maskedinput/dist/jquery.maskedinput.min.js' %}"></script>
           <script src="{% static 'library/jquery-nice-select/js/jquery.nice-select.min.js' %}"></script>
+          <script src="{% static 'library/keyboard/docs/js/jquery-ui.min.js' %}"></script>
+          <script src="{% static 'library/keyboard/dist/js/jquery.keyboard.min.js' %}"></script>
           {% compress js %}
-          <script src="{% static 'js/init.js' %}"></script>
+
           {% endcompress %}
         {% endblock javascript %}
 

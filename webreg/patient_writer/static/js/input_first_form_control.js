@@ -13,4 +13,6 @@ $(document).ready(function () {
     // Блокирование серии полиса если номер не соответствует длине
     $('#id_polis_number').on('input', disabeSeriaFunction);
     $('#id_polis_number').change(disabeSeriaFunction);
+    $('#id_polis_number').on('keyboardChange',disabeSeriaFunction);
+
 });

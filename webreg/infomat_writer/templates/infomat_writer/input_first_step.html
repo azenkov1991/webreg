@@ -23,6 +23,53 @@
 <script src="{% static '/js/input_first_form_control.js' %}"></script>
 {% endcompress %}
 
+  <script>
+  $( function() {
+  $('#id_polis_number').keyboard({
+  usePreview: false,
+  autoAccept: true,
+  maxLength: 16,
+	layout: 'custom',
+	customLayout: {
+		'normal' : ['1 2 3 4 5 6 7 8 9 0 {bksp}',
+		],
+  },
+  display: {
+		    'bksp': 'Удалить',
+  },
+			css: {
+			input: '',
+			container: '',
+			buttonDefault: '',
+			buttonHover: '',
+			buttonAction: '',
+			buttonDisabled: ''
+		},
+  });
+
+   $('#id_phone').keyboard({
+    usePreview: false,
+    autoAccept: true,
+	layout: 'custom',
+	customLayout: {
+		'normal' : ['1 2 3 4 5 6 7 8 9 0 {bksp}',
+		],
+
+	},
+			css: {
+			input: '',
+			container: '',
+			buttonDefault: '',
+			buttonHover: '',
+			buttonAction: '',
+			buttonDisabled: ''
+		},
+  });
+
+
+});
+  </script>
+
 {% endblock %}
 
 
