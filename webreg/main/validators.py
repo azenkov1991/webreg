@@ -29,12 +29,13 @@ def birth_date_validation(date_birth):
 
 
 def mobile_phone_validation(phone):
+    phone = phone.translate({ord('('): None,
+                            ord(')'): None,
+                            ord('-'): None,
+                            ord(' '): None})
     if not phone.startswith('+7'):
         raise ValidationError('Телефон должен начинаться на +7')
-    elif len(phone) != 18:
+    elif len(phone) != 12:
         raise ValidationError('Неверный формат телефона')
-    return phone.translate({ord('('):None,
-                            ord(')'):None,
-                            ord('-'):None,
-                            ord(' '): None})
+    return phone
 

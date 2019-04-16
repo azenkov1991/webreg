@@ -153,6 +153,28 @@ table tr.table-separator>td{
   float: right;
 }
 
+.phone-input-part {
+  display: inline;
+}
+
+#id_phone_0{
+  width: 20%;
+  max-width: 4em;
+}
+
+#id_phone_1{
+  width: 20%;
+  max-width: 4em;
+}
+#id_phone_2{
+  width: 17%;
+  max-width: 3em;
+}
+#id_phone_3{
+  width: 20%;
+  max-width: 3em;
+}
+
 .department-select-button{
   display: block;
   margin: auto;
