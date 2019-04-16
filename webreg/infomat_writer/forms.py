@@ -7,6 +7,7 @@ from constance import config
 from main.validators import oms_polis_number_validation, birth_date_validation, mobile_phone_validation
 from main.models import Clinic, PatientError
 from main.logic import find_patient_by_polis_number
+from main.widgets import PhoneField
 
 BIRTH_YEAR_CHOICES = [year for year in range(date.today().year, date.today().year-120, -1)]
 
@@ -40,17 +41,11 @@ class InputFirstStepForm(forms.Form):
         ),
         validators=[birth_date_validation, ]
     )
-    phone = forms.CharField(
-        max_length=20, label='Сотовый телефон',
-        widget=forms.TextInput(attrs={
-            'class': 'mobile-phone-input',
-            'placeholder': 'сотовый/домашний в формате +7 (XXX) XXX-XX-XX',
-            'autocomplete': 'off',
-        }),
+    phone = PhoneField(
+        label='Сотовый телефон',
         help_text='Пример: +7 (XXX) XXX-XX-XX',
         validators=[mobile_phone_validation, ]
     )
-
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
         self.user = None
