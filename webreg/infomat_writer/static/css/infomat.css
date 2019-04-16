@@ -1,0 +1,41 @@
+.has-frame{
+  border: none;
+}
+
+h3 {
+  font-size: 32px;
+}
+
+*{
+  font-size: 24px;
+  line-height: 24px;
+}
+
+input{
+  font-size: 24px !important;
+  line-height: 24px !important;
+  padding-top: 30px !important;
+  padding-bottom: 30px !important;
+}
+
+.form__unit{
+  margin-top: 60px !important;
+}
+
+select{
+  font-size: 19px !important;
+}
+option{
+  line-height: 29px !important;
+  font-size: 25px !important;
+}
+
+.phone-input-part{
+  text-align: center;
+}
+
+#id_phone_0_keyboard, #id_phone_1_keyboard, #id_phone_2_keyboard, #id_phone_3_keyboard{
+  top: 730px !important;
+  left: 300px !important;
+}
+

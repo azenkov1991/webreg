@@ -5,9 +5,12 @@
 <div class="container-fluid has-frame">
   <div class="row">
     <div class="col-xs-12 col-sm-8 col-sm-offset-2">
-      <h3>ЗАПИСЬ НА ПРИЕМ</h3>
+      <h3>ВВЕДИТЕ ВАШИ ДАННЫЕ</h3>
       <form id="input_form_1" method="POST" action="{% url 'infomat_writer:input_first_step' department=department_id %}">
         {% include 'form_field_generic.html' %}
+        <br>
+        <br>
+        <br>
         <div class="col-xs-12  col-sm-6 col-sm-offset-3 form-btn">
           <button class="row btn btn-primary btn-lg btn-block" type="submit"> Далее <span class="glyphicon glyphicon-chevron-right"></span></button>
         </div>
