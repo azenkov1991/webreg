@@ -30,6 +30,11 @@ option{
   font-size: 25px !important;
 }
 
+#body{
+  padding-bottom: 60px;
+  overflow: hidden;
+}
+
 .phone-input-part{
   text-align: center;
 }
@@ -58,6 +63,7 @@ option{
 
 .btn-primary:focus{
   background-color: #F0F0F0;
+  color: #00aaa5;
 }
 
 .question-mark{
