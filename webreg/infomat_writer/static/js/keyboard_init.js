@@ -32,6 +32,15 @@ $( function() {
             ],
 
         },
+        display: {
+            'bksp': 'Удалить',
+        },
+        position: {
+           of: $('#id_phone_0'), // null = attach to input/textarea; use $(sel) to attach elsewhere
+            my: 'left top',
+            at: 'left-50 bottom',
+            at2: 'left-75 bottom' // used when "usePreview" is false
+        },
         css: {
             input: '',
             container: '',
@@ -56,5 +65,33 @@ $( function() {
        console.log(e);
        }
    );
+
+   $('#id_polis_seria').keyboard({
+        usePreview: false,
+        autoAccept: true,
+        maxLength: 16,
+        layout: 'custom',
+        customLayout: {
+            'normal': [
+                'Й Ц У К Е Н Г Ш Щ З Х Ъ {bksp}',
+                'Ф Ы В А П Р О Л Д Ж Э',
+                'Я Ч С М И Т Ь Б Ю {accept}',
+
+            ],
+
+        },
+        display: {
+            'bksp': 'Удалить',
+            'accept': 'Ввод',
+        },
+        css: {
+            input: '',
+            container: '',
+            buttonDefault: '',
+            buttonHover: '',
+            buttonAction: '',
+            buttonDisabled: ''
+        },
+    });
 
 });
