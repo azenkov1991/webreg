@@ -66,6 +66,11 @@ option{
   color: #00aaa5;
 }
 
+.btn-primary[disabled]{
+  background-color: #F0F0F0 !important;
+  color: #00aaa5 !important;
+}
+
 .question-mark{
   border-radius: 50% !important;
   text-align: center !important;
