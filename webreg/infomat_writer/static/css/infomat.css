@@ -38,3 +38,46 @@ option{
 
 }
 
+.btn-primary{
+  font-size: 30px;
+  border-radius: 10px;
+  color: #00aaa5;
+  border-width: 0px;
+  padding: 15px;
+  background-color: #F0F0F0;
+}
+
+.btn-primary:hover{
+  background-color: #e0e0e0;
+  color: #00aaa5;
+}
+
+.btn-primary:active{
+  background-color: #F0F0F0 !important;
+}
+
+.btn-primary:focus{
+  background-color: #F0F0F0;
+}
+
+.question-mark{
+  border-radius: 50% !important;
+  text-align: center !important;
+  padding: 0px !important;
+  font-size: 34px;
+  font-weight: bold;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  position: relative;
+  top: -40px;
+  right: -68px;
+  float: right;
+  outline: 0 !important;
+}
+
+
+.form-btn{
+  position: absolute;
+  bottom: -60px;
+}
