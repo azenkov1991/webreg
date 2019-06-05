@@ -101,6 +101,12 @@ def login(request, *args, **kwargs):
                 patient = Patient.objects.get(user_id=user.id)
                 request.session['patient_id'] = patient.id
                 request.session['clinic_id'] = patient.clinic_attached.id
+                # вызов функции для синхронизации qqc кумса
+                find_patient_by_polis_number(
+                    patient.polis_number,
+                    patient.birth_date,
+                    patient.polis_seria,
+                )
         except Patient.DoesNotExist:
             pass
         if user.id:

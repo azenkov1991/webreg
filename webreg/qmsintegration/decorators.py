@@ -196,7 +196,7 @@ def find_patient_by_polis_number(fn):
             # если пациент найден и прикреплен к нескольким базам
             # но по дате сверке находим какая все таки база
             if len(patient_information_in_qms) > 1:
-                log.error('Пациент прикреплен к нескольким базам. Пациент: ' + str(patient_data))
+                log.debug('Пациент прикреплен к нескольким базам. Пациент: ' + str(patient_data))
 
             # если пациент не найден ни в одной базе qms
             if not len(patient_information_in_qms):
@@ -233,7 +233,12 @@ def find_patient_by_polis_number(fn):
             # Добавление связи со всеми поликлиниками
             patient.clinics.add(*[pi[2] for pi in patient_information_in_qms])
 
-            set_external_id(patient, patient_data['patient_qqc'], qmsdb=clinic.qmsdb)
+            # Установка внешних id для всех баз
+            for pi in patient_information_in_qms:
+                patient_data = pi[1]
+                clinic = pi[2]
+                set_external_id(patient, patient_data['patient_qqc'], qmsdb=clinic.qmsdb)
+
             return patient
 
         except CacheQueryError:

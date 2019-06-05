@@ -75,17 +75,22 @@ class TestMainModule(TestCase):
         self.cell1.save()
         self.cell2.save()
 
-        self.patient = Patient(first_name="Иванов", last_name="Иван", middle_name="Иванович",
-                               birth_date=datetime.date(1991, 12, 3),
-                               polis_number="123456789012345",
-                               clinic=self.clinic)
+        self.patient = Patient(
+            first_name="Иванов", last_name="Иван", middle_name="Иванович",
+            birth_date=datetime.date(1991, 12, 3),
+            polis_number="123456789012345",
+            clinic_attached=self.clinic
+        )
         self.patient.save()
+        self.patient.clinics.add(self.clinic)
 
     def test_create_legal_appointment(self):
         try:
-            ap = self.create_appointment(self.user_profile, self.patient, self.specialist, self.service1,
-                                         datetime.date.today() + datetime.timedelta(1),
-                                         self.cell1)
+            ap = self.create_appointment(
+                self.user_profile, self.patient, self.specialist, self.service1,
+                datetime.date.today() + datetime.timedelta(1),
+                self.cell1
+            )
             self.cancel_appointment(ap)
         except AppointmentError:
             assert False
