@@ -193,7 +193,7 @@ def find_patient_by_polis_number(fn):
                         comparison_date = datetime.date(1000, 12, 31)
                     patient_information_in_qms.append((comparison_date, patient_data, clinic))
 
-            # если пациент найден и прикреплен к нескольким базам, то это ошибка
+            # если пациент найден и прикреплен к нескольким базам
             # но по дате сверке находим какая все таки база
             if len(patient_information_in_qms) > 1:
                 log.error('Пациент прикреплен к нескольким базам. Пациент: ' + str(patient_data))
@@ -209,14 +209,15 @@ def find_patient_by_polis_number(fn):
 
             # если пациент найден в базе
             # пациент мог быть не найден в базе так как сменил полис
-            try:
-                patient_id = get_internal_id(
-                    153, patient_data['patient_qqc'], qmsdb=clinic.qmsdb
-                )
+
+            patient_id = get_internal_id(
+                153, patient_data['patient_qqc'], qmsdb=clinic.qmsdb, raise_exception=False
+            )
+            if patient_id:
                 patient = Patient.objects.get(id=patient_id)
                 patient.polis_number = polis_number
                 patient.save()
-            except QmsIntegrationError as e:
+            else:
                patient, created = Patient.objects.update_or_create(
                     defaults={'first_name': patient_data['first_name'],
                               'last_name': patient_data['last_name'],

@@ -39,15 +39,13 @@ class Command(BaseCommand):
         ).values_list('id', flat=True))
         new_restriction_set_ids = set()
         for qqc244 in qqc244list:
-            try:
-                specialist_id = get_internal_id("244", qqc244)
+            specialist_id = get_internal_id("244", qqc244, raise_exception=False)
+            if specialist_id:
                 restriction, created = SpecialistRestriction.objects.get_or_create(
                     specialist_id=specialist_id,
                     profile_settings_id=user_profile.profile_settings.id
                 )
                 new_restriction_set_ids.add(restriction.id)
-            except QmsIntegrationError:
-                logger.error("Не найден специалист " + qqc244)
 
         # Удаление старых разрешений
         to_removal_set_ids = old_restriction_set_ids - new_restriction_set_ids

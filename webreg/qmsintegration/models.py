@@ -258,19 +258,20 @@ def set_external_id(model, qqc, qmsdb=None):
         raise QmsIntegrationError
     try:
         imt = IdMatchingTable.objects.get(
-            internal_id=internal_id, external_id=qqc,
-            object_matching_table_id=omt.id, qmsdb=qmsdb
+            internal_id=internal_id, object_matching_table_id=omt.id,
+            qmsdb=qmsdb
         )
+        imt.external_id = qqc
     except IdMatchingTable.DoesNotExist:
         imt = IdMatchingTable(
             internal_id=internal_id, external_id=qqc,
             object_matching_table_id=omt.id,
             qmsdb=qmsdb
         )
-        imt.save()
+    imt.save()
 
 
-def get_external_id(model, qmsdb=None):
+def get_external_id(model, qmsdb=None, raise_exception=True):
     internal_name = model._meta.label
     internal_id = model.id
     try:
@@ -284,13 +285,16 @@ def get_external_id(model, qmsdb=None):
                 internal_id=internal_id, object_matching_table__internal_name=internal_name,
             )
     except models.ObjectDoesNotExist:
-        log.error("Ошибка интеграции с Qms. Не найден id: internal_id=" + str(internal_id) +
-                  " model=" + internal_name)
-        raise QmsIntegrationError
+        if raise_exception:
+            log.error("Ошибка интеграции с Qms. Не найден id: internal_id=" + str(internal_id) +
+                      " model=" + internal_name)
+            raise QmsIntegrationError
+        else:
+            return None
     return imt.external_id
 
 
-def get_internal_id(qms_obj, external_id, qmsdb=None):
+def get_internal_id(qms_obj, external_id, qmsdb=None, raise_exception=True):
     try:
         if not qmsdb:
             try:
@@ -306,9 +310,12 @@ def get_internal_id(qms_obj, external_id, qmsdb=None):
                 qmsdb=qmsdb
             )
     except IdMatchingTable.DoesNotExist:
-        log.error("Ошибка интеграции с Qms. Не найден id: external_id=" + str(external_id) +
-                  " qms_obj=" + str(qms_obj))
-        raise QmsIntegrationError
+        if raise_exception:
+            log.error("Ошибка интеграции с Qms. Не найден id: external_id=" + str(external_id) +
+                      " qms_obj=" + str(qms_obj))
+            raise QmsIntegrationError
+        else:
+            return None
     return imt.internal_id
 
 
@@ -319,7 +326,4 @@ def entity_exist(qms_obj, qqc):
     :param qqc:
     :return: True or False
     """
-    if IdMatchingTable.objects.filter(external_id=qqc, object_matching_table__external_name=qms_obj).exists():
-        return True
-    else:
-        return False
+    return IdMatchingTable.objects.filter(external_id=qqc, object_matching_table__external_name=qms_obj).exists()
